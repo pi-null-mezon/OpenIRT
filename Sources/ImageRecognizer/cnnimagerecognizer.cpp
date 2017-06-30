@@ -1,0 +1,111 @@
+#include "cnnimagerecognizer.hpp"
+
+namespace cv { namespace imgrec {
+
+CNNImageRecognizerBasicImpl::CNNImageRecognizerBasicImpl(Size _inputsize, int _inputchannels, DistanceType _disttype, double _threshold) :
+    CNNImageRecognizer(_disttype, _threshold),
+    inputSize(_inputsize),
+    inputChannels(_inputchannels)
+{
+}
+
+void CNNImageRecognizerBasicImpl::train(InputArrayOfArrays src, InputArray labels)
+{
+    __train(src, labels, false);
+}
+
+void CNNImageRecognizerBasicImpl::update(InputArrayOfArrays src, InputArray labels)
+{
+    __train(src, labels, true);
+}
+
+void CNNImageRecognizerBasicImpl::__train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData)
+{
+    if(_src.kind() != _InputArray::STD_VECTOR_MAT && _src.kind() != _InputArray::STD_VECTOR_VECTOR) {
+        String error_message = "The images are expected as InputArray::STD_VECTOR_MAT (a std::vector<Mat>) or _InputArray::STD_VECTOR_VECTOR (a std::vector< std::vector<...> >).";
+        CV_Error(Error::StsBadArg, error_message);
+    }
+    if(_src.total() == 0) {
+        String error_message = format("Empty training data was given. You'll need more than one sample to learn a model.");
+        CV_Error(Error::StsUnsupportedFormat, error_message);
+    } else if(_labels.getMat().type() != CV_32SC1) {
+        String error_message = format("Labels must be given as integers (CV_32SC1). Expected %d, but was %d.", CV_32SC1, _labels.type());
+        CV_Error(Error::StsUnsupportedFormat, error_message);
+    }
+    // get the vector of matrices
+    std::vector<Mat> raw;
+    _src.getMatVector(raw);
+    // get the label matrix
+    Mat lbls = _labels.getMat();
+    // check if data is well-aligned
+    if(lbls.total() != raw.size()) {
+        String error_message = format("The number of samples (src) must equal the number of labels (labels). Was len(samples)=%d, len(labels)=%d.", raw.size(), lbls.total());
+        CV_Error(Error::StsBadArg, error_message);
+    }
+
+    // if this model should be trained without preserving old data, delete old model data
+    if(_preserveData == false) {
+        v_descriptions.clear();
+        v_labels.clear();
+    }
+
+    // append labels and images to the storage
+    for(size_t labelIdx = 0; labelIdx < lbls.total(); labelIdx++) {
+        v_labels.push_back(lbls.at<int>((int)labelIdx));
+        cv::imshow("CNNFaceRecognizer",raw[labelIdx]);
+        cv::waitKey(1);
+        v_descriptions.push_back( getImageDescription( raw[labelIdx] ) );
+        std::cout << "Image template for label " << *(v_labels.end()-1) << " has been memorized" << std::endl;
+    }
+}
+
+void CNNImageRecognizerBasicImpl::load(const FileStorage &fs)
+{
+    readFileNodeList(fs["descriptions"],  v_descriptions);
+
+    fs["labels"] >> v_labels;
+    const FileNode& fn = fs["labelsInfo"];
+    if (fn.type() == FileNode::SEQ)
+    {
+        _labelsInfo.clear();
+        for (FileNodeIterator it = fn.begin(); it != fn.end();)
+        {
+            LabelInfo item;
+            it >> item;
+            _labelsInfo.insert(std::make_pair(item.label, item.value));
+        }
+    }
+}
+
+void CNNImageRecognizerBasicImpl::save(FileStorage &fs) const
+{
+    writeFileNodeList(fs, "descriptions", v_descriptions);
+
+    fs << "labels" << v_labels;
+    fs << "labelsInfo" << "[";
+    for (std::map<int, String>::const_iterator it = _labelsInfo.begin(); it != _labelsInfo.end(); it++)
+        fs << LabelInfo(it->first, it->second);
+    fs << "]";
+}
+
+void CNNImageRecognizerBasicImpl::setInputSize(Size _size)
+{
+    inputSize = _size;
+}
+
+Size CNNImageRecognizerBasicImpl::getInputSize() const
+{
+    return inputSize;
+}
+
+void CNNImageRecognizerBasicImpl::setInputChannels(int _val)
+{
+    inputChannels = _val;
+}
+
+int CNNImageRecognizerBasicImpl::getInputChannels() const
+{
+    return inputChannels;
+}
+
+}}
