@@ -7,7 +7,7 @@
 
 namespace cv { namespace imgrec {
 
-class GoogleNetRecognizer : public CNNImageRecognizerBasicImpl
+class GoogleNetRecognizer : public CNNImageRecognizer
 {
 public:
     GoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold);

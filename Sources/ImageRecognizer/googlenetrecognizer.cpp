@@ -3,7 +3,7 @@
 namespace cv { namespace imgrec {
 
 imgrec::GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizerBasicImpl(Size(224,224), 3, _disttype, _threshold)
+    CNNImageRecognizer(Size(224,224), 3, _disttype, _threshold)
 {
     Ptr<dnn::Importer> importer;
     try {

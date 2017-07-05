@@ -2,24 +2,22 @@
 
 namespace cv { namespace imgrec {
 
-CNNImageRecognizerBasicImpl::CNNImageRecognizerBasicImpl(Size _inputsize, int _inputchannels, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(_disttype, _threshold),
-    inputSize(_inputsize),
-    inputChannels(_inputchannels)
+CNNImageRecognizer::CNNImageRecognizer(Size _inputsize, int _inputchannels, DistanceType _disttype, double _threshold) :
+    ImageRecognizer(_inputsize, _inputchannels, _disttype, _threshold)
 {
 }
 
-void CNNImageRecognizerBasicImpl::train(InputArrayOfArrays src, InputArray labels)
+void CNNImageRecognizer::train(InputArrayOfArrays src, InputArray labels)
 {
     __train(src, labels, false);
 }
 
-void CNNImageRecognizerBasicImpl::update(InputArrayOfArrays src, InputArray labels)
+void CNNImageRecognizer::update(InputArrayOfArrays src, InputArray labels)
 {
     __train(src, labels, true);
 }
 
-void CNNImageRecognizerBasicImpl::__train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData)
+void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData)
 {
     if(_src.kind() != _InputArray::STD_VECTOR_MAT && _src.kind() != _InputArray::STD_VECTOR_VECTOR) {
         String error_message = "The images are expected as InputArray::STD_VECTOR_MAT (a std::vector<Mat>) or _InputArray::STD_VECTOR_VECTOR (a std::vector< std::vector<...> >).";
@@ -59,7 +57,7 @@ void CNNImageRecognizerBasicImpl::__train(InputArrayOfArrays _src, InputArray _l
     }
 }
 
-void CNNImageRecognizerBasicImpl::load(const FileStorage &fs)
+void CNNImageRecognizer::load(const FileStorage &fs)
 {
     readFileNodeList(fs["descriptions"],  v_descriptions);
 
@@ -77,7 +75,7 @@ void CNNImageRecognizerBasicImpl::load(const FileStorage &fs)
     }
 }
 
-void CNNImageRecognizerBasicImpl::save(FileStorage &fs) const
+void CNNImageRecognizer::save(FileStorage &fs) const
 {
     writeFileNodeList(fs, "descriptions", v_descriptions);
 
@@ -86,26 +84,6 @@ void CNNImageRecognizerBasicImpl::save(FileStorage &fs) const
     for (std::map<int, String>::const_iterator it = _labelsInfo.begin(); it != _labelsInfo.end(); it++)
         fs << LabelInfo(it->first, it->second);
     fs << "]";
-}
-
-void CNNImageRecognizerBasicImpl::setInputSize(Size _size)
-{
-    inputSize = _size;
-}
-
-Size CNNImageRecognizerBasicImpl::getInputSize() const
-{
-    return inputSize;
-}
-
-void CNNImageRecognizerBasicImpl::setInputChannels(int _val)
-{
-    inputChannels = _val;
-}
-
-int CNNImageRecognizerBasicImpl::getInputChannels() const
-{
-    return inputChannels;
 }
 
 }}

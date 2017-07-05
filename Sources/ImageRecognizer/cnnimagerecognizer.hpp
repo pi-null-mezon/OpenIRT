@@ -13,27 +13,12 @@ namespace cv { namespace imgrec {
 class CNNImageRecognizer : public ImageRecognizer
 {
 public:
-    CNNImageRecognizer(DistanceType _distancetype, double _threshold) : ImageRecognizer(_distancetype, _threshold) {}
-
-    virtual Size 	getInputSize() const = 0;
-    virtual void 	setInputSize(Size _size) = 0;
-    virtual int 	getInputChannels() const = 0;
-    virtual void 	setInputChannels(int _val) = 0;    
-};
-
-class CNNImageRecognizerBasicImpl : public CNNImageRecognizer
-{
-public:
-    CNNImageRecognizerBasicImpl(Size _inputsize, int _inputchannels, DistanceType _disttype, double _threshold);
+    CNNImageRecognizer(Size _inputsize, int _inputchannels, DistanceType _disttype, double _threshold);
 
     void    train(InputArrayOfArrays src, InputArray labels) override;
     void    update(InputArrayOfArrays src, InputArray labels) override;
     void    load(const FileStorage &fs) override;
-    void    save(FileStorage &fs) const override;    
-    Size 	getInputSize() const override;
-    void 	setInputSize(Size _size) override;
-    int 	getInputChannels() const override;
-    void 	setInputChannels(int _val) override;    
+    void    save(FileStorage &fs) const override;       
 
 protected:
     void __train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData);

@@ -50,7 +50,7 @@ enum DistanceType {Euclidean, Cosine};
 class ImageRecognizer : public Algorithm
 {
 public:
-    ImageRecognizer(DistanceType _distancetype, double _threshold);
+    ImageRecognizer(Size _inputsize, int _inputchannels, DistanceType _distancetype, double _threshold);
 
     virtual void train(InputArrayOfArrays src, InputArray labels) = 0;
     virtual void update(InputArrayOfArrays src, InputArray labels);
@@ -85,11 +85,22 @@ public:
 
     virtual void setDistanceType(DistanceType _type);
 
+    virtual Size getInputSize() const;
+
+    virtual void setInputSize(Size _size);
+
+    virtual int getInputChannels() const;
+
+    virtual void setInputChannels(int _val);
+
 protected:
     // Stored pairs "label id - string info"
     std::map<int, String> _labelsInfo;
-    double threshold;
-    DistanceType distanceType;
+
+    DistanceType    distanceType;
+    double          threshold;
+    Size            inputSize;
+    int             inputChannels;
 };
 
 }}

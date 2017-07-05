@@ -20,7 +20,9 @@
 
 namespace cv { namespace imgrec {
 
-ImageRecognizer::ImageRecognizer(DistanceType _distancetype, double _threshold) :
+ImageRecognizer::ImageRecognizer(Size _inputsize, int _inputchannels, DistanceType _distancetype, double _threshold) :
+    inputSize(_inputsize),
+    inputChannels(_inputchannels),
     distanceType(_distancetype),
     threshold(_threshold)
 {
@@ -57,6 +59,26 @@ DistanceType ImageRecognizer::getDistanceType() const
 void ImageRecognizer::setDistanceType(DistanceType _type)
 {
     distanceType = _type;
+}
+
+Size ImageRecognizer::getInputSize() const
+{
+    return inputSize;
+}
+
+void ImageRecognizer::setInputSize(Size _size)
+{
+    inputSize = _size;
+}
+
+int ImageRecognizer::getInputChannels() const
+{
+    return inputChannels;
+}
+
+void ImageRecognizer::setInputChannels(int _val)
+{
+    inputChannels = _val;
 }
 
 String ImageRecognizer::getLabelInfo(int label) const
