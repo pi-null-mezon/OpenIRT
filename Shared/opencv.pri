@@ -1,8 +1,8 @@
 #--------------------------------------------------------OPENCV----------------------------------------------------
 win32 {
     #Specify a path to the build directory of opencv library and library version
-    OPENCV_VERSION = 320
-    OPENCV_DIR = C:/Programming/3rdParties/opencv321/build
+    OPENCV_VERSION = 330
+    OPENCV_DIR = C:/Programming/3rdParties/opencv330/build
     INCLUDEPATH += $${OPENCV_DIR}/include
 
     #Specify the part of OpenCV path corresponding to compiler version

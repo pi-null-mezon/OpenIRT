@@ -2,7 +2,7 @@
 
 namespace cv { namespace imgrec {
 
-imgrec::GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
+GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
     CNNImageRecognizer(Size(224,224), 3, _disttype, _threshold)
 {
     Ptr<dnn::Importer> importer;
@@ -19,20 +19,20 @@ imgrec::GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilenam
     importer.release(); // free the memory
 }
 
-Mat imgrec::GoogleNetRecognizer::getImageDescription(const Mat &_img) const
+Mat GoogleNetRecognizer::getImageDescription(const Mat &_img) const
 {
     // Prepare image
     cv::Mat _facemat = preprocessImageForCNN(_img, getInputSize(), getInputChannels());
     // Set image as network input data blob
     cv::Mat inputBlob = dnn::blobFromImage(_facemat);
-    net.setBlob(".data", inputBlob);
+    net.setInput(inputBlob, "data");
     // Perform forward propagation
-    net.forward();
+    Mat _dscrmat = net.forward("prob");
     // Return description of the face as real cv::Mat vector
-    return net.getBlob("prob").reshape(1,1).clone(); // clonning is necessasry here
+    return _dscrmat.reshape(1,1).clone(); // clonning is necessasry here
 }
 
-void imgrec::GoogleNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
+void GoogleNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
 {
     cv::Mat _description = getImageDescription(src.getMat());
     collector->init(v_labels.size());
