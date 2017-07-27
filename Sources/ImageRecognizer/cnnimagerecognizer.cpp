@@ -86,4 +86,11 @@ void CNNImageRecognizer::save(FileStorage &fs) const
     fs << "]";
 }
 
+bool CNNImageRecognizer::empty() const
+{
+    if(v_labels.size() > 0)
+        return false;
+    return true;
+}
+
 }}

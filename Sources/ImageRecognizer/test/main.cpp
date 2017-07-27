@@ -60,7 +60,7 @@ std::vector<String> readClassNames(const char *filename = LABELINFO_FILE)
 int main(int argc, char *argv[])
 {
 
-    Ptr<ImageRecognizer> _ptr = createGoogleNetRecognizer( String(RES_PATH)+"/bvlc_googlenet.prototxt",
+    Ptr<CNNImageRecognizer> _ptr = createGoogleNetRecognizer( String(RES_PATH)+"/bvlc_googlenet.prototxt",
                                                            String(RES_PATH)+"/bvlc_googlenet.caffemodel",
                                                            DistanceType::Euclidean,
                                                            DBL_MAX );
@@ -78,16 +78,16 @@ int main(int argc, char *argv[])
 
     cv::VideoCapture _videocap;
 
-    if(_videocap.open("http://127.0.0.1:8080")) {
+    if(_videocap.open(0)) {
 
         cv::Mat frame;
-        int64 _tickmark1, _tickmark2;
+        int64 _tickmark1 = cv::getTickCount(), _tickmark2;
         while(_videocap.read(frame)) {
 
             if(!frame.empty()) {
-                Mat _dscr = _ptr->getImageDescription(frame);
+                Mat _dscr = _ptr->getImageDescriptionByLayerName(frame, "prob");
                 float *_data = _dscr.ptr<float>(0);
-                int _label = std::max_element(_data, _data+_dscr.total()) - _data;
+                int _label = static_cast<int>(std::max_element(_data, _data+_dscr.total()) - _data);
                 float _prob = _data[_label]*100.0f;
 
                 String _labelname = _vlabels[_label] + " (" + real2str(_prob).c_str() + " %)";

@@ -11,15 +11,13 @@ GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilename, const
     } catch (const cv::Exception &err) {
         std::cerr << err.msg << std::endl;
     }
-    if(!importer) {
-        CV_Error(Error::StsBadArg,"Can not load Caffe model, check model files!");
-    } else {
+    if(importer) {
         importer->populateNet(net);
     }
     importer.release(); // free the memory
 }
 
-Mat GoogleNetRecognizer::getImageDescription(const Mat &_img) const
+Mat GoogleNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
 {
     // Prepare image
     cv::Mat _facemat = preprocessImageForCNN(_img, getInputSize(), getInputChannels());
@@ -27,9 +25,14 @@ Mat GoogleNetRecognizer::getImageDescription(const Mat &_img) const
     cv::Mat inputBlob = dnn::blobFromImage(_facemat);
     net.setInput(inputBlob, "data");
     // Perform forward propagation
-    Mat _dscrmat = net.forward("prob");
+    Mat _dscrmat = net.forward(_blobname);
     // Return description of the face as real cv::Mat vector
     return _dscrmat.reshape(1,1).clone(); // clonning is necessasry here
+}
+
+Mat GoogleNetRecognizer::getImageDescription(const Mat &_img) const
+{
+    return getImageDescriptionByLayerName(_img, "loss3/classifier"); // Search answers in the bvlc_googlenet.prototxt
 }
 
 void GoogleNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
@@ -52,7 +55,7 @@ void GoogleNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collecto
     }
 }
 
-Ptr<ImageRecognizer> createGoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold)
+Ptr<CNNImageRecognizer> createGoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold)
 {
     return makePtr<GoogleNetRecognizer>(_prototextfilename,_caffemodelfilename,_disttype,_threshold);
 }

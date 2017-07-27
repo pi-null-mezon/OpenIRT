@@ -18,7 +18,10 @@ public:
     void    train(InputArrayOfArrays src, InputArray labels) override;
     void    update(InputArrayOfArrays src, InputArray labels) override;
     void    load(const FileStorage &fs) override;
-    void    save(FileStorage &fs) const override;       
+    void    save(FileStorage &fs) const override;
+    bool    empty() const override;
+
+    virtual Mat getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const = 0;
 
 protected:
     void __train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData);
