@@ -17,7 +17,10 @@ const cv::String keys =
                         "{help h   |     | print help}"
                         "{url u    |     | use URL as video source}"
                         "{vfile vf |     | use videofile as video source}"
-                        "{vdev vd  |0    | use videodevice as video source}";
+                        "{vdev vd  |0    | use videodevice as video source}"
+                        "{thresh t |2.0  | distance threshold for recognition}"
+                        "{rows     |360  | vertical resolution for video device}"
+                        "{cols     |640  | horizontal resolution for video device}";
 
 int main(int _argc, char **_argv)
 {
@@ -46,8 +49,13 @@ int main(int _argc, char **_argv)
         if(videocapture.open(cmdargsparser.get<int>("vdev")) == false) {
             cerr << "Could not open videodevice " << cmdargsparser.get<int>("vdev");
             return -1;
+        } else {
+            videocapture.set(CV_CAP_PROP_FRAME_WIDTH, cmdargsparser.get<int>("cols"));
+            videocapture.set(CV_CAP_PROP_FRAME_HEIGHT, cmdargsparser.get<int>("rows"));
         }
     }
+
+    Ptr<CNNImageRecognizer> _ptr;
 
     if(videocapture.isOpened()) {
         cv::Mat _frame;
@@ -55,11 +63,12 @@ int main(int _argc, char **_argv)
         double _fps;
         cv::namedWindow(APP_NAME, CV_WINDOW_NORMAL);
         int plbl;
-        double conf;
-        Ptr<CNNImageRecognizer> _ptr = createGoogleNetRecognizer( String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet")+"/bvlc_googlenet.prototxt",
+        double dist;
+        _ptr = createGoogleNetRecognizer( String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet")+"/bvlc_googlenet.prototxt",
                                                                   String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet")+"/bvlc_googlenet.caffemodel",
                                                                   DistanceType::Cosine,
                                                                   DBL_MAX );
+        _ptr->ImageRecognizer::load("Memorized_labels_for_recognizer.yml");
 
         while(videocapture.read(_frame)) {
 
@@ -73,7 +82,7 @@ int main(int _argc, char **_argv)
                     videocapture.set(CV_CAP_PROP_SETTINGS,0.0);
                     break;
 
-                case 's': {
+                /*case 's': {
                     cout << endl << "Enter class label: ";
                     int _label;
                     cin >> _label;
@@ -90,17 +99,48 @@ int main(int _argc, char **_argv)
                     _vlbl.push_back(_label);
                     _ptr->update(_vimg,_vlbl);
                     _ptr->setLabelInfo(_label,_labelInfo);
+                    } break;*/
+
+                case 's': {
+                    cout << endl << "Provide label info: ";
+                    string name;
+                    getline(cin,name);
+                    cv::String _labelInfo(name);
+                    int _label = _ptr->freeLabel();
+                    cout << "label: [" << _label     << "]" << endl
+                         << " info: [" << _labelInfo << "]" << endl;
+                    std::vector<Mat> _vimg;
+                    _vimg.push_back(_frame);
+                    std::vector<int> _vlbl;
+                    _vlbl.push_back(_label);
+                    _ptr->update(_vimg,_vlbl);
+                    _ptr->setLabelInfo(_label,_labelInfo);
                     } break;
 
-                case 'r': {
+                /*case 'r': {
                     if(_ptr->empty()) {
                         cout << "Recognizer is not trained yet!" << endl ;
                     } else {
-                        _ptr->predict(_frame,plbl,conf);
-                        cout << "Recognized as: " << _ptr->getLabelInfo(plbl) << "; confidence: " << conf << endl;
+                        _ptr->predict(_frame,plbl,dist);
+                        cout << "Recognized as: " << _ptr->getLabelInfo(plbl) << "; distidence: " << dist << endl;
                     }
-                } break;
+                } break;*/
+
             }
+
+            if(_ptr->empty()) {
+                cv::String _labelInfo = "Recognizer is not trained yet!";
+                cv::putText(_frame,_labelInfo, cv::Point(14,_frame.rows - 20),CV_FONT_HERSHEY_SIMPLEX,0.75,cv::Scalar(0,0,0),1,CV_AA);
+                cv::putText(_frame,_labelInfo, cv::Point(15,_frame.rows - 20),CV_FONT_HERSHEY_SIMPLEX,0.75,cv::Scalar(0,0,255),1,CV_AA);
+            } else {
+                _ptr->predict(_frame,plbl,dist);
+                if(dist < cmdargsparser.get<double>("thresh")) {
+                    cv::String _labelInfo = _ptr->getLabelInfo(plbl) + ", dist: " + real2str(dist,2);
+                    cv::putText(_frame,_labelInfo, cv::Point(14,_frame.rows - 20),CV_FONT_HERSHEY_SIMPLEX,0.75,cv::Scalar(0,0,0),1,CV_AA);
+                    cv::putText(_frame,_labelInfo, cv::Point(15,_frame.rows - 20),CV_FONT_HERSHEY_SIMPLEX,0.75,cv::Scalar(0,255,0),1,CV_AA);
+                }
+            }
+
             _tn = cv::getTickCount();
             _fps = cv::getTickFrequency()/(double)(_tn - _to);
             _to = _tn;
@@ -110,6 +150,7 @@ int main(int _argc, char **_argv)
             cv::imshow(APP_NAME, _frame);
         }
     }
+    _ptr->ImageRecognizer::save("Memorized_labels_for_recognizer.yml");
 
     return 0;
 }

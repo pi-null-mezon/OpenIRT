@@ -93,4 +93,12 @@ bool CNNImageRecognizer::empty() const
     return true;
 }
 
+int CNNImageRecognizer::freeLabel() const
+{
+    if(empty()) {
+        return 0;
+    }
+    return *std::max_element(v_labels.begin(), v_labels.end()) + 1;
+}
+
 }}

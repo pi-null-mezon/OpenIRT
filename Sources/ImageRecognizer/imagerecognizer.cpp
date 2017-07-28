@@ -17,6 +17,7 @@
  */
 
 #include "imagerecognizer.hpp"
+#include <iostream>
 
 namespace cv { namespace imgrec {
 
@@ -103,8 +104,10 @@ void ImageRecognizer::update(InputArrayOfArrays src, InputArray labels)
 void ImageRecognizer::load(const String &filename)
 {
     FileStorage fs(filename, FileStorage::READ);
-    if (!fs.isOpened())
-        CV_Error(Error::StsError, "File can't be opened for reading!");
+    if(!fs.isOpened()) {
+        std::cerr << "File " << filename << " can't be opened for reading!\n";
+        return;
+    }
     this->load(fs);
     fs.release();
 }
@@ -112,8 +115,10 @@ void ImageRecognizer::load(const String &filename)
 void ImageRecognizer::save(const String &filename) const
 {
     FileStorage fs(filename, FileStorage::WRITE);
-    if (!fs.isOpened())
-        CV_Error(Error::StsError, "File can't be opened for writing!");
+    if (!fs.isOpened()) {
+        std::cerr << "File " << filename << " can't be opened for writing!\n";
+        return;
+    }
     this->save(fs);
     fs.release();
 }
