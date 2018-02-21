@@ -93,7 +93,7 @@ bool CNNImageRecognizer::empty() const
     return true;
 }
 
-int CNNImageRecognizer::freeLabel() const
+int CNNImageRecognizer::nextfreeLabel() const
 {
     if(empty()) {
         return 0;

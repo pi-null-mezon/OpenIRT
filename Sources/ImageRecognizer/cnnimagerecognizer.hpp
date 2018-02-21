@@ -20,7 +20,7 @@ public:
     void    load(const FileStorage &fs) override;
     void    save(FileStorage &fs) const override;
     bool    empty() const override;
-    int     freeLabel() const;
+    int     nextfreeLabel() const;
 
     virtual Mat getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const = 0;
 

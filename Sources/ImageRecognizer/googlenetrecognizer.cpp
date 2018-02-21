@@ -22,7 +22,7 @@ Mat GoogleNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const S
     // Prepare image
     cv::Mat _facemat = preprocessImageForCNN(_img, getInputSize(), getInputChannels());
     // Set image as network input data blob
-    cv::Mat inputBlob = dnn::blobFromImage(_facemat);
+    cv::Mat inputBlob = dnn::blobFromImage(_facemat,1,Size(),cv::Scalar(104,117,123)); // this values has been copied from https://github.com/BVLC/caffe/blob/master/models/bvlc_googlenet/train_val.prototxt
     net.setInput(inputBlob, "data");
     // Perform forward propagation
     Mat _dscrmat = net.forward(_blobname);

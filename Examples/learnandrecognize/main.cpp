@@ -106,7 +106,7 @@ int main(int _argc, char **_argv)
                     string name;
                     getline(cin,name);
                     cv::String _labelInfo(name);
-                    int _label = _ptr->freeLabel();
+                    int _label = _ptr->nextfreeLabel();
                     cout << "label: [" << _label     << "]" << endl
                          << " info: [" << _labelInfo << "]" << endl;
                     std::vector<Mat> _vimg;
