@@ -53,7 +53,7 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
         cv::imshow("CNNFaceRecognizer",raw[labelIdx]);
         cv::waitKey(1);
         v_descriptions.push_back( getImageDescription( raw[labelIdx] ) );
-        std::cout << "Image template for label " << *(v_labels.end()-1) << " has been memorized" << std::endl;
+        std::cout << "      image description for label " << *(v_labels.end()-1) << " has been memorized" << std::endl;
     }
 }
 

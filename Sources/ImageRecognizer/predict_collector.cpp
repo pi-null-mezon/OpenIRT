@@ -49,8 +49,19 @@ static std::pair<int, double> toPair(const StandardCollector::PredictResult & va
     return std::make_pair(val.label, val.distance);
 }
 
-static bool pairLess(const std::pair<int, double> & lhs, const std::pair<int, double> & rhs) {
+static bool pairDistLess(const std::pair<int, double> & lhs, const std::pair<int, double> & rhs) {
     return lhs.second < rhs.second;
+}
+
+static bool pairLabelLess(const std::pair<int, double> & lhs, const std::pair<int, double> & rhs) {
+    if(lhs.first == rhs.first)
+        return lhs.second < rhs.second;
+    else
+        return lhs.first < rhs.first;
+}
+
+static bool pairEqualLabel(const std::pair<int, double> & lhs, const std::pair<int, double> & rhs) {
+    return lhs.first == rhs.first;
 }
 
 //===================================
@@ -66,11 +77,11 @@ void StandardCollector::init(size_t size) {
 }
 
 bool StandardCollector::collect(int label, double dist) {
-    if (dist < threshold)
-    {
+    if(dist < threshold) {
         PredictResult res(label, dist);
-        if (res.distance < minRes.distance)
+        if(res.distance < minRes.distance) {
             minRes = res;
+        }
         data.push_back(res);
     }
     return true;
@@ -84,12 +95,16 @@ double StandardCollector::getMinDist() const {
     return minRes.distance;
 }
 
-std::vector< std::pair<int, double> > StandardCollector::getResults(bool sorted) const {
-    std::vector< std::pair<int, double> > res(data.size());
-    std::transform(data.begin(), data.end(), res.begin(), &toPair);
-    if (sorted)
-    {
-        std::sort(res.begin(), res.end(), &pairLess);
+std::vector< std::pair<int, double> > StandardCollector::getResults(bool sorted, bool unique) const {
+    std::vector<std::pair<int,double>> res(data.size());
+    std::transform(data.begin(), data.end(), res.begin(), &toPair);    
+    if(unique) {
+        std::sort(res.begin(), res.end(), &pairLabelLess);
+        auto last = std::unique(res.begin(), res.end(), &pairEqualLabel);
+        res.erase(last,res.end());
+    }
+    if(sorted) {
+        std::sort(res.begin(), res.end(), &pairDistLess);
     }
     return res;
 }

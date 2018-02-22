@@ -59,6 +59,8 @@ public:
 
     void predict(InputArray src, int &label, double &confidence) const;
 
+    std::vector<std::pair<int,double>> recognize(InputArray src) const;
+
     virtual void predict(InputArray src, Ptr<PredictCollector> collector) const = 0;
 
     virtual Mat getImageDescription(const Mat &_img) const = 0;

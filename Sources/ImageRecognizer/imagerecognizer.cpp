@@ -137,6 +137,12 @@ void ImageRecognizer::predict(InputArray src, int &label, double &confidence) co
     confidence = collector->getMinDist();
 }
 
+std::vector<std::pair<int,double>> ImageRecognizer::recognize(InputArray src) const {
+    Ptr<StandardCollector> collector = StandardCollector::create(getThreshold());
+    predict(src, collector);
+    return collector->getResults(true,true);
+}
+
 }
 }
 

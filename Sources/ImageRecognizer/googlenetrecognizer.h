@@ -7,6 +7,8 @@
 
 namespace cv { namespace imgrec {
 
+// https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet
+
 class GoogleNetRecognizer : public CNNImageRecognizer
 {
 public:
@@ -20,7 +22,7 @@ protected:
     mutable dnn::Net net;
 };
 
-Ptr<CNNImageRecognizer> createGoogleNetRecognizer(const cv::String &_prototextfilename, const cv::String &_caffemodelfilename, DistanceType _disttype, double _threshold=DBL_MAX);
+Ptr<CNNImageRecognizer> createGoogleNetRecognizer(const cv::String &_prototextfilename="bvlc_googlenet.prototxt", const cv::String &_caffemodelfilename="bvlc_googlenet.caffemodel", DistanceType _disttype=DistanceType::Cosine, double _threshold=DBL_MAX);
 
 }}
 

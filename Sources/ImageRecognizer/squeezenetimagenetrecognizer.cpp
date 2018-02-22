@@ -1,9 +1,9 @@
-#include "googlenetrecognizer.h"
+#include "SqueezeNetImageNetRecognizer.h"
 
 namespace cv { namespace imgrec {
 
-GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(Size(224,224), 3, _disttype, _threshold)
+SqueezeNetImageNetRecognizer::SqueezeNetImageNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
+    CNNImageRecognizer(Size(227,227), 3, _disttype, _threshold)
 {
     Ptr<dnn::Importer> importer;
     try {
@@ -17,7 +17,7 @@ GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilename, const
     importer.release(); // free the memory
 }
 
-Mat GoogleNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
+Mat SqueezeNetImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
 {
     // Prepare image
     cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels());
@@ -30,12 +30,12 @@ Mat GoogleNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const S
     return _dscrmat.reshape(1,1).clone(); // clonning is necessasry here
 }
 
-Mat GoogleNetRecognizer::getImageDescription(const Mat &_img) const
+Mat SqueezeNetImageNetRecognizer::getImageDescription(const Mat &_img) const
 {
-    return getImageDescriptionByLayerName(_img, "loss3/classifier"); // Search answers in the bvlc_googlenet.prototxt
+    return getImageDescriptionByLayerName(_img, "pool10"); // Search answers in the bvlc_googlenet.prototxt
 }
 
-void GoogleNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
+void SqueezeNetImageNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
 {
     cv::Mat _description = getImageDescription(src.getMat());
     collector->init(v_labels.size());
@@ -55,9 +55,9 @@ void GoogleNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collecto
     }
 }
 
-Ptr<CNNImageRecognizer> createGoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold)
+Ptr<CNNImageRecognizer> createSqueezeNetImageNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold)
 {
-    return makePtr<GoogleNetRecognizer>(_prototextfilename,_caffemodelfilename,_disttype,_threshold);
+    return makePtr<SqueezeNetImageNetRecognizer>(_prototextfilename,_caffemodelfilename,_disttype,_threshold);
 }
 
 }}
