@@ -21,11 +21,11 @@
 
 namespace cv { namespace imgrec {
 
-ImageRecognizer::ImageRecognizer(Size _inputsize, int _inputchannels, DistanceType _distancetype, double _threshold) :
-    inputSize(_inputsize),
-    inputChannels(_inputchannels),
+ImageRecognizer::ImageRecognizer(Size _inputsize, int _inputchannels, DistanceType _distancetype, double _threshold) :       
     distanceType(_distancetype),
-    threshold(_threshold)
+    threshold(_threshold),
+    inputSize(_inputsize),
+    inputChannels(_inputchannels)
 {
 
 }

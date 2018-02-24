@@ -1,8 +1,8 @@
 #--------------------------------------------------------OPENCV----------------------------------------------------
 win32 {
     #Specify a path to the build directory of opencv library and library version
-    OPENCV_VERSION = 330
-    OPENCV_DIR = C:/Programming/3rdParties/opencv330/build
+    OPENCV_VERSION = 340
+    OPENCV_DIR = C:/Programming/3rdParties/opencv340/build
     INCLUDEPATH += $${OPENCV_DIR}/include
 
     #Specify the part of OpenCV path corresponding to compiler version
@@ -40,7 +40,6 @@ win32 {
             -l$$qtLibraryName(opencv_objdetect$${OPENCV_VERSION}) \
             -l$$qtLibraryName(opencv_videoio$${OPENCV_VERSION}) \
             -l$$qtLibraryName(opencv_imgcodecs$${OPENCV_VERSION}) \
-            -l$$qtLibraryName(opencv_face$${OPENCV_VERSION}) \
             -l$$qtLibraryName(opencv_dnn$${OPENCV_VERSION})
 
     message(OpenCV library version $${OPENCV_DIR}/$${OPENCV_ARCHITECTURE_DIR}/$${OPENCV_COMPILER_DIR} will be used)
@@ -55,7 +54,6 @@ win32 {
             -lopencv_imgproc \
             -lopencv_videoio \
             -lopencv_imgcodecs \
-            -lopencv_face \
             -lopencv_dnn
 }
 

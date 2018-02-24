@@ -5,16 +5,11 @@ namespace cv { namespace imgrec {
 SqueezeNetImageNetRecognizer::SqueezeNetImageNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
     CNNImageRecognizer(Size(227,227), 3, _disttype, _threshold)
 {
-    Ptr<dnn::Importer> importer;
     try {
-        importer = dnn::createCaffeImporter(_prototextfilename, _caffemodelfilename);
+        net = dnn::readNetFromCaffe(_prototextfilename,_caffemodelfilename);
     } catch (const cv::Exception &err) {
         std::cerr << err.msg << std::endl;
     }
-    if(importer) {
-        importer->populateNet(net);
-    }
-    importer.release(); // free the memory
 }
 
 Mat SqueezeNetImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const

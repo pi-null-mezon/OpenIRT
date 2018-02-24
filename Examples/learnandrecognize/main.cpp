@@ -20,7 +20,6 @@ const cv::String keys =
                         "{url u    |     | use URL as video source}"
                         "{vfile vf |     | use videofile as video source}"
                         "{vdev vd  |0    | use videodevice as video source}"
-                        "{thresh t |2.0  | distance threshold for recognition}"
                         "{rows     |480  | vertical resolution for video device}"
                         "{cols     |640  | horizontal resolution for video device}";
 
@@ -66,14 +65,14 @@ int main(int _argc, char **_argv)
         cv::namedWindow(APP_NAME, CV_WINDOW_NORMAL);
         /*_ptr = createGoogleNetRecognizer( String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
                                           String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );
-        */
+*/
 
         /*_ptr = createResNet50ImageNetRecognizer( String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-deploy.prototxt"),
                                                  String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-model.caffemodel") );
         */
 
         _ptr = createSqueezeNetImageNetRecognizer(String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
-                                                  String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel") );
+                                                  String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel"));
 
         _ptr->ImageRecognizer::load("Memorized_labels_for_recognizer.yml");
 
@@ -121,12 +120,10 @@ int main(int _argc, char **_argv)
                 cv::putText(_frame,_labelInfo, cv::Point(15,30),CV_FONT_HERSHEY_SIMPLEX,0.65,cv::Scalar(0,0,255),1,CV_AA);
             } else {               
                 std::vector<std::pair<int,double>> _vpredictions = _ptr->recognize(_frame);
-                for(size_t _r = 0; _r < _vpredictions.size(); ++_r) {
-                    if(_vpredictions[_r].second < cmdargsparser.get<double>("thresh")) {
-                        cv::String _labelInfo = std::to_string(_r) + ") " + _ptr->getLabelInfo(_vpredictions[_r].first) + ", dist: " + real2str(_vpredictions[_r].second,2);
-                        cv::putText(_frame,_labelInfo, cv::Point(14,20 + (int)_r*20),CV_FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(0,0,0),1,CV_AA);
-                        cv::putText(_frame,_labelInfo, cv::Point(15,20 + (int)_r*20),CV_FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(0,255 - (int)_r*25,0),1,CV_AA);
-                    }
+                for(size_t _r = 0; _r < _vpredictions.size(); ++_r) {                   
+                    cv::String _labelInfo = std::to_string(_r) + ") " + _ptr->getLabelInfo(_vpredictions[_r].first) + ", dist: " + real2str(_vpredictions[_r].second,2);
+                    cv::putText(_frame,_labelInfo, cv::Point(14,20 + (int)_r*20),CV_FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(0,0,0),1,CV_AA);
+                    cv::putText(_frame,_labelInfo, cv::Point(15,20 + (int)_r*20),CV_FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(0,255 - (int)_r*25,0),1,CV_AA);
                 }
             }
 
