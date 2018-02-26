@@ -1,5 +1,7 @@
 #include "cnnimagerecognizer.hpp"
 
+#include <opencv2/highgui.hpp>
+
 namespace cv { namespace imgrec {
 
 CNNImageRecognizer::CNNImageRecognizer(Size _inputsize, int _inputchannels, DistanceType _disttype, double _threshold) :
@@ -50,6 +52,7 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
     // append labels and images to the storage
     for(size_t labelIdx = 0; labelIdx < lbls.total(); labelIdx++) {
         v_labels.push_back(lbls.at<int>((int)labelIdx));
+        raw[labelIdx] = preprocessImageForCNN(raw[labelIdx], getInputSize(), getInputChannels());
         cv::imshow("CNNFaceRecognizer",raw[labelIdx]);
         cv::waitKey(1);
         v_descriptions.push_back( getImageDescription( raw[labelIdx] ) );
@@ -99,6 +102,16 @@ int CNNImageRecognizer::nextfreeLabel() const
         return 0;
     }
     return *std::max_element(v_labels.begin(), v_labels.end()) + 1;
+}
+
+void CNNImageRecognizer::setPreferableTarget(int _targetId)
+{
+    net.setPreferableTarget(_targetId);
+}
+
+void CNNImageRecognizer::setPreferableBackend(int _backendId)
+{
+    net.setPreferableBackend(_backendId);
 }
 
 }}

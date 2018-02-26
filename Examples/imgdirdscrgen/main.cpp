@@ -4,6 +4,7 @@
 #include <QDir>
 
 #include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 #include "squeezenetimagenetrecognizer.h"
 
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
         for(int j = 0; j < _lfilename.size(); ++j) {
             QString _filename = _subdir.absoluteFilePath(_lfilename.at(j));
             std::vector<cv::Mat> _vmat;
-            _vmat.push_back(cv::imread(_filename.toLocal8Bit().constData(), CV_LOAD_IMAGE_UNCHANGED));
+            _vmat.push_back(cv::imread(_filename.toLocal8Bit().constData(), cv::IMREAD_UNCHANGED));
             std::vector<int> _vlbl;
             _vlbl.push_back(i);
             _ptr->update(_vmat,_vlbl); // maybe it is not fastest way, but it is pretty interactive instead

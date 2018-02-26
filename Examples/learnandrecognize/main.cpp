@@ -64,17 +64,18 @@ int main(int _argc, char **_argv)
         double _fps;
         cv::namedWindow(APP_NAME, CV_WINDOW_NORMAL);
         /*_ptr = createGoogleNetRecognizer( String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
-                                          String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );
-*/
+                                          String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );*/
+
 
         /*_ptr = createResNet50ImageNetRecognizer( String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-deploy.prototxt"),
-                                                 String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-model.caffemodel") );
-        */
+                                                 String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-model.caffemodel") );*/
+
 
         _ptr = createSqueezeNetImageNetRecognizer(String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
                                                   String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel"));
 
-        _ptr->ImageRecognizer::load("Memorized_labels_for_recognizer.yml");
+
+        _ptr->ImageRecognizer::load("Memorized_labels_for_recognizer.yml");        
 
         while(videocapture.read(_frame)) {
 

@@ -109,6 +109,8 @@ inline Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, int _targe
 		cv::cvtColor(_inmat,_outmat,CV_BGR2RGB);
 	} else if((_inmat.channels() == 3) && (_targetchannels == 1)) {
 		cv::cvtColor(_inmat,_outmat,CV_BGR2GRAY);
+    } else if((_inmat.channels() == 1) && (_targetchannels == 3)) {
+        cv::cvtColor(_inmat,_outmat,CV_GRAY2RGB);
     } else { // TO DO add gray2color conversions block
         _outmat = _inmat;
     }

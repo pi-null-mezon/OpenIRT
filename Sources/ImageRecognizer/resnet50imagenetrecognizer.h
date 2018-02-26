@@ -17,9 +17,6 @@ public:
     Mat   getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const override;
     Mat   getImageDescription(const Mat &_img) const override;
     void  predict(InputArray src, Ptr<PredictCollector> collector) const override;
-
-protected:
-    mutable dnn::Net net;
 };
 
 Ptr<CNNImageRecognizer> createResNet50ImageNetRecognizer(const cv::String &_prototextfilename="ResNet-50-deploy.prototxt", const cv::String &_caffemodelfilename="ResNet-50-model.caffemodel", DistanceType _disttype=DistanceType::Cosine, double _threshold=DBL_MAX);
