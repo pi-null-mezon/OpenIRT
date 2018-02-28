@@ -16,4 +16,3 @@ HEADERS +=  $${PWD}/imagerecognizer.hpp \
 
 INCLUDEPATH += $${PWD}
 
-include($${PWD}/../../Shared/opencv.pri)
