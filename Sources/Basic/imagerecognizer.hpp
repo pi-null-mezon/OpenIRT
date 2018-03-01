@@ -57,7 +57,7 @@ public:
 
     int predict(InputArray src) const;
 
-    void predict(InputArray src, int &label, double &confidence) const;
+    void predict(InputArray src, int &label, double &distance) const;
 
     std::vector<std::pair<int,double>> recognize(InputArray src) const;
 

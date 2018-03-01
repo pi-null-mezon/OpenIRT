@@ -52,8 +52,7 @@ the use of this software, even if advised of the possibility of such damage.
 
 #include <opencv2/core/cvstd.hpp>
 
-namespace cv {
-namespace imgrec {
+namespace cv { namespace imgrec {
 //! @addtogroup imgrec
 //! @{
 /** @brief Abstract base class for all strategies of prediction result handling
@@ -122,7 +121,6 @@ public:
 };
 
 //! @}
-}
-}
+}}
 
 #endif

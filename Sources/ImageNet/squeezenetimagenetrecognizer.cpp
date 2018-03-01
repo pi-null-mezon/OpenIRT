@@ -50,6 +50,16 @@ void SqueezeNetImageNetRecognizer::predict(InputArray src, Ptr<PredictCollector>
     }
 }
 
+void SqueezeNetImageNetRecognizer::setPreferableTarget(int _targetId)
+{
+    net.setPreferableTarget(_targetId);
+}
+
+void cv::imgrec::SqueezeNetImageNetRecognizer::setPreferableBackend(int _backendId)
+{
+    net.setPreferableBackend(_backendId);
+}
+
 Ptr<CNNImageRecognizer> createSqueezeNetImageNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold)
 {
     return makePtr<SqueezeNetImageNetRecognizer>(_prototextfilename,_caffemodelfilename,_disttype,_threshold);

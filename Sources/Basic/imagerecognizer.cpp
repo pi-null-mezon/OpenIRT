@@ -130,11 +130,11 @@ int ImageRecognizer::predict(InputArray src) const {
     return _label;
 }
 
-void ImageRecognizer::predict(InputArray src, int &label, double &confidence) const {
+void ImageRecognizer::predict(InputArray src, int &label, double &distance) const {
     Ptr<StandardCollector> collector = StandardCollector::create(getThreshold());
     predict(src, collector);
     label = collector->getMinLabel();
-    confidence = collector->getMinDist();
+    distance = collector->getMinDist();
 }
 
 std::vector<std::pair<int,double>> ImageRecognizer::recognize(InputArray src) const {

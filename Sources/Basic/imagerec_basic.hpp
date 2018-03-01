@@ -8,7 +8,7 @@
 #include "imagerecognizer.hpp"
 #include "precompiled.hpp"
 
-using namespace cv;
+namespace cv { namespace imgrec {
 
 // Reads a sequence from a FileNode::SEQ with type _Tp into a result vector.
 template<typename _Tp>
@@ -132,6 +132,8 @@ inline double cosineDistance(const Mat &_dmat1, const Mat &_dmat2)
     double _n2 = cv::norm(_dmat2, NORM_L2);
     return (1.0 - _dmat1.dot(_dmat2)/(_n1*_n2));
 }
+
+}}
 
 #endif // __OPENCV_IMGREC_BASIC_HPP
 

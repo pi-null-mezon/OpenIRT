@@ -22,10 +22,8 @@ public:
     void    save(FileStorage &fs) const override;
     bool    empty() const override;
     int     nextfreeLabel() const;
-    void    setPreferableTarget(int _targetId);   // cv::dnn::DNN_TARGET_CPU or cv::dnn::DNN_TARGET_OPENCL
-    void    setPreferableBackend(int _backendId); // cv::dnn::DNN_BACKEND_DEFAULT or cv::dnn::DNN_BACKEND_HALIDE or cv::dnn::DNN_BACKEND_INFERENCE_ENGINE
 
-    virtual Mat getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const = 0;
+    virtual Mat  getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const = 0;
 
 protected:
     void __train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData);
@@ -33,8 +31,7 @@ protected:
     Size                                inputSize;
     int                                 inputChannels;
     std::vector<int>                    v_labels;
-    std::vector<Mat>                    v_descriptions;
-    mutable cv::dnn::Net                net;
+    std::vector<Mat>                    v_descriptions;    
 };
 
 }} //namespace cv::imgrec

@@ -23,4 +23,5 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp
 
 include($${PWD}/../../Sources/ImageRecognizer/imagerecognizer.pri)
+include($${PWD}/../../Shared/opencv.pri)
 

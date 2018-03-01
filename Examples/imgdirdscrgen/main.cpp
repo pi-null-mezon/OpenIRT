@@ -7,6 +7,7 @@
 #include <opencv2/imgcodecs.hpp>
 
 #include "squeezenetimagenetrecognizer.h"
+#include "googlenetrecognizer.h"
 
 const cv::String options = "{help h       |    | show app's help}"
                            "{inputdir i   |    | set input directory in which subdirs will be searched}"
@@ -39,8 +40,11 @@ int main(int argc, char *argv[])
     }
 
     qInfo("Step_1 - Uploading recognizer resources from HDD...");
-    cv::Ptr<imgrec::CNNImageRecognizer> _ptr = imgrec::createSqueezeNetImageNetRecognizer(String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
-                                                                                          String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel"));
+    /*cv::Ptr<imgrec::CNNImageRecognizer> _ptr = imgrec::createSqueezeNetImageNetRecognizer(String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
+                                                                                          String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel"));*/
+
+    cv::Ptr<imgrec::CNNImageRecognizer> _ptr = imgrec::createGoogleNetRecognizer( String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
+                                                                                  String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );
 
 
     qInfo("Step_2 - Generating descriptions for labels");

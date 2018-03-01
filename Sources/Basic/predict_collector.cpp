@@ -43,7 +43,7 @@ the use of this software, even if advised of the possibility of such damage.
 */
 #include "predict_collector.hpp"
 
-namespace cv {namespace imgrec {
+namespace cv { namespace imgrec {
 
 static std::pair<int, double> toPair(const StandardCollector::PredictResult & val) {
     return std::make_pair(val.label, val.distance);

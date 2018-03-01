@@ -104,14 +104,4 @@ int CNNImageRecognizer::nextfreeLabel() const
     return *std::max_element(v_labels.begin(), v_labels.end()) + 1;
 }
 
-void CNNImageRecognizer::setPreferableTarget(int _targetId)
-{
-    net.setPreferableTarget(_targetId);
-}
-
-void CNNImageRecognizer::setPreferableBackend(int _backendId)
-{
-    net.setPreferableBackend(_backendId);
-}
-
 }}

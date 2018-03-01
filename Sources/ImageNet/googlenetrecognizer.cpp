@@ -1,8 +1,8 @@
-#include "resnet50imagenetrecognizer.h"
+#include "googlenetrecognizer.h"
 
 namespace cv { namespace imgrec {
 
-ResNet50ImageNetRecognizer::ResNet50ImageNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
+GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
     CNNImageRecognizer(Size(224,224), 3, _disttype, _threshold)
 {
     try {
@@ -12,12 +12,12 @@ ResNet50ImageNetRecognizer::ResNet50ImageNetRecognizer(const String &_prototextf
     }
 }
 
-Mat ResNet50ImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
+Mat GoogleNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
 {
     // Prepare image
     cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels());
     // Set image as network input data blob
-    cv::Mat inputBlob = dnn::blobFromImage(_preprocessedmat);
+    cv::Mat inputBlob = dnn::blobFromImage(_preprocessedmat,1,Size(),cv::Scalar(104,117,123)); // this values has been copied from https://github.com/BVLC/caffe/blob/master/models/bvlc_googlenet/train_val.prototxt
     net.setInput(inputBlob, "data");
     // Perform forward propagation
     Mat _dscrmat = net.forward(_blobname);
@@ -25,12 +25,12 @@ Mat ResNet50ImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, 
     return _dscrmat.reshape(1,1).clone(); // clonning is necessasry here
 }
 
-Mat ResNet50ImageNetRecognizer::getImageDescription(const Mat &_img) const
+Mat GoogleNetRecognizer::getImageDescription(const Mat &_img) const
 {
-    return getImageDescriptionByLayerName(_img, "fc1000"); // Search answers in the ResNet-50-deploy.prototxt
+    return getImageDescriptionByLayerName(_img, "loss3/classifier"); // Search answers in the bvlc_googlenet.prototxt
 }
 
-void ResNet50ImageNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
+void GoogleNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
 {
     cv::Mat _description = getImageDescription(src.getMat());
     collector->init(v_labels.size());
@@ -50,9 +50,19 @@ void ResNet50ImageNetRecognizer::predict(InputArray src, Ptr<PredictCollector> c
     }
 }
 
-Ptr<CNNImageRecognizer> createResNet50ImageNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold)
+void GoogleNetRecognizer::setPreferableTarget(int _targetId)
 {
-    return makePtr<ResNet50ImageNetRecognizer>(_prototextfilename,_caffemodelfilename,_disttype,_threshold);
+    net.setPreferableTarget(_targetId);
+}
+
+void GoogleNetRecognizer::setPreferableBackend(int _backendId)
+{
+    net.setPreferableBackend(_backendId);
+}
+
+Ptr<CNNImageRecognizer> createGoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold)
+{
+    return makePtr<GoogleNetRecognizer>(_prototextfilename,_caffemodelfilename,_disttype,_threshold);
 }
 
 }}

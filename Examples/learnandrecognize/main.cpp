@@ -10,7 +10,6 @@
 #include "squeezenetimagenetrecognizer.h"
 
 using namespace std;
-using namespace imgrec;
 
 template <typename T>
 std::string real2str(T x, uint precision=1);
@@ -56,23 +55,23 @@ int main(int _argc, char **_argv)
         }
     }
 
-    Ptr<CNNImageRecognizer> _ptr;
+    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr;
 
     if(videocapture.isOpened()) {
         cv::Mat _frame;
         int64 _to = cv::getTickCount(), _tn;
         double _fps;
         cv::namedWindow(APP_NAME, CV_WINDOW_NORMAL);
-        /*_ptr = createGoogleNetRecognizer( String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
-                                          String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );*/
+        _ptr = cv::imgrec::createGoogleNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
+                                                      cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );
 
 
-        /*_ptr = createResNet50ImageNetRecognizer( String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-deploy.prototxt"),
-                                                 String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-model.caffemodel") );*/
+        /*_ptr = cv::imgrec::createResNet50ImageNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-deploy.prototxt"),
+                                                   cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-model.caffemodel") );*/
 
 
-        _ptr = createSqueezeNetImageNetRecognizer(String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
-                                                  String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel"));
+        /*_ptr = cv::imgrec::createSqueezeNetImageNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
+                                                     cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel") );*/
 
 
         _ptr->ImageRecognizer::load("Memorized_labels_for_recognizer.yml");        
@@ -103,7 +102,7 @@ int main(int _argc, char **_argv)
                         _label = _ptr->nextfreeLabel();
                     }
                     cout << "label: [" << _label << "] <->" << " info: [" << _labelInfo << "]" << endl;
-                    std::vector<Mat> _vimg;
+                    std::vector<cv::Mat> _vimg;
                     _vimg.push_back(_frame);
                     std::vector<int> _vlbl;
                     _vlbl.push_back(_label);
