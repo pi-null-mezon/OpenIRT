@@ -40,11 +40,11 @@ int main(int argc, char *argv[])
     }
 
     qInfo("Step_1 - Uploading recognizer resources from HDD...");
-    /*cv::Ptr<imgrec::CNNImageRecognizer> _ptr = imgrec::createSqueezeNetImageNetRecognizer(String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
-                                                                                          String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel"));*/
+    /*cv::Ptr<imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createSqueezeNetImageNetRecognizer(cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
+                                                                                          cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel"));*/
 
-    cv::Ptr<imgrec::CNNImageRecognizer> _ptr = imgrec::createGoogleNetRecognizer( String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
-                                                                                  String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );
+    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createGoogleNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
+                                                                                        cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );
 
 
     qInfo("Step_2 - Generating descriptions for labels");

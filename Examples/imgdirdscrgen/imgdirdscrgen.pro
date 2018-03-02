@@ -24,4 +24,4 @@ SOURCES += main.cpp
 
 include($${PWD}/../../Sources/ImageRecognizer/imagerecognizer.pri)
 include($${PWD}/../../Shared/opencv.pri)
-
+include($${PWD}/../../Shared/openirt.pri)
