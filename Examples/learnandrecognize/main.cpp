@@ -119,7 +119,7 @@ int main(int _argc, char **_argv)
                 cv::putText(_frame,_labelInfo, cv::Point(14,30),CV_FONT_HERSHEY_SIMPLEX,0.65,cv::Scalar(0,0,0),1,CV_AA);
                 cv::putText(_frame,_labelInfo, cv::Point(15,30),CV_FONT_HERSHEY_SIMPLEX,0.65,cv::Scalar(0,0,255),1,CV_AA);
             } else {               
-                std::vector<std::pair<int,double>> _vpredictions = _ptr->recognize(_frame);
+                std::vector<std::pair<int,double>> _vpredictions = _ptr->recognize(_frame,false);
                 for(size_t _r = 0; _r < _vpredictions.size(); ++_r) {                   
                     cv::String _labelInfo = std::to_string(_r) + ") " + _ptr->getLabelInfo(_vpredictions[_r].first) + ", dist: " + real2str(_vpredictions[_r].second,2);
                     cv::putText(_frame,_labelInfo, cv::Point(14,20 + (int)_r*20),CV_FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(0,0,0),1,CV_AA);

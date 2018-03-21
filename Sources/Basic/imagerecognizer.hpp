@@ -55,11 +55,38 @@ public:
     virtual void train(InputArrayOfArrays src, InputArray labels) = 0;
     virtual void update(InputArrayOfArrays src, InputArray labels);
 
+    /**
+     * @brief predict label for the input src image
+     * @param src - input image
+     * @return predicted label
+     */
     int predict(InputArray src) const;
 
+    /**
+     * @brief predict label for the input src image
+     * @param src - input image
+     * @param label - predicted label
+     * @param distance - computed distance to predicted label
+     */
     void predict(InputArray src, int &label, double &distance) const;
 
-    std::vector<std::pair<int,double>> recognize(InputArray src) const;
+    /**
+     * @brief get predictions for all unique labels
+     * @param src - input images
+     * @param unique - should result contains only single one (best in terms of distance) prediction for each label
+     * @return pairs of label and distance
+     * @note let's consider two particular cases:
+     *
+     * 'uniquelabels == true' - if recognizer stores N templates for the label L, the result will contain only one single pair for the label L
+     *       in this case three steps for the predictions preparation are used:
+     *       first all predictions for the particular label will be sorted in the ascending distance order,
+     *       second only one prediction for the particular label will be returned (the one with the minimum distance),
+     *       thirdly all unique labels will be once again sorted in the ascending distance order
+     *
+     * 'uniquelabels == false' - if recognizer stores N templates for the label L, the result will contain N pairs for the label L
+     *       in this case all predictions are simply sorted in ascending distance order
+     */
+    std::vector<std::pair<int,double>> recognize(InputArray src, bool unique=true) const;
 
     virtual void predict(InputArray src, Ptr<PredictCollector> collector) const = 0;
 

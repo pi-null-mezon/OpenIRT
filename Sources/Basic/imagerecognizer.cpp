@@ -137,11 +137,12 @@ void ImageRecognizer::predict(InputArray src, int &label, double &distance) cons
     distance = collector->getMinDist();
 }
 
-std::vector<std::pair<int,double>> ImageRecognizer::recognize(InputArray src) const {
+std::vector<std::pair<int, double> > ImageRecognizer::recognize(InputArray src, bool unique) const {
     Ptr<StandardCollector> collector = StandardCollector::create(getThreshold());
     predict(src, collector);
-    return collector->getResults(true,true);
+    return collector->getResults(true,unique);
 }
+
 
 }
 }

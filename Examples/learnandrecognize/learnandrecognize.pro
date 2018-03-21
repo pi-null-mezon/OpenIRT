@@ -14,5 +14,7 @@ CONFIG -= qt
 SOURCES += main.cpp
 
 include($${PWD}/../../Shared/openirt.pri)
+include($${PWD}/../../Sources/ImageNet/imagenet.pri)
+
 include($${PWD}/../../Shared/opencv.pri)
 include($${PWD}/../../Shared/dlib.pri)
