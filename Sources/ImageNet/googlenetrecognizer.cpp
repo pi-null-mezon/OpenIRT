@@ -3,7 +3,7 @@
 namespace cv { namespace imgrec {
 
 GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(Size(224,224), 3, _disttype, _threshold)
+    CNNImageRecognizer(Size(224,224), 3, true, _disttype, _threshold)
 {
     try {
         net = dnn::readNetFromCaffe(_prototextfilename,_caffemodelfilename);
@@ -15,7 +15,7 @@ GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilename, const
 Mat GoogleNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
 {
     // Prepare image
-    cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels());
+    cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels(), getCropInput());
     // Set image as network input data blob
     cv::Mat inputBlob = dnn::blobFromImage(_preprocessedmat,1,Size(),cv::Scalar(104,117,123)); // this values has been copied from https://github.com/BVLC/caffe/blob/master/models/bvlc_googlenet/train_val.prototxt
     net.setInput(inputBlob, "data");

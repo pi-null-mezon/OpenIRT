@@ -14,10 +14,10 @@ namespace cv { namespace imgrec {
 class CNNImageRecognizer : public ImageRecognizer
 {
 public:
-    CNNImageRecognizer(Size _inputsize, int _inputchannels, DistanceType _disttype, double _threshold);
+    CNNImageRecognizer(Size _inputsize, int _inputchannels, bool _cropinput, DistanceType _disttype, double _threshold);
 
-    void    train(InputArrayOfArrays src, InputArray labels) override;
-    void    update(InputArrayOfArrays src, InputArray labels) override;
+    void    train(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;
+    void    update(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;
     void    load(const FileStorage &fs) override;
     void    save(FileStorage &fs) const override;
     bool    empty() const override;
@@ -26,7 +26,7 @@ public:
     virtual Mat  getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const = 0;
 
 protected:
-    void __train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData);
+    void __train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData, bool _visualize);
 
     Size                                inputSize;
     int                                 inputChannels;

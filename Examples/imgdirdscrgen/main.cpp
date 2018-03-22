@@ -8,10 +8,12 @@
 
 #include "squeezenetimagenetrecognizer.h"
 #include "googlenetrecognizer.h"
+#include "dlibwhalesrecognizer.h"
 
-const cv::String options = "{help h       |    | show app's help}"
-                           "{inputdir i   |    | set input directory in which subdirs will be searched}"
-                           "{outputfile o |    | set output filename}";
+const cv::String options = "{help h       |        | show app's help}"
+                           "{inputdir i   |        | set input directory in which subdirs will be searched}"
+                           "{outputfile o |        | set output filename}"
+                           "{visualize v  |  true  | set visualization option}";
 
 int main(int argc, char *argv[])
 {
@@ -43,12 +45,14 @@ int main(int argc, char *argv[])
     /*cv::Ptr<imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createSqueezeNetImageNetRecognizer(cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
                                                                                           cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel"));*/
 
-    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createGoogleNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
-                                                                                        cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );
+    /*cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createGoogleNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
+                                                                                        cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );*/
 
+    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createDlibWhalesRecognizer(cv::String("C:/Testdata/Kaggle/Whales/whales_metric_network_renset.dat"));
 
     qInfo("Step_2 - Generating descriptions for labels");
     QStringList _lsubdirname = _dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    const bool _visualize = _cmdparser.get<bool>("visualize");
     for(int i = 0; i < _lsubdirname.size(); ++i) {
         qInfo("   Label %d", i);
         QDir _subdir(_dir.absolutePath().append("/%1").arg(_lsubdirname.at(i)));
@@ -62,7 +66,7 @@ int main(int argc, char *argv[])
             _vmat.push_back(cv::imread(_filename.toLocal8Bit().constData(), cv::IMREAD_UNCHANGED));
             std::vector<int> _vlbl;
             _vlbl.push_back(i);
-            _ptr->update(_vmat,_vlbl); // maybe it is not fastest way, but it is pretty interactive instead
+            _ptr->update(_vmat,_vlbl,_visualize); // maybe it is not fastest way, but it is pretty interactive instead
         }
         if(_lfilename.size() > 0) {
             _ptr->setLabelInfo(i,_lsubdirname.at(i).toUtf8().constData());

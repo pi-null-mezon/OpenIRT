@@ -22,6 +22,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp
 
-include($${PWD}/../../Sources/ImageRecognizer/imagerecognizer.pri)
 include($${PWD}/../../Shared/opencv.pri)
-include($${PWD}/../../Shared/openirt.pri)
+include($${PWD}/../../Shared/dlib.pri)
+
+include($${PWD}/../../Sources/Basic/imagerecognizer.pri)
+include($${PWD}/../../Sources/ImageNet/imagenet.pri)
+#include($${PWD}/../../Sources/Face/dlibfacerecognizer.pri)
+
+include($${PWD}/../../Sources/Kaggle/Whales/dlibwhalesrecognizer.pri)

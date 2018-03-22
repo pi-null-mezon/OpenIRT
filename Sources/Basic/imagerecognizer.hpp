@@ -50,10 +50,10 @@ enum DistanceType {Euclidean, Cosine};
 class ImageRecognizer : public Algorithm
 {
 public:
-    ImageRecognizer(Size _inputsize, int _inputchannels, DistanceType _distancetype, double _threshold);
+    ImageRecognizer(Size _inputsize, int _inputchannels, bool _cropinput, DistanceType _distancetype, double _threshold);
 
-    virtual void train(InputArrayOfArrays src, InputArray labels) = 0;
-    virtual void update(InputArrayOfArrays src, InputArray labels);
+    virtual void train(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
+    virtual void update(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
 
     /**
      * @brief predict label for the input src image
@@ -122,6 +122,10 @@ public:
 
     virtual void setInputChannels(int _val);
 
+    virtual bool getCropInput() const;
+
+    virtual void setCropInput(bool value);
+
 protected:
     // Stored pairs "label id - string info"
     std::map<int, String> _labelsInfo;
@@ -130,6 +134,7 @@ protected:
     double          threshold;
     Size            inputSize;
     int             inputChannels;
+    bool            cropInput;
 };
 
 }}

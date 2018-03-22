@@ -4,22 +4,22 @@
 
 namespace cv { namespace imgrec {
 
-CNNImageRecognizer::CNNImageRecognizer(Size _inputsize, int _inputchannels, DistanceType _disttype, double _threshold) :
-    ImageRecognizer(_inputsize, _inputchannels, _disttype, _threshold)
+CNNImageRecognizer::CNNImageRecognizer(Size _inputsize, int _inputchannels, bool _cropinput, DistanceType _disttype, double _threshold) :
+    ImageRecognizer(_inputsize, _inputchannels, _cropinput, _disttype, _threshold)
 {
 }
 
-void CNNImageRecognizer::train(InputArrayOfArrays src, InputArray labels)
+void CNNImageRecognizer::train(InputArrayOfArrays src, InputArray labels, bool _visualize)
 {
-    __train(src, labels, false);
+    __train(src, labels, false, _visualize);
 }
 
-void CNNImageRecognizer::update(InputArrayOfArrays src, InputArray labels)
+void CNNImageRecognizer::update(InputArrayOfArrays src, InputArray labels, bool _visualize)
 {
-    __train(src, labels, true);
+    __train(src, labels, true, _visualize);
 }
 
-void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData)
+void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData, bool _visualize)
 {
     if(_src.kind() != _InputArray::STD_VECTOR_MAT && _src.kind() != _InputArray::STD_VECTOR_VECTOR) {
         String error_message = "The images are expected as InputArray::STD_VECTOR_MAT (a std::vector<Mat>) or _InputArray::STD_VECTOR_VECTOR (a std::vector< std::vector<...> >).";
@@ -52,9 +52,11 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
     // append labels and images to the storage
     for(size_t labelIdx = 0; labelIdx < lbls.total(); labelIdx++) {
         v_labels.push_back(lbls.at<int>((int)labelIdx));
-        raw[labelIdx] = preprocessImageForCNN(raw[labelIdx], getInputSize(), getInputChannels());
-        cv::imshow("CNNFaceRecognizer",raw[labelIdx]);
-        cv::waitKey(1);
+        raw[labelIdx] = preprocessImageForCNN(raw[labelIdx], getInputSize(), getInputChannels(), getCropInput());
+        if(_visualize) {
+            cv::imshow("CNNFaceRecognizer",raw[labelIdx]);
+            cv::waitKey(1);
+        }
         v_descriptions.push_back( getImageDescription( raw[labelIdx] ) );
         std::cout << "      image description for label " << *(v_labels.end()-1) << " has been memorized" << std::endl;
     }

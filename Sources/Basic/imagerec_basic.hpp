@@ -98,24 +98,34 @@ inline Mat cropFromCenterAndResize(const cv::Mat &input, cv::Size size)
     return output;
 }
 
-inline Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, int _targetchannels)
+inline Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, int _targetchannels, bool _crop)
 {
     cv::Mat _outmat;
 	if((_inmat.channels() == 4) && (_targetchannels == 3)) {
-		cv::cvtColor(_inmat,_outmat,CV_BGRA2RGB);
+        cv::cvtColor(_inmat,_outmat,CV_BGRA2BGR);
 	} else if((_inmat.channels() == 4) && (_targetchannels == 1)) {
 		cv::cvtColor(_inmat,_outmat,CV_BGRA2GRAY);
 	} else if((_inmat.channels() == 3) && (_targetchannels == 3)) {
-		cv::cvtColor(_inmat,_outmat,CV_BGR2RGB);
+        //cv::cvtColor(_inmat,_outmat,CV_BGR2RGB);
+        _outmat = _inmat;
 	} else if((_inmat.channels() == 3) && (_targetchannels == 1)) {
 		cv::cvtColor(_inmat,_outmat,CV_BGR2GRAY);
     } else if((_inmat.channels() == 1) && (_targetchannels == 3)) {
-        cv::cvtColor(_inmat,_outmat,CV_GRAY2RGB);
-    } else { // TO DO add gray2color conversions block
+        cv::cvtColor(_inmat,_outmat,CV_GRAY2BGR);
+    } else {
         _outmat = _inmat;
     }
     if((_outmat.cols != _targetsize.width) || (_outmat.rows != _targetsize.height)) {
-        _outmat = cropFromCenterAndResize(_outmat, _targetsize);
+        if(_crop) {
+            _outmat = cropFromCenterAndResize(_outmat, _targetsize);
+        } else {
+            int _im = 0;
+            if(_targetsize.area() > (_outmat.rows*_outmat.cols))
+                _im = CV_INTER_CUBIC;
+            else
+                _im = CV_INTER_AREA;
+            cv::resize(_outmat, _outmat, _targetsize, 0, 0, _im);
+        }
     }
     return _outmat;
 }

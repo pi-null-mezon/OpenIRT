@@ -21,11 +21,12 @@
 
 namespace cv { namespace imgrec {
 
-ImageRecognizer::ImageRecognizer(Size _inputsize, int _inputchannels, DistanceType _distancetype, double _threshold) :       
+ImageRecognizer::ImageRecognizer(Size _inputsize, int _inputchannels, bool _cropinput, DistanceType _distancetype, double _threshold) :
     distanceType(_distancetype),
     threshold(_threshold),
     inputSize(_inputsize),
-    inputChannels(_inputchannels)
+    inputChannels(_inputchannels),
+    cropInput(_cropinput)
 {
 
 }
@@ -82,6 +83,16 @@ void ImageRecognizer::setInputChannels(int _val)
     inputChannels = _val;
 }
 
+bool ImageRecognizer::getCropInput() const
+{
+    return cropInput;
+}
+
+void ImageRecognizer::setCropInput(bool value)
+{
+    cropInput = value;
+}
+
 String ImageRecognizer::getLabelInfo(int label) const
 {
     std::map<int, String>::const_iterator iter(_labelsInfo.find(label));
@@ -91,14 +102,6 @@ String ImageRecognizer::getLabelInfo(int label) const
 void ImageRecognizer::setLabelInfo(int label, const String &strInfo)
 {
     _labelsInfo[label] = strInfo;
-}
-
-void ImageRecognizer::update(InputArrayOfArrays src, InputArray labels)
-{
-    (void)src;
-    (void)labels;
-    String error_msg = format("This ImageRecognizer does not support updating, you have to use ImageRecognizer::train to update it.");
-    CV_Error(Error::StsNotImplemented, error_msg);
 }
 
 void ImageRecognizer::load(const String &filename)
