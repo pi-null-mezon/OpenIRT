@@ -1,4 +1,4 @@
-#include "SqueezeNetImageNetRecognizer.h"
+#include "squeezenetimagenetrecognizer.h"
 
 namespace cv { namespace imgrec {
 

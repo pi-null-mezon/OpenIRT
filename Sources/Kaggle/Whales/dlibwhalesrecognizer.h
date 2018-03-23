@@ -35,7 +35,7 @@ namespace dlib {
                                 alevel2<
                                 alevel3<
                                 alevel4<
-                                max_pool<3,3,2,2,relu<affine<con<32,7,7,2,2,
+                                max_pool<3,3,2,2,relu<affine<con<32,5,5,2,2,
                                 input_rgb_image
                                 >>>>>>>>>>>>;
 }

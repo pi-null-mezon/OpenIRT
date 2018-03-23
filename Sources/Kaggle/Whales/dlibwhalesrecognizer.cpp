@@ -1,9 +1,9 @@
-#include "DlibWhalesRecognizer.h"
+#include "dlibwhalesrecognizer.h"
 
 namespace cv { namespace imgrec {
 
 DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_descriptormodelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(150,150),3,false,_disttype,_threshold)
+    CNNImageRecognizer(cv::Size(300,150),3,false,_disttype,_threshold)
 {
     try {
         dlib::deserialize(_descriptormodelfile.c_str()) >> net;
