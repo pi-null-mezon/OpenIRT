@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     /*cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createGoogleNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
                                                                                         cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );*/
 
-    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createDlibWhalesRecognizer(cv::String("/home/alex/Testdata/Kaggle/Whales/whales_metric_network_renset.dat"));
+    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createDlibWhalesRecognizer(cv::String("/home/alex/Testdata/Kaggle/Whales/whales_metric_network_resnet.dat"));
 
     qInfo("Step_2 - Generating descriptions for labels");
     QStringList _lsubdirname = _dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
