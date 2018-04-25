@@ -10,7 +10,8 @@ class QFaceRecognizer : public QObject
     Q_OBJECT
 public:
     explicit QFaceRecognizer(QObject *parent = nullptr);
-    bool loadResources(const QString &_labelsfilename, const QString &_faceshapepredictormodel, const QString &_dlibfacedescriptor);
+    void loadResources(const QString &_faceshapepredictormodel, const QString &_dlibfacedescriptor);
+    bool loadLabels(const QString &_labelsfilename);
 
 signals:
     void labelPredicted(int _label, double _distance, const QString &_labelInfo);

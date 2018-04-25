@@ -5,9 +5,13 @@ QFaceRecognizer::QFaceRecognizer(QObject *parent) : QObject(parent)
 
 }
 
-bool QFaceRecognizer::loadResources(const QString &_labelsfilename, const QString &_faceshapepredictormodel, const QString &_dlibfacedescriptor)
+void QFaceRecognizer::loadResources(const QString &_faceshapepredictormodel, const QString &_dlibfacedescriptor)
 {
     ptrrec = cv::imgrec::createDlibFaceRecognizer(_faceshapepredictormodel.toUtf8().constData(),_dlibfacedescriptor.toUtf8().constData());
+}
+
+bool QFaceRecognizer::loadLabels(const QString &_labelsfilename)
+{
     ptrrec->ImageRecognizer::load(_labelsfilename.toUtf8().constData());
     return !ptrrec->empty();
 }
