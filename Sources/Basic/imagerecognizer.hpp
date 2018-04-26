@@ -54,6 +54,7 @@ public:
 
     virtual void train(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
     virtual void update(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
+    virtual void remove(InputArray labels) = 0;
 
     /**
      * @brief predict label for the input src image

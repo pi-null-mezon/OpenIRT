@@ -10,6 +10,7 @@
 
 QOIRTServer::QOIRTServer(QObject *parent) : QObject(parent)
 {
+    qRegisterMetaType<qintptr>("qintptr");
     connect(&tcpserver, SIGNAL(newConnection()), this, SLOT(getNewTask()));
 }
 
@@ -18,7 +19,7 @@ QOIRTServer::~QOIRTServer()
     stop();
 }
 
-bool QOIRTServer::start(int _port)
+bool QOIRTServer::start(quint16 _port)
 {
     if(tcpserver.isListening()) {
         stop();
@@ -47,11 +48,11 @@ void QOIRTServer::getNewTask()
 {
     QTcpSocket* _clientSocket = tcpserver.nextPendingConnection();
     qintptr _taskid = _clientSocket->socketDescriptor();
-    qDebug("QOIRTServer: New connection %d has been established", static_cast<int>(_taskid));
-    connect(_clientSocket,SIGNAL(readyRead()),this, SLOT(readClient()));
+    qDebug("QOIRTServer: New connection %d has been established",static_cast<int>(_taskid));
+    connect(_clientSocket,SIGNAL(readyRead()),this,SLOT(readClient()));
+    connect(_clientSocket,SIGNAL(disconnected()),this,SLOT(removeClient()));
     tasks[_taskid] = OIRTTask(_clientSocket);
 }
-
 
 void QOIRTServer::readClient()
 {
@@ -80,8 +81,7 @@ void QOIRTServer::readClient()
             if(_task->labelaccepted == false) {
                 if(_task->tcpsocket->bytesAvailable() < _task->labelinfobytes)
                     return;
-                _task->labeinfo.resize(_task->labelinfobytes);
-                _ids.readRawData(_task->labeinfo.data(), _task->labelinfobytes);
+                _ids >> _task->labeinfo;
                 _task->labelaccepted = true;
             }
             // WAIT ENCODED PICTURE
@@ -93,9 +93,9 @@ void QOIRTServer::readClient()
             if(_task->encimgaccepted == false) {
                 if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
                     return;
-                _task->encimg.resize(_task->labelinfobytes);
-                _ids.readRawData(_task->encimg.data(), _task->encimgbytes);
+                _ids >> _task->encimg;
                 _task->encimgaccepted = true;
+                emit rememberLabel(_taskid,_task->labeinfo,_task->encimg);
             }
             break;
 
@@ -109,28 +109,34 @@ void QOIRTServer::readClient()
             if(_task->labelaccepted == false) {
                 if(_task->tcpsocket->bytesAvailable() < _task->labelinfobytes)
                     return;
-                _task->labeinfo.resize(_task->labelinfobytes);
-                _ids.readRawData(_task->labeinfo.data(), _task->labelinfobytes);
-                _task->labelaccepted = true;
+                _ids >> _task->labeinfo;
+                _task->labelaccepted = true;                
+                emit deleteLabel(_taskid,_task->labeinfo);
             }
             break;
 
         case OIRTTask::IdentifyImage:
-            // WAIT ENCODED PICTURE
+            // WAIT ENCODED PICTURE           
             if(_task->encimgbytes == -1) {
                 if(_task->tcpsocket->bytesAvailable() < (qint64)sizeof(qint32))
                     return;
                 _ids >> _task->encimgbytes;
-            }
+            }            
             if(_task->encimgaccepted == false) {
                 if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
                     return;
-                _task->encimg.resize(_task->labelinfobytes);
-                _ids.readRawData(_task->encimg.data(), _task->encimgbytes);
+                _ids >> _task->encimg;
                 _task->encimgaccepted = true;
-            }
+                emit identifyImage(_taskid,_task->encimg);
+            }           
             break;
     }
+}
+
+void QOIRTServer::removeClient()
+{
+    QTcpSocket *_tcpsocket = (QTcpSocket*)sender();
+    _tcpsocket->deleteLater();
 }
 
 void QOIRTServer::repeatToClient(qintptr _taskid, const QByteArray &_repeat)
@@ -139,11 +145,12 @@ void QOIRTServer::repeatToClient(qintptr _taskid, const QByteArray &_repeat)
     QDataStream _ods(_task->tcpsocket);
     _ods.setVersion(QDataStream::Qt_5_0);
 
-    _ods << _repeat.size();
+    qDebug("%s",_repeat.constData());
+
+    _ods << static_cast<qint32>(_repeat.size());
     _ods << _repeat;
 
     qDebug("QOIRTServer: Client connection %d will be closed", static_cast<int>(_taskid));
-    tasks[_taskid].tcpsocket->close();
     tasks.remove(_taskid);
 }
 

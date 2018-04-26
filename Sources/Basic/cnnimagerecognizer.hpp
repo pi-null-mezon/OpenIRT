@@ -18,6 +18,7 @@ public:
 
     void    train(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;
     void    update(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;
+    void    remove(InputArray labels) override;
     void    load(const FileStorage &fs) override;
     void    save(FileStorage &fs) const override;
     bool    empty() const override;

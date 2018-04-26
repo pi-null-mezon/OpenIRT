@@ -19,6 +19,33 @@ void CNNImageRecognizer::update(InputArrayOfArrays src, InputArray labels, bool 
     __train(src, labels, true, _visualize);
 }
 
+void CNNImageRecognizer::remove(InputArray labels)
+{
+    // get the label matrix
+    Mat lbls = labels.getMat();
+
+    std::vector<int> _vlabels;
+    _vlabels.reserve(v_labels.size());
+    std::vector<cv::Mat> _vdescriptions;
+    _vdescriptions.reserve(v_descriptions.size());
+
+    for(size_t i = 0; i < v_labels.size(); ++i) {
+        bool _shouldberemoved = false;
+        for(size_t j = 0; j < lbls.total(); ++j) {            
+            if(lbls.at<int>((int)j) == v_labels[i]) {
+                _shouldberemoved = true;
+                break;
+            }
+        }
+        if(_shouldberemoved == false) {
+            _vlabels.push_back(v_labels[i]);
+            _vdescriptions.push_back(v_descriptions[i]);
+        }
+    }
+    v_labels = std::move(_vlabels);
+    v_descriptions = std::move(_vdescriptions);
+}
+
 void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData, bool _visualize)
 {
     if(_src.kind() != _InputArray::STD_VECTOR_MAT && _src.kind() != _InputArray::STD_VECTOR_VECTOR) {

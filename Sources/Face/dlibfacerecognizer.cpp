@@ -3,7 +3,7 @@
 namespace cv { namespace imgrec {
 
 DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(156,192),3,false,_disttype,_threshold)
+    CNNImageRecognizer(cv::Size(156,192),3,true,_disttype,_threshold)
 {
     try {
         dlibfacedet = dlib::get_frontal_face_detector();

@@ -12,9 +12,6 @@ OIRTTask::OIRTTask(QTcpSocket *_tcpsocket) :
 
 OIRTTask::~OIRTTask()
 {
-    qDebug("OIRTTask::~OIRTTask()");
-    if(tcpsocket != 0)
-        tcpsocket->deleteLater();
 }
 
 OIRTTask::TaskCode OIRTTask::getTaskCode(quint8 _val)
@@ -28,5 +25,19 @@ OIRTTask::TaskCode OIRTTask::getTaskCode(quint8 _val)
             return OIRTTask::IdentifyImage;
         default:
             return OIRTTask::UnknownTask;
+    }
+}
+
+quint8 OIRTTask::getTaskCodeValue(OIRTTask::TaskCode _taskcode)
+{
+    switch(_taskcode) {
+        case OIRTTask::RememberLabel:
+            return 1;
+        case OIRTTask::DeleteLabel:
+            return 2;
+        case OIRTTask::IdentifyImage:
+            return 3;
+        default:
+            return 0;
     }
 }

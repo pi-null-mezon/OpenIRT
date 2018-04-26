@@ -20,9 +20,10 @@ signals:
     void identifyImage(qintptr _taskid, const QByteArray &_encimg);
 
 public slots:    
-    bool start(int _port);
+    bool start(quint16 _port);
     void getNewTask();
     void readClient();
+    void removeClient();
     void repeatToClient(qintptr _taskid, const QByteArray &_repeat);
     void stop();
 

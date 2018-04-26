@@ -17,6 +17,7 @@ struct OIRTTask
     ~OIRTTask();
 
     static TaskCode getTaskCode(quint8 _val);
+    static quint8   getTaskCodeValue(TaskCode _taskcode);
 
     QTcpSocket *tcpsocket;
 
