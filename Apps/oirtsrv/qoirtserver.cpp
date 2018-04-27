@@ -130,6 +130,10 @@ void QOIRTServer::readClient()
                 emit identifyImage(_taskid,_task->encimg);
             }           
             break;
+
+        default:
+            // TO SUPPRESS WARNINGS
+            break;
     }
 }
 

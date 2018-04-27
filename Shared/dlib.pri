@@ -27,7 +27,7 @@ linux {
 
     PATH_TO_CUDNN_BINARIES = /home/alex/Programming/3rdParties/cudnn-7.1/lib64
     LIBS += -L$${PATH_TO_CUDNN_BINARIES}
-    LIBS += -lcudnn
+    #LIBS += -lcudnn
 
     LIBS += -lpthread
 }
