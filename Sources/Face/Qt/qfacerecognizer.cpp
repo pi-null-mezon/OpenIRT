@@ -70,7 +70,7 @@ void QFaceRecognizer::deleteLabel(qintptr _taskid, const QByteArray &_labelinfo)
         ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
         emit taskAccomplished(_taskid,QString("{"
                                               "\"status\": \"Success\","
-                                              "\"message\": \"%1\" has been deleted"
+                                              "\"message\": \"%1 has been deleted\""
                                               "}").arg(_labelinfo.constData()).toUtf8());
     } else {
         emit taskAccomplished(_taskid,QString("{"
