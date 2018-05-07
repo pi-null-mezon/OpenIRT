@@ -21,18 +21,14 @@ win32 {
     LIBS += -L$${DLIB_INSTALL_PATH}/lib    
 }
 
+LIBS += -ldlib
+
 linux {
-    PATH_TO_DLIB_RESOURCES = /home/alex/Programming/3rdParties/dlib_build/etc/data/
     LIBS += -L/usr/local/lib
 
-    PATH_TO_CUDNN_BINARIES = /home/alex/Programming/3rdParties/cudnn-7.1/lib64
-    LIBS += -L$${PATH_TO_CUDNN_BINARIES}
-    #LIBS += -lcudnn
-
-    LIBS += -lpthread
+    LIBS += -lpthread \
+            -lopenblas
 }
-
-LIBS += -ldlib
 
 DEFINES += PATH_TO_DLIB_RES=\\\"$${PATH_TO_DLIB_RESOURCES}\\\"
 
