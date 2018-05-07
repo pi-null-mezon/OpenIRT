@@ -14,12 +14,11 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
       fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
       break;
   case QtInfoMsg:
-      fprintf(stdout, "%s", localMsg.constData());
+      fprintf(stdout, "%s\n", localMsg.constData());
       //fprintf(stdout, "Info: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
       break;
   case QtWarningMsg:
-      fprintf(stdout, "%s", localMsg.constData());
-      //fprintf(stdout, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+      fprintf(stdout, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
       break;
   case QtCriticalMsg:
       fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
@@ -45,7 +44,7 @@ int main(int argc, char *argv[])
     while((--argc > 0) && ((*++argv)[0] == '-')) {
         switch(*++argv[0]) {
             case 'h':
-                qInfo("%s v.%s\n", APP_NAME, APP_VERSION);
+                qInfo("%s v.%s\n\n", APP_NAME, APP_VERSION);
                 qInfo(" -p[int] - port number to connect (default: %u)", (uint)port);
                 qInfo(" -i[str] - filename of the image that should be processed");
                 qInfo(" -l[str] - label info string");
