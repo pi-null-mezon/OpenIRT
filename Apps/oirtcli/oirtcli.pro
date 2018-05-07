@@ -2,7 +2,7 @@ QT += core network
 QT -= gui
 
 TARGET = oirtcli
-VERSION = 1.0.0.0
+VERSION = 1.0.0.1
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -33,3 +33,5 @@ INCLUDEPATH += $${PWD}/../oirtproto
 HEADERS += \
         qoirtcli.h \
         $${PWD}/../oirtproto/oirttask.h
+
+CONFIG(release, debug|release): DEFINES += QT_NO_DEBUG_OUTPUT

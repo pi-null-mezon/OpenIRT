@@ -21,7 +21,7 @@ void QOIRTCli::sendTask()
     _ods.setVersion(QDataStream::Qt_5_0);
 
     _ods << OIRTTask::getTaskCodeValue(taskcode);
-    qInfo("taskcode: %u", (uint)OIRTTask::getTaskCodeValue(taskcode));
+    qDebug("taskcode: %u", (uint)OIRTTask::getTaskCodeValue(taskcode));
 
     switch(taskcode) {
         case OIRTTask::RememberLabel:
@@ -66,7 +66,7 @@ void QOIRTCli::readSocket()
     }
     QByteArray _repeat;
     _ids >> _repeat;
-    qDebug("Server repeat: %s", QString(_repeat.constData()).toUtf8().constData());
+    qInfo("%s", QString(_repeat.constData()).toUtf8().constData());
     emit taskAccomplished();
 }
 

@@ -6,11 +6,36 @@
 
 #include "qoirtcli.h"
 
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+  QByteArray localMsg = msg.toLocal8Bit();
+  switch (type) {
+  case QtDebugMsg:
+      fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+      break;
+  case QtInfoMsg:
+      fprintf(stdout, "%s", localMsg.constData());
+      //fprintf(stdout, "Info: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+      break;
+  case QtWarningMsg:
+      fprintf(stdout, "%s", localMsg.constData());
+      //fprintf(stdout, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+      break;
+  case QtCriticalMsg:
+      fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+      break;
+  case QtFatalMsg:
+      fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+      abort();
+  }
+}
+
 int main(int argc, char *argv[])
 {
 #ifdef Q_OS_WIN
     setlocale(LC_CTYPE,"Rus");
 #endif
+    qInstallMessageHandler(myMessageOutput);
     QCoreApplication a(argc, argv);
     //-----------------------------
     quint16 port = 8080;
