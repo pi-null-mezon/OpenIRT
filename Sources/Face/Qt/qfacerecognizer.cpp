@@ -50,14 +50,14 @@ void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinf
        ptrrec->setLabelInfo(_label,_labelinfo.constData());
        ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
        emit taskAccomplished(_taskid,QString("{"
-                                             "status: \"Success\","
-                                             "label: %1,"
-                                             "labelinfo: \"%2\""
+                                             "\"status\": \"Success\","
+                                             "\"label\": %1,"
+                                             "\"labelinfo\": \"%2\""
                                              "}").arg(QString::number(_label),_labelinfo.constData()).toUtf8());
     } else {
        emit taskAccomplished(_taskid,QString("{"
-                                             "status: \"Error\","
-                                             "message: \"Can not decode input image!\""
+                                             "\"status\": \"Error\","
+                                             "\"message\": \"Can not decode input image!\""
                                              "}").toUtf8());
     }
 }
@@ -69,13 +69,13 @@ void QFaceRecognizer::deleteLabel(qintptr _taskid, const QByteArray &_labelinfo)
         ptrrec->remove(_vlabels);
         ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
         emit taskAccomplished(_taskid,QString("{"
-                                              "status: \"Success\","
-                                              "message: \"%1\" has been deleted"
+                                              "\"status\": \"Success\","
+                                              "\"message\": \"%1\" has been deleted"
                                               "}").arg(_labelinfo.constData()).toUtf8());
     } else {
         emit taskAccomplished(_taskid,QString("{"
-                                              "status: \"Error\","
-                                              "message: \"Empty labels list, can not delete anything!\""
+                                              "\"status\": \"Error\","
+                                              "\"message\": \"Empty labels list, can not delete anything!\""
                                               "}").toUtf8());
     }
 }
@@ -88,15 +88,15 @@ void QFaceRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
         double _distance;
         ptrrec->predict(_faceimg,_label,_distance);
         emit taskAccomplished(_taskid,QString("{"
-                                              "status: \"Success\","
-                                              "label: %1,"
-                                              "labelinfo: \"%2\","
-                                              "distance: %3"
+                                              "\"status\": \"Success\","
+                                              "\"label\": %1,"
+                                              "\"labelinfo\": \"%2\","
+                                              "\"distance\": %3"
                                               "}").arg(QString::number(_label),QString(ptrrec->getLabelInfo(_label).c_str()),QString::number(_distance,'f',3)).toUtf8());
     } else {
         emit taskAccomplished(_taskid,QString("{"
-                                              "status: \"Error\","
-                                              "message: \"Empty labels list, can not identify anything!\""
+                                              "\"status\": \"Error\","
+                                              "\"message\": \"Empty labels list, can not identify anything!\""
                                               "}").toUtf8());
     }
 }
