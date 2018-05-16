@@ -24,10 +24,17 @@ win32 {
 LIBS += -ldlib
 
 linux {
-    LIBS += -L/usr/local/lib
+    LIBS += -L/usr/local/cuda-9.1/lib64
 
-    LIBS += -lpthread \
-            -lopenblas
+    LIBS += -lcudnn \
+            -lpthread \
+            -lcuda \
+            -lcudart \
+            -lcublas \
+            -lcurand \
+            -lcusolver \
+            -ljpeg \
+            -lpng
 }
 
 DEFINES += PATH_TO_DLIB_RES=\\\"$${PATH_TO_DLIB_RESOURCES}\\\"
