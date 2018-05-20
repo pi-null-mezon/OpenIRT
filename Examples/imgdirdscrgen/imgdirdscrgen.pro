@@ -24,9 +24,9 @@ SOURCES += main.cpp
 
 include($${PWD}/../../Shared/opencv.pri)
 include($${PWD}/../../Shared/dlib.pri)
-
 include($${PWD}/../../Sources/Basic/imagerecognizer.pri)
-include($${PWD}/../../Sources/ImageNet/imagenet.pri)
-#include($${PWD}/../../Sources/Face/dlibfacerecognizer.pri)
 
+#include($${PWD}/../../Sources/ImageNet/imagenet.pri)
+#include($${PWD}/../../Sources/Face/dlibfacerecognizer.pri)
 include($${PWD}/../../Sources/Kaggle/Whales/dlibwhalesrecognizer.pri)
+#include($${PWD}/../../Sources/Kaggle/Furniture/furniturerecognizer.pri)

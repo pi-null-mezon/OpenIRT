@@ -6,9 +6,10 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 
-#include "squeezenetimagenetrecognizer.h"
-#include "googlenetrecognizer.h"
+//#include "squeezenetimagenetrecognizer.h"
+//#include "googlenetrecognizer.h"
 #include "dlibwhalesrecognizer.h"
+//#include "furniturerecognizer.h"
 
 const cv::String options = "{help h       |        | show app's help}"
                            "{inputdir i   |        | set input directory in which subdirs will be searched}"
@@ -48,13 +49,16 @@ int main(int argc, char *argv[])
     /*cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createGoogleNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
                                                                                         cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );*/
 
-    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createDlibWhalesRecognizer(cv::String("/home/alex/Fastdata/Kaggle/Whales/whales_metric_network_resnet.dat"));
+    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createDlibWhalesRecognizer(cv::String("/home/alex/Programming/Kaggle/Whales/Dlib/build/build-Learner-Desktop_Qt_5_10_0_GCC_64bit-Release/whales_metric_network_resnet.dat"));
+
+    /*cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createFurnitureRecognizer(cv::String("/home/alex/Fastdata/Kaggle/Furniture/Metricbench/net.dat"));*/
 
     qInfo("Step_2 - Generating descriptions for labels");
     QStringList _lsubdirname = _dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     const bool _visualize = _cmdparser.get<bool>("visualize");
     for(int i = 0; i < _lsubdirname.size(); ++i) {
-        qInfo("   Label %d", i);
+        QString _labelstr = _lsubdirname.at(i);
+        qInfo("   Label number %d - name %s", i, _labelstr.toUtf8().constData());
         QDir _subdir(_dir.absolutePath().append("/%1").arg(_lsubdirname.at(i)));
         QStringList _extensions;
         _extensions << "*.png" << "*.jpeg" << "*.bmp" << "*.jpg";
@@ -69,7 +73,7 @@ int main(int argc, char *argv[])
             _ptr->update(_vmat,_vlbl,_visualize); // maybe it is not fastest way, but it is pretty interactive instead
         }
         if(_lfilename.size() > 0) {
-            _ptr->setLabelInfo(i,_lsubdirname.at(i).toUtf8().constData());
+            _ptr->setLabelInfo(i,_labelstr.toUtf8().constData());
         }
     }
 

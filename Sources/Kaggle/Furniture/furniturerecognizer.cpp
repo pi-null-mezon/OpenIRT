@@ -1,9 +1,9 @@
-#include "dlibwhalesrecognizer.h"
+#include "furniturerecognizer.h"
 
 namespace cv { namespace imgrec {
 
-DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_descriptormodelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(550,220),3,false,_disttype,_threshold)
+FurnitureRecognizer::FurnitureRecognizer(const String &_descriptormodelfile, DistanceType _disttype, double _threshold) :
+    CNNImageRecognizer(cv::Size(227,227),3,true,_disttype,_threshold)
 {
     try {
         dlib::deserialize(_descriptormodelfile.c_str()) >> net;
@@ -12,7 +12,7 @@ DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_descriptormodelfile, D
     }
 }
 
-Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
+Mat FurnitureRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
 {
     cv::String _str = _blobname; // to suppress 'unused variable' compiler warning
     // Prepare image
@@ -26,12 +26,12 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
     return dlib::toMat(_description).reshape(1,1).clone();
 }
 
-Mat DlibWhalesRecognizer::getImageDescription(const Mat &_img) const
+Mat FurnitureRecognizer::getImageDescription(const Mat &_img) const
 {
     return getImageDescriptionByLayerName(_img,cv::String());
 }
 
-void DlibWhalesRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
+void FurnitureRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
 {
     cv::Mat _description = getImageDescription(src.getMat());
     collector->init(v_labels.size());
@@ -51,9 +51,9 @@ void DlibWhalesRecognizer::predict(InputArray src, Ptr<PredictCollector> collect
     }
 }
 
-Ptr<CNNImageRecognizer> createDlibWhalesRecognizer(const String &_descriptormodelfile, DistanceType _disttype, double _threshold)
+Ptr<CNNImageRecognizer> createFurnitureRecognizer(const String &_descriptormodelfile, DistanceType _disttype, double _threshold)
 {
-    return makePtr<DlibWhalesRecognizer>(_descriptormodelfile,_disttype,_threshold);
+    return makePtr<FurnitureRecognizer>(_descriptormodelfile,_disttype,_threshold);
 }
 
 }
