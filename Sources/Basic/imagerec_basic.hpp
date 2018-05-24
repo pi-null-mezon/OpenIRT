@@ -114,17 +114,17 @@ inline Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, int _targe
         cv::cvtColor(_inmat,_outmat,CV_GRAY2BGR);
     } else {
         _outmat = _inmat;
-    }
-    if((_outmat.cols != _targetsize.width) || (_outmat.rows != _targetsize.height)) {
-        if(_crop) {
-            _outmat = cropFromCenterAndResize(_outmat, _targetsize);
-        } else {
-            int _im = 0;
-            if(_targetsize.area() > (_outmat.rows*_outmat.cols))
-                _im = CV_INTER_CUBIC;
-            else
-                _im = CV_INTER_AREA;
-            cv::resize(_outmat, _outmat, _targetsize, 0, 0, _im);
+    }    
+    if(_targetsize.width != 0 && _targetsize.height != 0) {
+        if((_outmat.cols != _targetsize.width) || (_outmat.rows != _targetsize.height)) {
+            if(_crop) {
+                _outmat = cropFromCenterAndResize(_outmat, _targetsize);
+            } else {
+                int _im = CV_INTER_AREA;
+                if(_targetsize.area() > (_outmat.rows*_outmat.cols))
+                    _im = CV_INTER_CUBIC;
+                cv::resize(_outmat, _outmat, _targetsize, 0, 0, _im);
+            }
         }
     }
     return _outmat;

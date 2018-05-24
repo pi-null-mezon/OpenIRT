@@ -37,7 +37,7 @@ void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinf
     auto _vlabels = ptrrec->getLabelsByString(_labelinfo.constData());
     if(_vlabels.size() > 0) {
        qDebug("This labelinfo already in use, so this example will be added to existed label");
-       _label =_vlabels[0];
+       _label = _vlabels[0];
     } else {
        _label = ptrrec->nextfreeLabel();
     }

@@ -35,9 +35,12 @@ std::vector<int> ImageRecognizer::getLabelsByString(const String &str) const
 {
   std::vector<int> labels;
   for (std::map<int, String>::const_iterator it = _labelsInfo.begin(); it != _labelsInfo.end(); it++) {
-      size_t found = (it->second).find(str);
+      /*size_t found = (it->second).find(str);
       if (found != String::npos)
-          labels.push_back(it->first);
+          labels.push_back(it->first);*/
+
+      if((it->second).compare(str) == 0) // the contents of both strings are equal
+        labels.push_back(it->first);
   }
   return labels;
 }

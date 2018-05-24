@@ -10,7 +10,7 @@ QT -= gui
 CONFIG += c++11
 
 TARGET = oirtsrv
-VERSION = 1.0.0.0
+VERSION = 1.0.1.0
 
 TEMPLATE = app
 CONFIG += console
@@ -41,3 +41,5 @@ HEADERS += $${PWD}/../../Sources/Face/dlibfacerecognizer.h \
 
 INCLUDEPATH += $${PWD}/../../Sources/Face \
                $${PWD}/../../Sources/Face/Qt
+
+DEFINES += QT_NO_DEBUG_OUTPUT

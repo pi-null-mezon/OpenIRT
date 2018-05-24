@@ -3,7 +3,7 @@
 namespace cv { namespace imgrec {
 
 DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(156,192),3,true,_disttype,_threshold)
+    CNNImageRecognizer(cv::Size(0,0),3,true,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
 {
     try {
         dlibfacedet = dlib::get_frontal_face_detector();
@@ -27,6 +27,11 @@ Mat DlibFaceRecognizer::getImageDescriptionByLayerName(const Mat &_img, const St
     cv::String _str = _blobname; // to suppress 'unused variable' compiler warning
     // Prepare image
     dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(preprocessImageForCNN(_img, getInputSize(), getInputChannels(), getCropInput()));
+
+    /*cv::Mat _viewmat(num_rows(_facechip), num_columns(_facechip), CV_8UC3, image_data(_facechip));
+    cv::imshow("Input of DLIB",_viewmat);
+    cv::waitKey(1);*/
+
     // Get description
     dlib::matrix<float,0,1> _facedescription = net(_facechip);
     // Perform forward propagation
