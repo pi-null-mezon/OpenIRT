@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     /*cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createGoogleNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
                                                                                         cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );*/
 
-    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createDlibWhalesRecognizer(cv::String("/home/alex/Programming/Kaggle/Whales/Dlib/build/build-Learner-Desktop_Qt_5_10_0_GCC_64bit-Release/whales_metric_network_resnet.dat"));
+    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createDlibWhalesRecognizer(cv::String("/home/alex/Programming/Kaggle/Whales/Dlib/build/build-Learner_gs-Desktop_Qt_5_10_0_GCC_64bit-Release/whales_metric_network_resnet.dat"));
 
     /*cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createFurnitureRecognizer(cv::String("/home/alex/Fastdata/Kaggle/Furniture/Metricbench/net.dat"));*/
 

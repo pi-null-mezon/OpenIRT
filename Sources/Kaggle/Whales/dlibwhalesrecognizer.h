@@ -36,7 +36,7 @@ using anet_type = loss_metric<fc_no_bias<128,avg_pool_everything<
                             alevel3<
                             alevel4<
                             relu<affine<con<16,5,5,2,2,
-                            input_rgb_image
+                            input<matrix<float>>
                             >>>>>>>>>>>;
 }
 
