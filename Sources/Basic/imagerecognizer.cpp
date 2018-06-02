@@ -21,7 +21,7 @@
 
 namespace cv { namespace imgrec {
 
-ImageRecognizer::ImageRecognizer(Size _inputsize, int _inputchannels, bool _cropinput, DistanceType _distancetype, double _threshold) :
+ImageRecognizer::ImageRecognizer(Size _inputsize, int _inputchannels, CropMethod _cropinput, DistanceType _distancetype, double _threshold) :
     distanceType(_distancetype),
     threshold(_threshold),
     inputSize(_inputsize),
@@ -81,12 +81,12 @@ void ImageRecognizer::setInputChannels(int _val)
     inputChannels = _val;
 }
 
-bool ImageRecognizer::getCropInput() const
+CropMethod ImageRecognizer::getCropInput() const
 {
     return cropInput;
 }
 
-void ImageRecognizer::setCropInput(bool value)
+void ImageRecognizer::setCropInput(CropMethod value)
 {
     cropInput = value;
 }

@@ -14,7 +14,7 @@ namespace cv { namespace imgrec {
 class CNNImageRecognizer : public ImageRecognizer
 {
 public:
-    CNNImageRecognizer(Size _inputsize, int _inputchannels, bool _cropinput, DistanceType _disttype, double _threshold);
+    CNNImageRecognizer(Size _inputsize, int _inputchannels, CropMethod _cropinput, DistanceType _disttype, double _threshold);
 
     void    train(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;
     void    update(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;

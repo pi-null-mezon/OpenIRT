@@ -4,7 +4,7 @@
 
 namespace cv { namespace imgrec {
 
-CNNImageRecognizer::CNNImageRecognizer(Size _inputsize, int _inputchannels, bool _cropinput, DistanceType _disttype, double _threshold) :
+CNNImageRecognizer::CNNImageRecognizer(Size _inputsize, int _inputchannels, CropMethod _cropinput, DistanceType _disttype, double _threshold) :
     ImageRecognizer(_inputsize, _inputchannels, _cropinput, _disttype, _threshold)
 {
 }
@@ -78,10 +78,10 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
 
     // append labels and images to the storage
     for(size_t labelIdx = 0; labelIdx < lbls.total(); labelIdx++) {
-        v_labels.push_back(lbls.at<int>((int)labelIdx));
-        raw[labelIdx] = preprocessImageForCNN(raw[labelIdx], getInputSize(), getInputChannels(), getCropInput());
+        v_labels.push_back(lbls.at<int>((int)labelIdx));       
         if(_visualize) {
-            cv::imshow("CNNFaceRecognizer",raw[labelIdx]);
+            cv::Mat _tmpmat = preprocessImageForCNN(raw[labelIdx], getInputSize(), getInputChannels(), getCropInput());
+            cv::imshow("CNNFaceRecognizer",_tmpmat);
             cv::waitKey(1);
         }
         v_descriptions.push_back( getImageDescription( raw[labelIdx] ) );

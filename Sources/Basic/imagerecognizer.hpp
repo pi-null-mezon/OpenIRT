@@ -47,10 +47,12 @@ namespace cv { namespace imgrec {
 
 enum DistanceType {Euclidean, Cosine};
 
+enum CropMethod {NoCrop, Inside, Outside, OutsideJitter};
+
 class ImageRecognizer : public Algorithm
 {
 public:
-    ImageRecognizer(Size _inputsize, int _inputchannels, bool _cropinput, DistanceType _distancetype, double _threshold);
+    ImageRecognizer(Size _inputsize, int _inputchannels, CropMethod _cropinput, DistanceType _distancetype, double _threshold);
 
     virtual void train(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
     virtual void update(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
@@ -123,9 +125,9 @@ public:
 
     virtual void setInputChannels(int _val);
 
-    virtual bool getCropInput() const;
+    virtual CropMethod getCropInput() const;
 
-    virtual void setCropInput(bool value);
+    virtual void setCropInput(CropMethod value);
 
 protected:
     // Stored pairs "label id - string info"
@@ -135,7 +137,7 @@ protected:
     double          threshold;
     Size            inputSize;
     int             inputChannels;
-    bool            cropInput;
+    CropMethod      cropInput;
 };
 
 }}
