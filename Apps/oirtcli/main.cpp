@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
                 qInfo(" -p[int] - port number to connect (default: %u)", (uint)port);
                 qInfo(" -i[str] - filename of the image that should be processed");
                 qInfo(" -l[str] - label info string");
-                qInfo(" -t[int] - task code {RememberLabel=1, DeleteLabel=2, IdentifyImage=3}");
+                qInfo(" -t[int] - task code {RememberLabel=1, DeleteLabel=2, IdentifyImage=3, AskLabels=4}");
                 return 0;
 
             case 'i':
