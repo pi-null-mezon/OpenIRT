@@ -45,9 +45,6 @@ win32 {
     message(OpenCV library version $${OPENCV_DIR}/$${OPENCV_ARCHITECTURE_DIR}/$${OPENCV_COMPILER_DIR} will be used)
 
 } else {
-    OPENCV_DIR = /home/pi/Programming/3rdParties/opencv310/build
-    LIBS += -L/usr/local/lib
-    LIBS += -L/usr/local/bin
     LIBS += -lopencv_core \
             -lopencv_objdetect \
             -lopencv_highgui \
