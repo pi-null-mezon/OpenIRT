@@ -27,6 +27,7 @@ public slots:
     void        rememberLabel(qintptr _taskid, const QByteArray &_labelinfo, const QByteArray &_encimg);
     void        deleteLabel(qintptr _taskid, const QByteArray &_labelinfo);
     void        identifyImage(qintptr _taskid, const QByteArray &_encimg);
+    void        getLabelsList(qintptr _taskid);
 
 private:
     cv::Ptr<cv::imgrec::CNNImageRecognizer> ptrrec;

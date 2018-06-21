@@ -2,6 +2,10 @@
 
 #include <opencv2/imgcodecs.hpp>
 
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+
 QFaceRecognizer::QFaceRecognizer(QObject *parent) : QObject(parent)
 {
 
@@ -66,12 +70,18 @@ void QFaceRecognizer::deleteLabel(qintptr _taskid, const QByteArray &_labelinfo)
 {
     if(ptrrec->empty() == false) {
         auto _vlabels = ptrrec->getLabelsByString(_labelinfo.constData());
-        ptrrec->remove(_vlabels);
-        ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
-        emit taskAccomplished(_taskid,QString("{"
-                                              "\"status\": \"Success\","
-                                              "\"message\": \"%1 has been deleted\""
-                                              "}").arg(_labelinfo.constData()).toUtf8());
+        if(ptrrec->remove(_vlabels) > 0) {
+            ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
+            emit taskAccomplished(_taskid,QString("{"
+                                                  "\"status\": \"Success\","
+                                                  "\"message\": \"%1 has been deleted\""
+                                                  "}").arg(_labelinfo.constData()).toUtf8());
+        } else {
+            emit taskAccomplished(_taskid,QString("{"
+                                                  "\"status\": \"Error\","
+                                                  "\"message\": \"No %1 has been found in labels list!\""
+                                                  "}").arg(_labelinfo.constData()).toUtf8());
+        }
     } else {
         emit taskAccomplished(_taskid,QString("{"
                                               "\"status\": \"Error\","
@@ -99,6 +109,24 @@ void QFaceRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
                                               "\"message\": \"Empty labels list, can not identify anything!\""
                                               "}").toUtf8());
     }
+}
+
+void QFaceRecognizer::getLabelsList(qintptr _taskid)
+{
+    std::map<int,cv::String> _labelsInfo = ptrrec->getLabelsInfo();
+    QJsonArray _jsonarray;
+    for(auto const &_info : _labelsInfo) {
+        QJsonObject _jsonobj{
+                                {"label",_info.first},
+                                {"info",_info.second.c_str()}
+                            };
+        _jsonarray.push_back(_jsonobj);
+    }
+    QJsonObject _jsonobj{
+                            {"status","Success"},
+                            {"labels",_jsonarray}
+                        };
+    emit taskAccomplished(_taskid,QJsonDocument(_jsonobj).toJson(QJsonDocument::Compact));
 }
 
 QString QFaceRecognizer::getLabelsfilename() const

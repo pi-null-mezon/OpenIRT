@@ -3,7 +3,7 @@
 namespace cv { namespace imgrec {
 
 DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(0,0),3,true,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
+    CNNImageRecognizer(cv::Size(0,0),3,NoCrop,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
 {
     try {
         dlibfacedet = dlib::get_frontal_face_detector();
@@ -63,6 +63,10 @@ void DlibFaceRecognizer::predict(InputArray src, Ptr<PredictCollector> collector
     }
 }
 
+static bool rectAreaGreater(const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
+    return lhs.area() > rhs.area();
+}
+
 dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inmat) const
 {
     cv::Mat _rgbmat = _inmat;
@@ -75,6 +79,11 @@ dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inma
     dlib::rectangle _facerect(_inmat.cols,_inmat.rows);
     std::vector<dlib::rectangle> _facerects = dlibfacedet(_graycv_image);
     if(_facerects.size() > 0) {
+        if(_facerects.size() > 1) {
+            std::sort(_facerects.begin(),_facerects.end(),[](const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
+                return lhs.area() > rhs.area();
+            });
+        }
         _facerect = _facerects[0];
     }
     auto _shape = dlibshapepredictor(_rgbcv_image, _facerect);

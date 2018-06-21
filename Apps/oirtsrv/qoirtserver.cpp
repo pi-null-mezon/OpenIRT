@@ -131,6 +131,10 @@ void QOIRTServer::readClient()
             }           
             break;
 
+        case OIRTTask::AskLabelsList:
+            emit askLabelsList(_taskid);
+            break;
+
         default:
             // TO SUPPRESS WARNINGS
             break;

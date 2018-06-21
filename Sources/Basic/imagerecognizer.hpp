@@ -46,7 +46,9 @@ the use of this software, even if advised of the possibility of such damage.
 namespace cv { namespace imgrec {
 
 enum DistanceType {Euclidean, Cosine};
-
+/**
+ * @brief The CropMethod enum defines how image will be preprocessed at
+ */
 enum CropMethod {NoCrop, Inside, Outside, OutsideJitter};
 
 class ImageRecognizer : public Algorithm
@@ -56,7 +58,7 @@ public:
 
     virtual void train(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
     virtual void update(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
-    virtual void remove(InputArray labels) = 0;
+    virtual int remove(InputArray labels) = 0;
 
     /**
      * @brief predict label for the input src image
@@ -128,6 +130,8 @@ public:
     virtual CropMethod getCropInput() const;
 
     virtual void setCropInput(CropMethod value);
+
+    std::map<int,String> getLabelsInfo() const;
 
 protected:
     // Stored pairs "label id - string info"

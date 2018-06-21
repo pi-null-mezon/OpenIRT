@@ -18,6 +18,7 @@ signals:
     void rememberLabel(qintptr _taskid, const QByteArray &_labelinfo, const QByteArray &_encimg);
     void deleteLabel(qintptr _taskid, const QByteArray &_labelinfo);
     void identifyImage(qintptr _taskid, const QByteArray &_encimg);
+    void askLabelsList(qintptr _taskid);
 
 public slots:    
     bool start(quint16 _port);

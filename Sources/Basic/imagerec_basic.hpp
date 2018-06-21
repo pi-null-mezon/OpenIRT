@@ -4,6 +4,7 @@
 #include <set>
 #include <limits>
 #include <iostream>
+#include <time.h>
 
 #include "imagerecognizer.hpp"
 #include "precompiled.hpp"
@@ -133,11 +134,11 @@ inline cv::Mat cropOutsideFromCenterAndResize(const cv::Mat &input, cv::Size siz
  * @param _bordertype - opencv border type
  * @return transformed image
  */
-inline cv::Mat cropOutsideWithJitter(const cv::Mat &_inmat, cv::RNG &_cvrng, const cv::Size &_targetsize=cv::Size(0,0), double _maxscale=0.05, double _maxshift=0.02, double _maxangle=3, int _bordertype=cv::BORDER_CONSTANT)
+inline cv::Mat cropOutsideWithJitter(const cv::Mat &_inmat, cv::RNG &_cvrng, const cv::Size &_targetsize=cv::Size(0,0), double _maxscale=0.05, double _maxshift=0.02, double _maxangle=3.0, int _bordertype=cv::BORDER_CONSTANT)
 {
     cv::Mat _outmat;
     const cv::Size _insize(_inmat.cols,_inmat.rows);
-    double _scale = 1.;
+    double _scale = 1.0;
     if(_targetsize.area() > 0)
         _scale = std::min((double)_targetsize.width/_insize.width, (double)_targetsize.height/_insize.height);
     cv::Mat _matrix = cv::getRotationMatrix2D(cv::Point2f(_inmat.cols/2.f,_inmat.rows/2.f),

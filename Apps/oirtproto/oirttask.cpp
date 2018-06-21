@@ -23,6 +23,8 @@ OIRTTask::TaskCode OIRTTask::getTaskCode(quint8 _val)
             return OIRTTask::DeleteLabel;
         case 3:
             return OIRTTask::IdentifyImage;
+        case 4:
+            return OIRTTask::AskLabelsList;
         default:
             return OIRTTask::UnknownTask;
     }
@@ -37,6 +39,8 @@ quint8 OIRTTask::getTaskCodeValue(OIRTTask::TaskCode _taskcode)
             return 2;
         case OIRTTask::IdentifyImage:
             return 3;
+        case OIRTTask::AskLabelsList:
+            return 4;
         default:
             return 0;
     }

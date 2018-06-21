@@ -28,7 +28,6 @@ ImageRecognizer::ImageRecognizer(Size _inputsize, int _inputchannels, CropMethod
     inputChannels(_inputchannels),
     cropInput(_cropinput)
 {
-
 }
 
 std::vector<int> ImageRecognizer::getLabelsByString(const String &str) const
@@ -89,6 +88,11 @@ CropMethod ImageRecognizer::getCropInput() const
 void ImageRecognizer::setCropInput(CropMethod value)
 {
     cropInput = value;
+}
+
+std::map<int,String> ImageRecognizer::getLabelsInfo() const
+{
+    return _labelsInfo;
 }
 
 String ImageRecognizer::getLabelInfo(int label) const
