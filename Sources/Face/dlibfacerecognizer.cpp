@@ -63,10 +63,6 @@ void DlibFaceRecognizer::predict(InputArray src, Ptr<PredictCollector> collector
     }
 }
 
-static bool rectAreaGreater(const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
-    return lhs.area() > rhs.area();
-}
-
 dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inmat) const
 {
     cv::Mat _rgbmat = _inmat;

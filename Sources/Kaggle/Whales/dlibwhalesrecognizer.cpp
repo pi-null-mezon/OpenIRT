@@ -3,7 +3,7 @@
 namespace cv { namespace imgrec {
 
 DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_descriptormodelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(500,200),3,Outside,_disttype,_threshold)
+    CNNImageRecognizer(cv::Size(512,192),3,NoCrop,_disttype,_threshold)
 {
     try {
         dlib::deserialize(_descriptormodelfile.c_str()) >> net;
