@@ -123,6 +123,12 @@ void CNNImageRecognizer::save(FileStorage &fs) const
     fs << "]";
 }
 
+void CNNImageRecognizer::clear()
+{
+    v_labels.clear();
+    v_descriptions.clear();
+}
+
 bool CNNImageRecognizer::empty() const
 {
     if(v_labels.size() > 0)

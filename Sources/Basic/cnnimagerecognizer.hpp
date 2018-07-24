@@ -21,6 +21,7 @@ public:
     int     remove(InputArray labels) override;
     void    load(const FileStorage &fs) override;
     void    save(FileStorage &fs) const override;
+    void    clear() override;
     bool    empty() const override;
     int     nextfreeLabel() const;
 
