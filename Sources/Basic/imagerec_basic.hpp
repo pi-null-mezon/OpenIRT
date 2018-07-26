@@ -107,14 +107,16 @@ inline cv::Mat cropOutsideFromCenterAndResize(const cv::Mat &input, cv::Size siz
 {
     cv::Size2f _bsize;
     if((float)input.cols/input.rows > (float)size.width/size.height) {
-        _bsize.width = input.cols;
+        _bsize.width = (float)input.cols;
         _bsize.height = input.cols * (float)size.height/size.width;
     } else {
-        _bsize.height = input.rows;
+        _bsize.height = (float)input.rows;
         _bsize.width = input.rows * (float)size.width/size.height;
     }
     cv::Mat output(_bsize,input.type(),cv::Scalar(104,117,123));
-    input.copyTo(cv::Mat(output,cv::Rect2f((_bsize.width - input.cols)/2.0f,(_bsize.height - input.rows)/2.0f,input.cols,input.rows)));
+    input.copyTo(cv::Mat(output,cv::Rect2f(((float)_bsize.width - (float)input.cols)/2.0f,
+                                           ((float)_bsize.height - (float)input.rows)/2.0f,
+                                           (float)input.cols,(float)input.rows)));
 
     int interpolationMethod = CV_INTER_AREA;
     if(size.area() > _bsize.area())
