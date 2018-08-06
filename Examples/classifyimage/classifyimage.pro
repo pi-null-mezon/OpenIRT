@@ -1,5 +1,5 @@
 
-TARGET = learnandrecognize
+TARGET = classifyimage
 VERSION = 1.0.0.0
 
 DEFINES += APP_NAME=\\\"$${TARGET}\\\" \
@@ -14,7 +14,7 @@ CONFIG -= qt
 SOURCES += main.cpp
 
 include($${PWD}/../../Sources/Basic/imagerecognizer.pri)
-include($${PWD}/../../Sources/ImageNet/imagenet.pri)
+include($${PWD}/../../Sources/Face/faceageclassifier.pri)
 
 include($${PWD}/../../Shared/opencv.pri)
 include($${PWD}/../../Shared/dlib.pri)

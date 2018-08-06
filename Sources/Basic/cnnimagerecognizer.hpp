@@ -15,6 +15,7 @@ class CNNImageRecognizer : public ImageRecognizer
 {
 public:
     CNNImageRecognizer(Size _inputsize, int _inputchannels, CropMethod _cropinput, DistanceType _disttype, double _threshold);
+    virtual ~CNNImageRecognizer();
 
     void    train(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;
     void    update(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;
@@ -34,6 +35,14 @@ protected:
     int                                 inputChannels;
     std::vector<int>                    v_labels;
     std::vector<Mat>                    v_descriptions;    
+};
+
+
+class CNNImageClassifier : public ImageClassifier
+{
+public:
+    CNNImageClassifier(Size _inputsize, int _inputchannels, CropMethod _cropinput);
+    virtual ~CNNImageClassifier();
 };
 
 }} //namespace cv::imgrec

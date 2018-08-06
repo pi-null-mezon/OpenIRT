@@ -9,6 +9,10 @@ CNNImageRecognizer::CNNImageRecognizer(Size _inputsize, int _inputchannels, Crop
 {
 }
 
+CNNImageRecognizer::~CNNImageRecognizer()
+{
+}
+
 void CNNImageRecognizer::train(InputArrayOfArrays src, InputArray labels, bool _visualize)
 {
     __train(src, labels, false, _visualize);
@@ -142,6 +146,15 @@ int CNNImageRecognizer::nextfreeLabel() const
         return 0;
     }
     return *std::max_element(v_labels.begin(), v_labels.end()) + 1;
+}
+
+CNNImageClassifier::CNNImageClassifier(Size _inputsize, int _inputchannels, CropMethod _cropinput) :
+    ImageClassifier(_inputsize,_inputchannels,_cropinput)
+{
+}
+
+CNNImageClassifier::~CNNImageClassifier()
+{
 }
 
 }}

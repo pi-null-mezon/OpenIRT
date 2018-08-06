@@ -3,7 +3,7 @@
 namespace cv { namespace imgrec {
 
 SqueezeNetImageNetRecognizer::SqueezeNetImageNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(Size(227,227), 3, true, _disttype, _threshold)
+    CNNImageRecognizer(Size(227,227), 3, CropMethod::Inside, _disttype, _threshold)
 {
     try {
         net = dnn::readNetFromCaffe(_prototextfilename,_caffemodelfilename);
