@@ -19,22 +19,27 @@ public:
     QByteArray getLabelinfo() const;
     void setLabelinfo(const QByteArray &value);
 
-    QByteArray *getEncimg() const;
-    void setEncimg(QByteArray *value);
+    QString getImgfilename() const;
+    void setImgfilename(const QString &value);
 
 signals:
     void taskAccomplished();
+    void filesDeleted();
+
+public slots:
+    void deleteAllFiles();
 
 private slots:
     void sendTask();
     void readSocket();
 
 private:
+    QByteArray __readImgfileContent();
     QTcpSocket tcpsocket;
 
     OIRTTask::TaskCode  taskcode;
     QByteArray          labelinfo;
-    QByteArray          *encimg;
+    QString             imgfilename;
 
     int repeatlength;
 };

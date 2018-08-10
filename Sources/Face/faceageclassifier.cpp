@@ -2,7 +2,7 @@
 
 //#include <opencv2/highgui.hpp>
 
-namespace cv { namespace imgrec {
+namespace cv { namespace oirt {
 
 FaceAgeClassifier::FaceAgeClassifier(const cv::String &_prototextfilename, const cv::String &_caffemodelfilename, const cv::String &_dlibshapepredictor) :
     CNNImageClassifier(Size(0,0),3,CropMethod::NoCrop)

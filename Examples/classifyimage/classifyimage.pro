@@ -13,7 +13,7 @@ CONFIG -= qt
 
 SOURCES += main.cpp
 
-include($${PWD}/../../Sources/Basic/imagerecognizer.pri)
+include($${PWD}/../../Sources/Basic/imageclassifier.pri)
 include($${PWD}/../../Sources/Face/faceageclassifier.pri)
 
 include($${PWD}/../../Shared/opencv.pri)

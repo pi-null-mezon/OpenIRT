@@ -1,7 +1,7 @@
 #ifndef FACEAGECLASSIFIER_H
 #define FACEAGECLASSIFIER_H
 
-#include "cnnimagerecognizer.hpp"
+#include "cnnimageclassifier.h"
 
 #include <opencv2/dnn.hpp>
 
@@ -10,7 +10,7 @@
 #include <dlib/opencv.h>
 #include <dlib/dnn.h>
 
-namespace cv { namespace imgrec {
+namespace cv { namespace oirt {
 
 class FaceAgeClassifier : public CNNImageClassifier
 {

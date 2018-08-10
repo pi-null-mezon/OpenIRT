@@ -2,6 +2,7 @@
 #define QFACERECOGNIZER_H
 
 #include <QObject>
+#include <QJsonDocument>
 
 #include "dlibfacerecognizer.h"
 
@@ -30,8 +31,9 @@ public slots:
     void        getLabelsList(qintptr _taskid);
 
 private:
-    cv::Ptr<cv::imgrec::CNNImageRecognizer> ptrrec;
+    cv::Ptr<cv::oirt::CNNImageRecognizer> ptrrec;
     QString labelsfilename;
+    QJsonDocument::JsonFormat jsonformat;
 };
 
 #endif // QFACERECOGNIZER_H

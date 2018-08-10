@@ -17,9 +17,8 @@
  */
 
 #include "imagerecognizer.hpp"
-#include <iostream>
 
-namespace cv { namespace imgrec {
+namespace cv { namespace oirt {
 
 ImageRecognizer::ImageRecognizer(Size _inputsize, int _inputchannels, CropMethod _cropinput, DistanceType _distancetype, double _threshold) :
     distanceType(_distancetype),
@@ -132,13 +131,6 @@ void ImageRecognizer::save(const String &filename) const
     fs.release();
 }
 
-int ImageRecognizer::predict(InputArray src) const {
-    int _label;
-    double _dist;
-    predict(src, _label, _dist);
-    return _label;
-}
-
 void ImageRecognizer::predict(InputArray src, int &label, double &distance) const {
     Ptr<StandardCollector> collector = StandardCollector::create(getThreshold());
     predict(src, collector);
@@ -152,59 +144,5 @@ std::vector<std::pair<int, double> > ImageRecognizer::recognize(InputArray src, 
     return collector->getResults(true,unique);
 }
 
-ImageClassifier::ImageClassifier(Size _inputsize, int _inputchannels, CropMethod _cropinput) :
-    inputSize(_inputsize),
-    inputChannels(_inputchannels),
-    cropInput(_cropinput)
-{
-}
-
-ImageClassifier::~ImageClassifier()
-{
-}
-
-String ImageClassifier::getLabelInfo(int label) const
-{
-    std::map<int, String>::const_iterator iter(labelsInfo.find(label));
-    return iter != labelsInfo.end() ? iter->second : "";
-}
-
-void ImageClassifier::setLabelInfo(int label, const String &strInfo)
-{
-    labelsInfo[label] = strInfo;
-}
-
-Size ImageClassifier::getInputSize() const
-{
-    return inputSize;
-}
-
-void ImageClassifier::setInputSize(const Size &value)
-{
-    inputSize = value;
-}
-
-int ImageClassifier::getInputChannels() const
-{
-    return inputChannels;
-}
-
-void ImageClassifier::setInputChannels(int value)
-{
-    inputChannels = value;
-}
-
-CropMethod ImageClassifier::getCropInput() const
-{
-    return cropInput;
-}
-
-void ImageClassifier::setCropInput(const CropMethod &value)
-{
-    cropInput = value;
-}
-
-
-}
-             }
+}}
 

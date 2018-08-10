@@ -1,6 +1,6 @@
 #include "dlibfacerecognizer.h"
 
-namespace cv { namespace imgrec {
+namespace cv { namespace oirt {
 
 DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, DistanceType _disttype, double _threshold) :
     CNNImageRecognizer(cv::Size(0,0),3,NoCrop,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector

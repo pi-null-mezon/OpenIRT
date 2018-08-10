@@ -10,7 +10,7 @@ QT -= gui
 CONFIG += c++11
 
 TARGET = oirtsrv
-VERSION = 1.0.1.0
+VERSION = 1.0.2.0
 
 TEMPLATE = app
 CONFIG += console
@@ -22,12 +22,12 @@ DEFINES +=  APP_NAME=\\\"$${TARGET}\\\" \
 
 SOURCES += main.cpp\
            qoirtserver.cpp \
-           $${PWD}/../oirtproto/oirttask.cpp
+           $${PWD}/shared/oirttask.cpp
 
 HEADERS  += qoirtserver.h \
-            $${PWD}/../oirtproto/oirttask.h
+            $${PWD}/shared/oirttask.h
 
-INCLUDEPATH += $${PWD}/../oirtproto
+INCLUDEPATH += $${PWD}/shared
 
 include($${PWD}/../../Shared/opencv.pri)
 include($${PWD}/../../Shared/dlib.pri)
@@ -42,4 +42,4 @@ HEADERS += $${PWD}/../../Sources/Face/dlibfacerecognizer.h \
 INCLUDEPATH += $${PWD}/../../Sources/Face \
                $${PWD}/../../Sources/Face/Qt
 
-DEFINES += QT_NO_DEBUG_OUTPUT
+CONFIG(release, debug|release): DEFINES += QT_NO_DEBUG_OUTPUT

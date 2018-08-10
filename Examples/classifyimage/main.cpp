@@ -53,16 +53,16 @@ int main(int _argc, char **_argv)
         }
     }
 
-    cv::Ptr<cv::imgrec::CNNImageClassifier> _ptr;
+    cv::Ptr<cv::oirt::CNNImageClassifier> _ptr;
 
     if(videocapture.isOpened()) {
         cv::Mat _frame;
         int64 _to = cv::getTickCount(), _tn;
         double _fps;
         cv::namedWindow(APP_NAME, CV_WINDOW_NORMAL);
-        _ptr = cv::imgrec::FaceAgeClassifier::createCNNImageClassifier( cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/deploy_age.prototxt"),
-                                                                        cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/age_net.caffemodel"),
-                                                                        cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));
+        _ptr = cv::oirt::FaceAgeClassifier::createCNNImageClassifier( cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/deploy_age.prototxt"),
+                                                                      cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/age_net.caffemodel"),
+                                                                      cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));
 
 
         int label = -1;
@@ -71,6 +71,7 @@ int main(int _argc, char **_argv)
 
             _ptr->predict(_frame,label,conf);
             cv::String _predictionstr = std::string("label: ") + std::to_string(label) + std::string("; conf.: ") + real2str(conf,3) + std::string(" >> ") + _ptr->getLabelInfo(label);
+            std::cout << _predictionstr.c_str() << std::endl;
             cv::putText(_frame, _predictionstr, cv::Point(15,20), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0),1,CV_AA);
             cv::putText(_frame, _predictionstr, cv::Point(14,19), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,0),1,CV_AA);
 
@@ -83,7 +84,7 @@ int main(int _argc, char **_argv)
             cv::putText(_frame,_frametime_ms, cv::Point(15,_frame.rows - 20),CV_FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(255,255,255),1,CV_AA);
             cv::imshow(APP_NAME, _frame);
 
-            char _key= cv::waitKey(0);
+            char _key= cv::waitKey(1);
             if(_key == 27) {// escape pressed
                 break;
             } else switch(_key) {

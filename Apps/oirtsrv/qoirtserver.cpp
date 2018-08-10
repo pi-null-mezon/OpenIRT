@@ -24,9 +24,9 @@ bool QOIRTServer::start(quint16 _port)
     if(tcpserver.isListening()) {
         stop();
     }
-    if(tcpserver.listen(QHostAddress::LocalHost, _port)) {
-        qInfo("QOIRTServer: Start to listening localhost:%d", _port);
-        /*QList<QHostAddress> _laddr = QNetworkInterface::allAddresses();
+    if(tcpserver.listen(QHostAddress::AnyIPv4, _port)) {
+        qInfo("QOIRTServer: Start to listening:");
+        QList<QHostAddress> _laddr = QNetworkInterface::allAddresses();
         if(_laddr.size() > 0) {
             int k = 1;
             for(int i = 0; i < _laddr.size(); ++i) {
@@ -36,7 +36,7 @@ bool QOIRTServer::start(quint16 _port)
             }
         } else {
             qWarning("QMAGTServer: server can not listen port %d!",_port);
-        }*/
+        }
         return true;
     } else {
         qWarning("QOIRTServer: %s", tcpserver.errorString().toUtf8().constData());

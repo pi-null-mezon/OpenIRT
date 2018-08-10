@@ -2,7 +2,7 @@
 
 #include <opencv2/highgui.hpp>
 
-namespace cv { namespace imgrec {
+namespace cv { namespace oirt {
 
 CNNImageRecognizer::CNNImageRecognizer(Size _inputsize, int _inputchannels, CropMethod _cropinput, DistanceType _disttype, double _threshold) :
     ImageRecognizer(_inputsize, _inputchannels, _cropinput, _disttype, _threshold)
@@ -146,15 +146,6 @@ int CNNImageRecognizer::nextfreeLabel() const
         return 0;
     }
     return *std::max_element(v_labels.begin(), v_labels.end()) + 1;
-}
-
-CNNImageClassifier::CNNImageClassifier(Size _inputsize, int _inputchannels, CropMethod _cropinput) :
-    ImageClassifier(_inputsize,_inputchannels,_cropinput)
-{
-}
-
-CNNImageClassifier::~CNNImageClassifier()
-{
 }
 
 }}

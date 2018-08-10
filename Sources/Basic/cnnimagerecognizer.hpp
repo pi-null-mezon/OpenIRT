@@ -8,8 +8,9 @@
 #include <opencv2/dnn.hpp>
 
 #include "imagerec_basic.hpp"
+#include "imagerecognizer.hpp"
 
-namespace cv { namespace imgrec {
+namespace cv { namespace oirt {
 
 class CNNImageRecognizer : public ImageRecognizer
 {
@@ -37,14 +38,6 @@ protected:
     std::vector<Mat>                    v_descriptions;    
 };
 
-
-class CNNImageClassifier : public ImageClassifier
-{
-public:
-    CNNImageClassifier(Size _inputsize, int _inputchannels, CropMethod _cropinput);
-    virtual ~CNNImageClassifier();
-};
-
-}} //namespace cv::imgrec
+}}
 
 #endif //__OPENCV_CNNIMGREC_HPP__

@@ -40,7 +40,7 @@ namespace dlib {
                                 >>>>>>>>>>>>;
 }
 
-namespace cv { namespace imgrec {
+namespace cv { namespace oirt {
 
 class DlibFaceRecognizer: public CNNImageRecognizer
 {

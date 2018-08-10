@@ -30,8 +30,6 @@ int main(int argc, char *argv[])
             case 'p':
                 port = QString(++argv[0]).toInt();
                 break;
-
-
         }
     }
 

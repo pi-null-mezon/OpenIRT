@@ -2,7 +2,7 @@ QT += core network
 QT -= gui
 
 TARGET = oirtcli
-VERSION = 1.0.0.1
+VERSION = 1.0.1.0
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -25,13 +25,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         qoirtcli.cpp \
-        $${PWD}/../oirtproto/oirttask.cpp
-
-
-INCLUDEPATH += $${PWD}/../oirtproto
+        $${PWD}/../oirtsrv/shared/oirttask.cpp
 
 HEADERS += \
         qoirtcli.h \
-        $${PWD}/../oirtproto/oirttask.h
+        $${PWD}/../oirtsrv/shared/oirttask.h
+
+INCLUDEPATH += $${PWD}/../oirtsrv/shared
 
 CONFIG(release, debug|release): DEFINES += QT_NO_DEBUG_OUTPUT

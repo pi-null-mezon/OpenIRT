@@ -1,15 +1,21 @@
 #ifndef __OPENCV_IMGREC_BASIC_HPP
 #define __OPENCV_IMGREC_BASIC_HPP
 
-#include <set>
-#include <limits>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+
 #include <iostream>
-#include <time.h>
 
-#include "imagerecognizer.hpp"
-#include "precompiled.hpp"
+namespace cv { namespace oirt {
 
-namespace cv { namespace imgrec {
+/**
+ * @brief The DistanceType enum
+ */
+enum DistanceType {Euclidean, Cosine};
+/**
+ * @brief The CropMethod enum defines how image will be preprocessed at
+ */
+enum CropMethod {NoCrop, Inside, Outside, OutsideJitter};
 
 // Reads a sequence from a FileNode::SEQ with type _Tp into a result vector.
 template<typename _Tp>
@@ -193,7 +199,7 @@ inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, int _t
                     break;
 
                 case CropMethod::OutsideJitter: {
-                    cv::RNG cvrng(time(0));
+                    cv::RNG cvrng(0);
                     _outmat = cropOutsideWithJitter(_outmat,cvrng,_targetsize);
                 } break;
 

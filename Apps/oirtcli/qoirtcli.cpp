@@ -1,5 +1,7 @@
 #include "qoirtcli.h"
 
+#include <QFile>
+#include <QTimer>
 #include <QDataStream>
 
 QOIRTCli::QOIRTCli(OIRTTask::TaskCode _taskcode, QObject *parent): QObject(parent),
@@ -13,6 +15,14 @@ void QOIRTCli::connectTo(const QHostAddress &_addr, quint16 _port)
 {
     tcpsocket.connectToHost(_addr,_port);
     repeatlength = -1;
+    QTimer::singleShot(10000,[=]() {qWarning("Seems that %s:%u can not be accessed",_addr.toString().toUtf8().constData(),static_cast<uint>(_port));});
+}
+
+void QOIRTCli::deleteAllFiles()
+{
+    bool _deleted = QFile::remove(getImgfilename());
+    qDebug("File %s delete status: %s", getImgfilename().toUtf8().constData(), _deleted ? "deleted" : "can not be deleted");
+    emit filesDeleted();
 }
 
 void QOIRTCli::sendTask()
@@ -24,13 +34,14 @@ void QOIRTCli::sendTask()
     qDebug("taskcode: %u", (uint)OIRTTask::getTaskCodeValue(taskcode));
 
     switch(taskcode) {
-        case OIRTTask::RememberLabel:
-            qDebug("RememberLabel");
+        case OIRTTask::RememberLabel: {
+            qDebug("RememberLabel");             
             _ods << static_cast<qint32>(labelinfo.size());
             _ods << labelinfo;
-            _ods << static_cast<qint32>(encimg->size());
-            _ods << *encimg;
-            break;
+            QByteArray _encimg = __readImgfileContent();
+            _ods << static_cast<qint32>(_encimg.size());
+            _ods << _encimg;
+        } break;
 
         case OIRTTask::DeleteLabel:
             qDebug("DeleteLabel");
@@ -38,11 +49,12 @@ void QOIRTCli::sendTask()
             _ods << labelinfo;
             break;
 
-        case OIRTTask::IdentifyImage:
+        case OIRTTask::IdentifyImage: {
             qDebug("IdentifyImage");
-            _ods << static_cast<qint32>(encimg->size());
-            _ods << *encimg;
-            break;
+            QByteArray _encimg = __readImgfileContent();
+            _ods << static_cast<qint32>(_encimg.size());
+            _ods << _encimg;
+        } break;
 
         default:
             qDebug("UnknownTask");
@@ -70,14 +82,23 @@ void QOIRTCli::readSocket()
     emit taskAccomplished();
 }
 
-QByteArray *QOIRTCli::getEncimg() const
+QByteArray QOIRTCli::__readImgfileContent()
 {
-    return encimg;
+    QFile _tmpfile(getImgfilename());
+    if(_tmpfile.open(QFile::ReadOnly) == false) {
+        qWarning("QOIRTCli::Warning - can not read %s",getImgfilename().toUtf8().constData());
+    }
+    return _tmpfile.readAll();
 }
 
-void QOIRTCli::setEncimg(QByteArray *value)
+QString QOIRTCli::getImgfilename() const
 {
-    encimg = value;
+    return imgfilename;
+}
+
+void QOIRTCli::setImgfilename(const QString &value)
+{
+    imgfilename = value;
 }
 
 QByteArray QOIRTCli::getLabelinfo() const
