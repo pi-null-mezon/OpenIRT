@@ -23,11 +23,14 @@ signals:
 
 public slots:    
     bool start(quint16 _port);
+    void stop();
+    void repeatToClient(qintptr _taskid, const QByteArray &_repeat);   
+
+private slots:
+    void handleError(QAbstractSocket::SocketError);
     void getNewTask();
     void readClient();
     void removeClient();
-    void repeatToClient(qintptr _taskid, const QByteArray &_repeat);
-    void stop();
 
 private:
     QTcpServer tcpserver;
