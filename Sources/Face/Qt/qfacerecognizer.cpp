@@ -46,7 +46,7 @@ void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinf
     }
 
     std::vector<cv::Mat> _vmats(1,cv::Mat());
-    _vmats[0] = std::move(cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED));
+    _vmats[0] = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
     std::vector<int>     _vlbls(1,_label);
     QJsonObject _json;
     if(_vmats[0].empty() == false) {
@@ -87,7 +87,7 @@ void QFaceRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
 {
     QJsonObject _json;
     if(ptrrec->empty() == false) {
-        cv::Mat _faceimg = std::move(cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED));
+        cv::Mat _faceimg = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
         int _label;
         double _distance;
         ptrrec->predict(_faceimg,_label,_distance);
@@ -95,10 +95,23 @@ void QFaceRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
         _json["label"]     = _label;
         _json["labelinfo"] = ptrrec->getLabelInfo(_label).c_str();
         _json["distance"]  = _distance;
+        _json["distancethresh"]    = ptrrec->getThreshold();
     } else {
         _json["status"]  = "Error";
         _json["message"] = "Empty labels list, can not identify anything!";
     }
+    emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
+}
+
+void QFaceRecognizer::verifyImage(qintptr _taskid, const QByteArray &_eimg, const QByteArray &_vimg)
+{
+    cv::Mat _efaceimg = cv::imdecode(std::vector<unsigned char>(_eimg.begin(),_eimg.end()),cv::IMREAD_UNCHANGED);
+    cv::Mat _vfaceimg = cv::imdecode(std::vector<unsigned char>(_vimg.begin(),_vimg.end()),cv::IMREAD_UNCHANGED);
+    double _distance = ptrrec->compare(_efaceimg,_vfaceimg);
+    QJsonObject _json;
+    _json["status"]    = "Success";
+    _json["distance"]  = _distance;
+    _json["distancethresh"]    = ptrrec->getThreshold();
     emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
 }
 

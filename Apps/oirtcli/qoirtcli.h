@@ -22,6 +22,9 @@ public:
     QString getImgfilename() const;
     void setImgfilename(const QString &value);
 
+    QString getVimgfilename() const;
+    void setVimgfilename(const QString &value);
+
 signals:
     void taskAccomplished();
     void filesDeleted();
@@ -34,12 +37,13 @@ private slots:
     void readSocket();
 
 private:
-    QByteArray __readImgfileContent();
+    QByteArray __readImgfileContent(const QString &_filename);
     QTcpSocket tcpsocket;
 
     OIRTTask::TaskCode  taskcode;
     QByteArray          labelinfo;
     QString             imgfilename;
+    QString             vimgfilename;
 
     int repeatlength;
 };

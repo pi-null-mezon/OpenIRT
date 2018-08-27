@@ -135,6 +135,34 @@ void QOIRTServer::readClient()
             emit askLabelsList(_taskid);
             break;
 
+        case OIRTTask::VerifyImage:
+            // WAIT ENROLLMENT PICTURE
+            if(_task->encimgbytes == -1) {
+                if(_task->tcpsocket->bytesAvailable() < (qint64)sizeof(qint32))
+                    return;
+                _ids >> _task->encimgbytes;
+            }
+            if(_task->encimgaccepted == false) {
+                if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
+                    return;
+                _ids >> _task->encimg;
+                _task->encimgaccepted = true;
+            }
+            // WAIT VERIFICATION PICTURE
+            if(_task->vencimgbytes == -1) {
+                if(_task->tcpsocket->bytesAvailable() < (qint64)sizeof(qint32))
+                    return;
+                _ids >> _task->vencimgbytes;
+            }
+            if(_task->vencimgaccepted == false) {
+                if(_task->tcpsocket->bytesAvailable() < _task->vencimgbytes)
+                    return;
+                _ids >> _task->vencimg;
+                _task->vencimgaccepted = true;
+                emit verifyImage(_taskid,_task->encimg,_task->vencimg);
+            }
+            break;
+
         default:
             // TO SUPPRESS WARNINGS
             break;

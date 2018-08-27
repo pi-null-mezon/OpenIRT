@@ -132,16 +132,32 @@ void ImageRecognizer::save(const String &filename) const
 }
 
 void ImageRecognizer::predict(InputArray src, int &label, double &distance) const {
-    Ptr<StandardCollector> collector = StandardCollector::create(getThreshold());
+    Ptr<StandardCollector> collector = StandardCollector::create();
     predict(src, collector);
     label = collector->getMinLabel();
     distance = collector->getMinDist();
 }
 
 std::vector<std::pair<int, double> > ImageRecognizer::recognize(InputArray src, bool unique) const {
-    Ptr<StandardCollector> collector = StandardCollector::create(getThreshold());
+    Ptr<StandardCollector> collector = StandardCollector::create();
     predict(src, collector);
     return collector->getResults(true,unique);
+}
+
+double ImageRecognizer::compare(InputArray esrc, InputArray vsrc) const
+{
+    cv::Mat _edscr = getImageDescription(esrc.getMat());
+    cv::Mat _vdscr = getImageDescription(vsrc.getMat());
+    double distance = DBL_MAX;
+    switch(getDistanceType()) {
+        case DistanceType::Euclidean:
+            distance = euclideanDistance(_edscr, _vdscr);
+            break;
+        case DistanceType::Cosine:
+            distance =  cosineDistance(_edscr, _vdscr);
+            break;
+    }
+    return distance;
 }
 
 }}

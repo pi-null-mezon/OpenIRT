@@ -84,6 +84,14 @@ public:
 
     virtual void predict(InputArray src, Ptr<PredictCollector> collector) const = 0;
 
+    /**
+     * @brief compare two images by the recognizer
+     * @param esrc - enrollment image
+     * @param vsrc - verification image
+     * @return distance between escr and vscr (if esrc == vsrc then 0 should be returned)
+     */
+    virtual double compare(InputArray esrc, InputArray vsrc) const;
+
     virtual Mat getImageDescription(const Mat &_img) const = 0;
 
     virtual void save(const String& filename) const;

@@ -47,9 +47,9 @@ class DlibFaceRecognizer: public CNNImageRecognizer
 public:
     DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, DistanceType _disttype, double _threshold);
 
-    Mat   getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const override;
-    Mat   getImageDescription(const Mat &_img) const override;
-    void  predict(InputArray src, Ptr<PredictCollector> collector) const override;
+    Mat     getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const override;
+    Mat     getImageDescription(const Mat &_img) const override;
+    void    predict(InputArray src, Ptr<PredictCollector> collector) const override;
 
 private:
     dlib::matrix<dlib::rgb_pixel> __extractface(const Mat &_inmat) const;
@@ -59,7 +59,7 @@ private:
     mutable dlib::anet_type net;
 };
 
-Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile="shape_predictor_5_face_landmarks.dat", const String &_facedescriptormodelfile="dlib_face_recognition_resnet_model_v1.dat", DistanceType _disttype=DistanceType::Euclidean, double _threshold=DBL_MAX);
+Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile="shape_predictor_5_face_landmarks.dat", const String &_facedescriptormodelfile="dlib_face_recognition_resnet_model_v1.dat", DistanceType _disttype=DistanceType::Euclidean, double _threshold=0.485);
 
 }}
 

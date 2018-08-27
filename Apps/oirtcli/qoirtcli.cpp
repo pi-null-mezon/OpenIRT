@@ -22,6 +22,8 @@ void QOIRTCli::deleteAllFiles()
 {
     bool _deleted = QFile::remove(getImgfilename());
     qDebug("File %s delete status: %s", getImgfilename().toUtf8().constData(), _deleted ? "deleted" : "can not be deleted");
+    _deleted = QFile::remove(getVimgfilename());
+    qDebug("File %s delete status: %s", getVimgfilename().toUtf8().constData(), _deleted ? "deleted" : "can not be deleted");
     emit filesDeleted();
 }
 
@@ -38,7 +40,7 @@ void QOIRTCli::sendTask()
             qDebug("RememberLabel");             
             _ods << static_cast<qint32>(labelinfo.size());
             _ods << labelinfo;
-            QByteArray _encimg = __readImgfileContent();
+            QByteArray _encimg = __readImgfileContent(getImgfilename());
             _ods << static_cast<qint32>(_encimg.size());
             _ods << _encimg;
         } break;
@@ -51,10 +53,20 @@ void QOIRTCli::sendTask()
 
         case OIRTTask::IdentifyImage: {
             qDebug("IdentifyImage");
-            QByteArray _encimg = __readImgfileContent();
+            QByteArray _encimg = __readImgfileContent(getImgfilename());
             _ods << static_cast<qint32>(_encimg.size());
             _ods << _encimg;
         } break;
+
+        case OIRTTask::VerifyImage: {
+            qDebug("VerifyImage");
+            QByteArray _data = __readImgfileContent(getImgfilename());
+            _ods << static_cast<qint32>(_data.size());
+            _ods << _data;
+            _data = __readImgfileContent(getVimgfilename());
+            _ods << static_cast<qint32>(_data.size());
+            _ods << _data;
+        }
 
         default:
             qDebug("UnknownTask");
@@ -82,13 +94,23 @@ void QOIRTCli::readSocket()
     emit taskAccomplished();
 }
 
-QByteArray QOIRTCli::__readImgfileContent()
+QByteArray QOIRTCli::__readImgfileContent(const QString &_filename)
 {
-    QFile _tmpfile(getImgfilename());
+    QFile _tmpfile(_filename);
     if(_tmpfile.open(QFile::ReadOnly) == false) {
-        qWarning("QOIRTCli::Warning - can not read %s",getImgfilename().toUtf8().constData());
+        qWarning("QOIRTCli::Warning - can not read %s",_filename.toUtf8().constData());
     }
     return _tmpfile.readAll();
+}
+
+QString QOIRTCli::getVimgfilename() const
+{
+    return vimgfilename;
+}
+
+void QOIRTCli::setVimgfilename(const QString &value)
+{
+    vimgfilename = value;
 }
 
 QString QOIRTCli::getImgfilename() const

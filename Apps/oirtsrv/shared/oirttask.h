@@ -11,7 +11,7 @@ struct OIRTTask
      * DeleteLabel   - get input label, remove it from the known labels list, return result code
      * IdentifyImage - get input image, make identification template, find nearest label, return result code
      */
-    enum TaskCode {UnknownTask, RememberLabel, DeleteLabel, IdentifyImage, AskLabelsList};
+    enum TaskCode {UnknownTask, RememberLabel, DeleteLabel, IdentifyImage, AskLabelsList, VerifyImage};
 
     OIRTTask(QTcpSocket *_tcpsocket=0);
     ~OIRTTask();
@@ -30,6 +30,10 @@ struct OIRTTask
     QByteArray  encimg;
     qint32      encimgbytes;
     bool        encimgaccepted;
+
+    QByteArray  vencimg;
+    qint32      vencimgbytes;
+    bool        vencimgaccepted;
 };
 
 #endif // OIRTTASK_H
