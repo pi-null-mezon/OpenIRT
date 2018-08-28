@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
                 qInfo(" -a[str] - address of the server to connect (default: localhost i.e 127.0.0.1)\n");
                 qInfo(" -p[int] - port of the server to connect (default: 8080)\n");
                 qInfo(" -i[str] - filename of the image that should be processed\n");
-                qInfo(" -v[str] - filename of the second image that should be processed (for verification)");
+                qInfo(" -v[str] - filename of the second image that should be processed (for verification)\n");
                 qInfo(" -l[str] - label info string\n");
                 qInfo(" -t[int] - task code {RememberLabel=1, DeleteLabel=2, IdentifyImage=3, AskLabels=4}\n");
                 qInfo(" -d      - delete image files after server's repeat\n");
