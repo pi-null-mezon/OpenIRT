@@ -22,8 +22,10 @@ void QOIRTCli::deleteAllFiles()
 {
     bool _deleted = QFile::remove(getImgfilename());
     qDebug("File %s delete status: %s", getImgfilename().toUtf8().constData(), _deleted ? "deleted" : "can not be deleted");
-    _deleted = QFile::remove(getVimgfilename());
-    qDebug("File %s delete status: %s", getVimgfilename().toUtf8().constData(), _deleted ? "deleted" : "can not be deleted");
+    if(taskcode == OIRTTask::TaskCode::VerifyImage) {
+        _deleted = QFile::remove(getVimgfilename());
+        qDebug("File %s delete status: %s", getVimgfilename().toUtf8().constData(), _deleted ? "deleted" : "can not be deleted");
+    }
     emit filesDeleted();
 }
 
