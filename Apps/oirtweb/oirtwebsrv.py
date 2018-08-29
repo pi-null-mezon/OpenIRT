@@ -1,6 +1,7 @@
 import subprocess, os, uuid, platform
 from flask import Flask, request, redirect, jsonify
 from werkzeug.utils import secure_filename
+from waitress import serve
 
 # Specify address where oirtsrv is listening
 oirtsrvaddr = "127.0.0.1"
@@ -96,3 +97,7 @@ def verify_face():
 @app.route("%s/labels" % apiprefix, methods=['GET'])
 def get_labels():
 	return subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-t4"]), 200
+	
+if __name__ == "__main__":
+	#app.run()
+	serve(app, host = "0.0.0.0", port = 5000)
