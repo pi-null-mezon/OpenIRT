@@ -1,6 +1,6 @@
 #include "resnet50imagenetrecognizer.h"
 
-namespace cv { namespace imgrec {
+namespace cv { namespace oirt {
 
 ResNet50ImageNetRecognizer::ResNet50ImageNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
     CNNImageRecognizer(Size(224,224), 3, CropMethod::Inside, _disttype, _threshold)
@@ -12,7 +12,7 @@ ResNet50ImageNetRecognizer::ResNet50ImageNetRecognizer(const String &_prototextf
     }
 }
 
-Mat ResNet50ImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
+Mat ResNet50ImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     // Prepare image
     cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels(), getCropInput());
@@ -25,14 +25,14 @@ Mat ResNet50ImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, 
     return _dscrmat.reshape(1,1).clone(); // clonning is necessasry here
 }
 
-Mat ResNet50ImageNetRecognizer::getImageDescription(const Mat &_img) const
+Mat ResNet50ImageNetRecognizer::getImageDescription(const Mat &_img, int *_error) const
 {
-    return getImageDescriptionByLayerName(_img, "fc1000"); // Search answers in the ResNet-50-deploy.prototxt
+    return getImageDescriptionByLayerName(_img, "fc1000",_error); // Search answers in the ResNet-50-deploy.prototxt
 }
 
-void ResNet50ImageNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
+void ResNet50ImageNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector, int *_error) const
 {
-    cv::Mat _description = getImageDescription(src.getMat());
+    cv::Mat _description = getImageDescription(src.getMat(), _error);
     collector->init(v_labels.size());
     for (size_t sampleIdx = 0; sampleIdx < v_labels.size(); sampleIdx++) {
         double confidence = DBL_MAX;

@@ -1,6 +1,6 @@
 #include "squeezenetimagenetrecognizer.h"
 
-namespace cv { namespace imgrec {
+namespace cv { namespace oirt {
 
 SqueezeNetImageNetRecognizer::SqueezeNetImageNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
     CNNImageRecognizer(Size(227,227), 3, CropMethod::Inside, _disttype, _threshold)
@@ -12,7 +12,7 @@ SqueezeNetImageNetRecognizer::SqueezeNetImageNetRecognizer(const String &_protot
     }
 }
 
-Mat SqueezeNetImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
+Mat SqueezeNetImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     // Prepare image
     cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels(), getCropInput());
@@ -25,14 +25,14 @@ Mat SqueezeNetImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img
     return _dscrmat.reshape(1,1).clone(); // clonning is necessasry here
 }
 
-Mat SqueezeNetImageNetRecognizer::getImageDescription(const Mat &_img) const
+Mat SqueezeNetImageNetRecognizer::getImageDescription(const Mat &_img, int *_error) const
 {
-    return getImageDescriptionByLayerName(_img, "pool10"); // Search answers in the bvlc_googlenet.prototxt
+    return getImageDescriptionByLayerName(_img, "pool10", _error); // Search answers in the bvlc_googlenet.prototxt
 }
 
-void SqueezeNetImageNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
+void SqueezeNetImageNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector, int *_error) const
 {
-    cv::Mat _description = getImageDescription(src.getMat());
+    cv::Mat _description = getImageDescription(src.getMat(), _error);
     collector->init(v_labels.size());
     for (size_t sampleIdx = 0; sampleIdx < v_labels.size(); sampleIdx++) {
         double confidence = DBL_MAX;
@@ -55,7 +55,7 @@ void SqueezeNetImageNetRecognizer::setPreferableTarget(int _targetId)
     net.setPreferableTarget(_targetId);
 }
 
-void cv::imgrec::SqueezeNetImageNetRecognizer::setPreferableBackend(int _backendId)
+void cv::oirt::SqueezeNetImageNetRecognizer::setPreferableBackend(int _backendId)
 {
     net.setPreferableBackend(_backendId);
 }

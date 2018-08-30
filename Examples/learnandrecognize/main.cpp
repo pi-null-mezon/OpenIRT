@@ -55,22 +55,22 @@ int main(int _argc, char **_argv)
         }
     }
 
-    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr;
+    cv::Ptr<cv::oirt::CNNImageRecognizer> _ptr;
 
     if(videocapture.isOpened()) {
         cv::Mat _frame;
         int64 _to = cv::getTickCount(), _tn;
         double _fps;
         cv::namedWindow(APP_NAME, CV_WINDOW_NORMAL);
-        _ptr = cv::imgrec::createGoogleNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
+        _ptr = cv::oirt::createGoogleNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
                                                       cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );
 
 
-        /*_ptr = cv::imgrec::createResNet50ImageNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-deploy.prototxt"),
+        /*_ptr = cv::oirt::createResNet50ImageNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-deploy.prototxt"),
                                                    cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-ResNet50/ResNet-50-model.caffemodel") );*/
 
 
-        /*_ptr = cv::imgrec::createSqueezeNetImageNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
+        /*_ptr = cv::oirt::createSqueezeNetImageNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
                                                      cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel") );*/
 
 

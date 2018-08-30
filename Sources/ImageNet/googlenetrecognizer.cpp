@@ -1,6 +1,6 @@
 #include "googlenetrecognizer.h"
 
-namespace cv { namespace imgrec {
+namespace cv { namespace oirt {
 
 GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
     CNNImageRecognizer(Size(224,224), 3, CropMethod::Inside, _disttype, _threshold)
@@ -12,7 +12,7 @@ GoogleNetRecognizer::GoogleNetRecognizer(const String &_prototextfilename, const
     }
 }
 
-Mat GoogleNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
+Mat GoogleNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     // Prepare image
     cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels(), getCropInput());
@@ -25,14 +25,14 @@ Mat GoogleNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const S
     return _dscrmat.reshape(1,1).clone(); // clonning is necessasry here
 }
 
-Mat GoogleNetRecognizer::getImageDescription(const Mat &_img) const
+Mat GoogleNetRecognizer::getImageDescription(const Mat &_img, int *_error) const
 {
-    return getImageDescriptionByLayerName(_img, "loss3/classifier"); // Search answers in the bvlc_googlenet.prototxt
+    return getImageDescriptionByLayerName(_img, "loss3/classifier", _error); // Search answers in the bvlc_googlenet.prototxt
 }
 
-void GoogleNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
+void GoogleNetRecognizer::predict(InputArray src, Ptr<PredictCollector> collector, int *_error) const
 {
-    cv::Mat _description = getImageDescription(src.getMat());
+    cv::Mat _description = getImageDescription(src.getMat(),_error);
     collector->init(v_labels.size());
     for (size_t sampleIdx = 0; sampleIdx < v_labels.size(); sampleIdx++) {
         double confidence = DBL_MAX;
