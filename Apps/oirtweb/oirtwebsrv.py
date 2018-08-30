@@ -33,10 +33,10 @@ def randomize_name(filename):
 @app.route("%s/remember" % apiprefix, methods=['POST'])
 def remember_face():
 	if 'file' not in request.files:
-		return jsonify({"status": "Error", "info": "file part is missing in request"}), 401
+		return jsonify({"status": "Error", "info": "file part is missing in request"}), 400
 	file = request.files['file']	
 	if file.filename == '':
-		return jsonify({"status": "Error", "info": "Empty file name parameter"}), 402
+		return jsonify({"status": "Error", "info": "Empty file name parameter"}), 400
 	labelinfo = request.form['labelinfo']		
 	if file and allowed_file(file.filename):
 		filename = randomize_name(secure_filename(file.filename))
@@ -45,7 +45,7 @@ def remember_face():
 		return subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),
 														"-i%s" % filepath,
 														"-l%s" % labelinfo, "-d", "-t1"]), 200	
-	return jsonify({"status": "Error", "info": "File you have try to upload seems to be bad"}), 403
+	return jsonify({"status": "Error", "info": "File you have try to upload seems to be bad"}), 400
 	
 	
 @app.route("%s/delete" % apiprefix, methods=['POST'])
@@ -57,31 +57,31 @@ def delete_face():
 @app.route("%s/identify" % apiprefix, methods=['POST'])
 def identify_face():
 	if 'file' not in request.files:
-		return jsonify({"status": "Error", "info": "file part is missing in request"}), 401
+		return jsonify({"status": "Error", "info": "file part is missing in request"}), 400
 	file = request.files['file']	
 	if file.filename == '':
-		return jsonify({"status": "Error", "info": "Empty filename parameter"}), 402	
+		return jsonify({"status": "Error", "info": "Empty filename parameter"}), 400	
 	if file and allowed_file(file.filename):
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
 		return subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),
 														"-i%s" % filepath, "-d", "-t3"]), 200	
-	return jsonify({"status": "Error", "info": "File you have try to upload seems to be bad"}), 403
+	return jsonify({"status": "Error", "info": "File you have try to upload seems to be bad"}), 400
 	
 	
 @app.route("%s/verify" % apiprefix, methods=['POST'])
 def verify_face():
 	if 'efile' not in request.files:
-		return jsonify({"status": "Error", "info": "efile part is missing in request"}), 401
+		return jsonify({"status": "Error", "info": "efile part is missing in request"}), 400
 	efile = request.files['efile']	
 	if efile.filename == '':
-		return jsonify({"status": "Error", "info": "Empty efile name parameter"}), 402
+		return jsonify({"status": "Error", "info": "Empty efile name parameter"}), 400
 	if 'vfile' not in request.files:
-		return jsonify({"status": "Error", "info": "vfile part is missing in request"}), 402
+		return jsonify({"status": "Error", "info": "vfile part is missing in request"}), 400
 	vfile = request.files['vfile']	
 	if vfile.filename == '':
-		return jsonify({"status": "Error", "info": "Empty vfile name parameter"}), 403			
+		return jsonify({"status": "Error", "info": "Empty vfile name parameter"}), 400			
 	if efile and allowed_file(efile.filename) and vfile and allowed_file(vfile.filename):
 		efilename = randomize_name(secure_filename(efile.filename))
 		efilepath = os.path.join(app.config['UPLOAD_FOLDER'], efilename) 
@@ -91,7 +91,7 @@ def verify_face():
 		vfile.save(vfilepath)
 		return subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),
 														"-i%s" % efilepath, "-v%s" % vfilepath, "-d", "-t5"]), 200	
-	return jsonify({"status": "Error", "info": "Files you have try to upload seems to be bad"}), 405
+	return jsonify({"status": "Error", "info": "Files you have try to upload seems to be bad"}), 400
 	
 
 @app.route("%s/labels" % apiprefix, methods=['GET'])
