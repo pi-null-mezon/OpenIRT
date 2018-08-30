@@ -53,7 +53,7 @@ public:
     virtual ~ImageRecognizer();
 
     virtual void train(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
-    virtual void update(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
+    virtual void update(InputArrayOfArrays src, InputArray labels, bool _visualize, int *_error=0) = 0;
     virtual int remove(InputArray labels) = 0;
 
     /**
@@ -62,7 +62,7 @@ public:
      * @param label - predicted label
      * @param distance - computed distance to predicted label
      */
-    void predict(InputArray src, int &label, double &distance) const;
+    void predict(InputArray src, int &label, double &distance, int *_error=0) const;
 
     /**
      * @brief get predictions for all unique labels
@@ -82,7 +82,7 @@ public:
      */
     std::vector<std::pair<int,double>> recognize(InputArray src, bool unique=true) const;
 
-    virtual void predict(InputArray src, Ptr<PredictCollector> collector) const = 0;
+    virtual void predict(InputArray src, Ptr<PredictCollector> collector, int *_error=0) const = 0;
 
     /**
      * @brief compare two images by the recognizer
@@ -90,9 +90,9 @@ public:
      * @param vsrc - verification image
      * @return distance between escr and vscr (if esrc == vsrc then 0 should be returned)
      */
-    virtual double compare(InputArray esrc, InputArray vsrc) const;
+    virtual double compare(InputArray esrc, InputArray vsrc, int *_error=0) const;
 
-    virtual Mat getImageDescription(const Mat &_img) const = 0;
+    virtual Mat getImageDescription(const Mat &_img, int *_error=0) const = 0;
 
     virtual void save(const String& filename) const;
 
@@ -107,6 +107,8 @@ public:
     virtual String getLabelInfo(int label) const;
 
     virtual std::vector<int> getLabelsByString(const String& str) const;
+
+    virtual String getErrorInfo(int _error) const;
 
     virtual double getThreshold() const;
 
@@ -130,9 +132,14 @@ public:
 
     std::map<int,String> getLabelsInfo() const;
 
+    virtual int labelTemplates(int _label) const = 0;
+
 protected:
     // Stored pairs "label id - string info"
-    std::map<int, String> _labelsInfo;
+    std::map<int, String> labelsInfo;
+
+    // errorsInfo should be defined in the descendants, zero error will be used as "no error" code
+    std::map<int, String> errorsInfo;
 
     DistanceType    distanceType;
     double          threshold;

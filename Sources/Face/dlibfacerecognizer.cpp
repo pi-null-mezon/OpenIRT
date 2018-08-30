@@ -20,9 +20,12 @@ DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const 
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
+
+    // Declare errors
+    errorsInfo[1] = "Can not find face!";
 }
 
-Mat DlibFaceRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
+Mat DlibFaceRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     cv::String _str = _blobname; // to suppress 'unused variable' compiler warning
     // Prepare image
@@ -32,20 +35,23 @@ Mat DlibFaceRecognizer::getImageDescriptionByLayerName(const Mat &_img, const St
     cv::imshow("Input of DLIB",_viewmat);
     cv::waitKey(1);*/
 
-    // Get description
-    dlib::matrix<float,0,1> _facedescription = net(_facechip);
-    // Perform forward propagation
-    return dlib::toMat(_facedescription).reshape(1,1).clone();
+    if(_facechip.size() != 0) {
+        dlib::matrix<float,0,1> _facedescription = net(_facechip);
+        return dlib::toMat(_facedescription).reshape(1,1).clone();
+    } else if(_error != 0) {
+        *_error = 1; // you can find error description declaration in the constructor
+    }
+    return cv::Mat::zeros(1,128,CV_32FC1);
 }
 
-Mat DlibFaceRecognizer::getImageDescription(const Mat &_img) const
+Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
 {
-    return getImageDescriptionByLayerName(_img,cv::String());
+    return getImageDescriptionByLayerName(_img,cv::String(),_error);
 }
 
-void DlibFaceRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
+void DlibFaceRecognizer::predict(InputArray src, Ptr<PredictCollector> collector, int *_error) const
 {
-    cv::Mat _description = getImageDescription(src.getMat());
+    cv::Mat _description = getImageDescription(src.getMat(),_error);
     collector->init(v_labels.size());
     for (size_t sampleIdx = 0; sampleIdx < v_labels.size(); sampleIdx++) {
         double distance = DBL_MAX;
@@ -74,6 +80,9 @@ dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inma
 
     dlib::rectangle _facerect(_inmat.cols,_inmat.rows);
     std::vector<dlib::rectangle> _facerects = dlibfacedet(_graycv_image);
+
+    dlib::matrix<dlib::rgb_pixel> _facechip;
+
     if(_facerects.size() > 0) {
         if(_facerects.size() > 1) {
             std::sort(_facerects.begin(),_facerects.end(),[](const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
@@ -81,10 +90,9 @@ dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inma
             });
         }
         _facerect = _facerects[0];
-    }
-    auto _shape = dlibshapepredictor(_rgbcv_image, _facerect);
-    dlib::matrix<dlib::rgb_pixel> _facechip;
-    dlib::extract_image_chip(_rgbcv_image, dlib::get_face_chip_details(_shape,150,0.25), _facechip);
+        auto _shape = dlibshapepredictor(_rgbcv_image, _facerect);
+        dlib::extract_image_chip(_rgbcv_image, dlib::get_face_chip_details(_shape,150,0.25), _facechip);
+    }    
 
     return _facechip;
 }

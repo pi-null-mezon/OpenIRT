@@ -19,18 +19,19 @@ public:
     virtual ~CNNImageRecognizer();
 
     void    train(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;
-    void    update(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;
+    void    update(InputArrayOfArrays src, InputArray labels, bool _visualize=true, int *_error=0) override;
     int     remove(InputArray labels) override;
     void    load(const FileStorage &fs) override;
     void    save(FileStorage &fs) const override;
     void    clear() override;
     bool    empty() const override;
     int     nextfreeLabel() const;
+    int     labelTemplates(int _label) const;
 
-    virtual Mat  getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const = 0;
+    virtual Mat  getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error=0) const = 0;
 
 protected:
-    void __train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData, bool _visualize);
+    void __train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData, bool _visualize, int *_error=0);
 
     Size                                inputSize;
     int                                 inputChannels;

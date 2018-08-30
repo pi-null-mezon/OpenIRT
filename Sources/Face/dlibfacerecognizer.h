@@ -47,9 +47,9 @@ class DlibFaceRecognizer: public CNNImageRecognizer
 public:
     DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, DistanceType _disttype, double _threshold);
 
-    Mat     getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const override;
-    Mat     getImageDescription(const Mat &_img) const override;
-    void    predict(InputArray src, Ptr<PredictCollector> collector) const override;
+    Mat     getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error=0) const override;
+    Mat     getImageDescription(const Mat &_img, int *_error=0) const override;
+    void    predict(InputArray src, Ptr<PredictCollector> collector, int *_error=0) const override;
 
 private:
     dlib::matrix<dlib::rgb_pixel> __extractface(const Mat &_inmat) const;

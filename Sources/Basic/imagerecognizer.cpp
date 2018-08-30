@@ -36,11 +36,17 @@ ImageRecognizer::~ImageRecognizer()
 std::vector<int> ImageRecognizer::getLabelsByString(const String &str) const
 {
     std::vector<int> labels;
-    for (std::map<int, String>::const_iterator it = _labelsInfo.begin(); it != _labelsInfo.end(); it++) {
+    for (std::map<int, String>::const_iterator it = labelsInfo.begin(); it != labelsInfo.end(); it++) {
         if((it->second).compare(str) == 0) // the contents of both strings are equal
             labels.push_back(it->first);
     }
     return labels;
+}
+
+String ImageRecognizer::getErrorInfo(int _error) const
+{
+    std::map<int, String>::const_iterator iter(errorsInfo.find(_error));
+    return iter != labelsInfo.end() ? iter->second : "Not defined";
 }
 
 double ImageRecognizer::getThreshold() const
@@ -95,18 +101,18 @@ void ImageRecognizer::setCropInput(CropMethod value)
 
 std::map<int,String> ImageRecognizer::getLabelsInfo() const
 {
-    return _labelsInfo;
+    return labelsInfo;
 }
 
 String ImageRecognizer::getLabelInfo(int label) const
 {
-    std::map<int, String>::const_iterator iter(_labelsInfo.find(label));
-    return iter != _labelsInfo.end() ? iter->second : "";
+    std::map<int, String>::const_iterator iter(labelsInfo.find(label));
+    return iter != labelsInfo.end() ? iter->second : "";
 }
 
 void ImageRecognizer::setLabelInfo(int label, const String &strInfo)
 {
-    _labelsInfo[label] = strInfo;
+    labelsInfo[label] = strInfo;
 }
 
 void ImageRecognizer::load(const String &filename)
@@ -131,9 +137,9 @@ void ImageRecognizer::save(const String &filename) const
     fs.release();
 }
 
-void ImageRecognizer::predict(InputArray src, int &label, double &distance) const {
+void ImageRecognizer::predict(InputArray src, int &label, double &distance, int *_error) const {
     Ptr<StandardCollector> collector = StandardCollector::create();
-    predict(src, collector);
+    predict(src, collector,_error);
     label = collector->getMinLabel();
     distance = collector->getMinDist();
 }
@@ -144,10 +150,10 @@ std::vector<std::pair<int, double> > ImageRecognizer::recognize(InputArray src, 
     return collector->getResults(true,unique);
 }
 
-double ImageRecognizer::compare(InputArray esrc, InputArray vsrc) const
+double ImageRecognizer::compare(InputArray esrc, InputArray vsrc, int *_error) const
 {
-    cv::Mat _edscr = getImageDescription(esrc.getMat());
-    cv::Mat _vdscr = getImageDescription(vsrc.getMat());
+    cv::Mat _edscr = getImageDescription(esrc.getMat(),_error);
+    cv::Mat _vdscr = getImageDescription(vsrc.getMat(),_error);
     double distance = DBL_MAX;
     switch(getDistanceType()) {
         case DistanceType::Euclidean:

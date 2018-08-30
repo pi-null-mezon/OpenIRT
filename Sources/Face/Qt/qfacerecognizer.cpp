@@ -38,7 +38,7 @@ void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinf
 {
     int _label;
     auto _vlabels = ptrrec->getLabelsByString(_labelinfo.constData());
-    if(_vlabels.size() > 0) {
+    if(_vlabels.size() > 0) {      
        qDebug("This labelinfo already in use, so this example will be added to existed label");
        _label = _vlabels[0];
     } else {
@@ -49,13 +49,20 @@ void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinf
     _vmats[0] = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
     std::vector<int>     _vlbls(1,_label);
     QJsonObject _json;
+    int _error = 0;
     if(_vmats[0].empty() == false) {
-        ptrrec->update(_vmats,_vlbls,false);
-        ptrrec->setLabelInfo(_label,_labelinfo.constData());
-        ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
-        _json["status"]    = "Success";
-        _json["label"]     = _label;
-        _json["labelinfo"] = _labelinfo.constData();
+        ptrrec->update(_vmats,_vlbls,false,&_error);
+        if(_error == 0) {
+            ptrrec->setLabelInfo(_label,_labelinfo.constData());
+            ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
+            _json["status"]    = "Success";
+            _json["label"]     = _label;
+            _json["labelinfo"] = _labelinfo.constData();
+            _json["templates"] = ptrrec->labelTemplates(_label);
+        } else {
+            _json["status"]    = "Error";
+            _json["message"]   = ptrrec->getErrorInfo(_error).c_str();
+        }
     } else {
         _json["status"]    = "Error";
         _json["message"]   = "Can not decode input image!";
@@ -90,12 +97,18 @@ void QFaceRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
         cv::Mat _faceimg = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
         int _label;
         double _distance;
-        ptrrec->predict(_faceimg,_label,_distance);
-        _json["status"]    = "Success";
-        _json["label"]     = _label;
-        _json["labelinfo"] = ptrrec->getLabelInfo(_label).c_str();
-        _json["distance"]  = _distance;
-        _json["distancethresh"]    = ptrrec->getThreshold();
+        int _error = 0;
+        ptrrec->predict(_faceimg,_label,_distance,&_error);
+        if(_error == 0) {
+            _json["status"]    = "Success";
+            _json["label"]     = _label;
+            _json["labelinfo"] = ptrrec->getLabelInfo(_label).c_str();
+            _json["distance"]  = _distance;
+            _json["distancethresh"]    = ptrrec->getThreshold();
+        } else {
+            _json["status"]    = "Error";
+            _json["message"]   = ptrrec->getErrorInfo(_error).c_str();
+        }
     } else {
         _json["status"]  = "Error";
         _json["message"] = "Empty labels list, can not identify anything!";
@@ -107,11 +120,17 @@ void QFaceRecognizer::verifyImage(qintptr _taskid, const QByteArray &_eimg, cons
 {
     cv::Mat _efaceimg = cv::imdecode(std::vector<unsigned char>(_eimg.begin(),_eimg.end()),cv::IMREAD_UNCHANGED);
     cv::Mat _vfaceimg = cv::imdecode(std::vector<unsigned char>(_vimg.begin(),_vimg.end()),cv::IMREAD_UNCHANGED);
-    double _distance = ptrrec->compare(_efaceimg,_vfaceimg);
+    int _error = 0;
+    double _distance = ptrrec->compare(_efaceimg,_vfaceimg, &_error);
     QJsonObject _json;
-    _json["status"]    = "Success";
-    _json["distance"]  = _distance;
-    _json["distancethresh"]    = ptrrec->getThreshold();
+    if(_error == 0) {
+        _json["status"]         = "Success";
+        _json["distance"]       = _distance;
+        _json["distancethresh"] = ptrrec->getThreshold();
+    } else {
+        _json["status"]         = "Error";
+        _json["message"]        = ptrrec->getErrorInfo(_error).c_str();
+    }
     emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
 }
 
@@ -120,11 +139,11 @@ void QFaceRecognizer::getLabelsList(qintptr _taskid)
     std::map<int,cv::String> _labelsInfo = ptrrec->getLabelsInfo();
     QJsonArray _jsonarray;
     for(auto const &_info : _labelsInfo) {
-        QJsonObject _jsonobj{
-                                {"label",_info.first},
-                                {"info",_info.second.c_str()}
-                            };
-        _jsonarray.push_back(_jsonobj);
+        QJsonObject _json;
+        _json["label"]     = _info.first;
+        _json["labelinfo"] = _info.second.c_str();
+        _json["templates"] = ptrrec->labelTemplates(_info.first);
+        _jsonarray.push_back(_json);
     }
     QJsonObject _jsonobj{
                             {"status","Success"},

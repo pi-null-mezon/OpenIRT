@@ -18,9 +18,9 @@ void CNNImageRecognizer::train(InputArrayOfArrays src, InputArray labels, bool _
     __train(src, labels, false, _visualize);
 }
 
-void CNNImageRecognizer::update(InputArrayOfArrays src, InputArray labels, bool _visualize)
+void CNNImageRecognizer::update(InputArrayOfArrays src, InputArray labels, bool _visualize, int *_error)
 {
-    __train(src, labels, true, _visualize);
+    __train(src, labels, true, _visualize, _error);
 }
 
 int CNNImageRecognizer::remove(InputArray labels)
@@ -46,7 +46,7 @@ int CNNImageRecognizer::remove(InputArray labels)
             _vlabels.push_back(v_labels[i]);
             _vdescriptions.push_back(v_descriptions[i]);
         } else {
-            _labelsInfo.erase(v_labels[i]);
+            labelsInfo.erase(v_labels[i]);
             _removed++;
         }
     }
@@ -55,7 +55,7 @@ int CNNImageRecognizer::remove(InputArray labels)
     return _removed;
 }
 
-void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData, bool _visualize)
+void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData, bool _visualize, int *_error)
 {
     if(_src.kind() != _InputArray::STD_VECTOR_MAT && _src.kind() != _InputArray::STD_VECTOR_VECTOR) {
         String error_message = "The images are expected as InputArray::STD_VECTOR_MAT (a std::vector<Mat>) or _InputArray::STD_VECTOR_VECTOR (a std::vector< std::vector<...> >).";
@@ -86,15 +86,20 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
     }
 
     // append labels and images to the storage
-    for(size_t labelIdx = 0; labelIdx < lbls.total(); labelIdx++) {
-        v_labels.push_back(lbls.at<int>((int)labelIdx));       
+    for(size_t labelIdx = 0; labelIdx < lbls.total(); labelIdx++) {             
         if(_visualize) {
             cv::Mat _tmpmat = preprocessImageForCNN(raw[labelIdx], getInputSize(), getInputChannels(), getCropInput());
             cv::imshow("CNNFaceRecognizer",_tmpmat);
             cv::waitKey(1);
         }
-        v_descriptions.push_back( getImageDescription( raw[labelIdx] ) );
-        // std::cout << "      image description for label " << *(v_labels.end()-1) << " has been memorized" << std::endl;
+        cv::Mat _dscrmat = getImageDescription(raw[labelIdx], _error);
+        if(_error != 0) {
+            if(*_error != 0) {
+                return;
+            }
+        }
+        v_labels.push_back(lbls.at<int>((int)labelIdx));
+        v_descriptions.push_back(_dscrmat);
     }
 }
 
@@ -106,12 +111,12 @@ void CNNImageRecognizer::load(const FileStorage &fs)
     const FileNode& fn = fs["labelsInfo"];
     if (fn.type() == FileNode::SEQ)
     {
-        _labelsInfo.clear();
+        labelsInfo.clear();
         for (FileNodeIterator it = fn.begin(); it != fn.end();)
         {
             LabelInfo item;
             it >> item;
-            _labelsInfo.insert(std::make_pair(item.label, item.value));
+            labelsInfo.insert(std::make_pair(item.label, item.value));
         }
     }
 }
@@ -122,7 +127,7 @@ void CNNImageRecognizer::save(FileStorage &fs) const
 
     fs << "labels" << v_labels;
     fs << "labelsInfo" << "[";
-    for (std::map<int, String>::const_iterator it = _labelsInfo.begin(); it != _labelsInfo.end(); it++)
+    for (std::map<int, String>::const_iterator it = labelsInfo.begin(); it != labelsInfo.end(); it++)
         fs << LabelInfo(it->first, it->second);
     fs << "]";
 }
@@ -146,6 +151,17 @@ int CNNImageRecognizer::nextfreeLabel() const
         return 0;
     }
     return *std::max_element(v_labels.begin(), v_labels.end()) + 1;
+}
+
+int CNNImageRecognizer::labelTemplates(int _label) const
+{
+    int _templates = 0;
+    for(size_t i = 0; i < v_labels.size(); ++i) {
+        if(v_labels[i] == _label) {
+            _templates++;
+        }
+    }
+    return _templates;
 }
 
 }}
