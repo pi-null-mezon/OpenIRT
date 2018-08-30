@@ -26,7 +26,13 @@ public:
     void    clear() override;
     bool    empty() const override;
     int     nextfreeLabel() const;
-    int     labelTemplates(int _label) const;
+
+    /**
+     * @brief Call to get number of knowing templates for the particualr label
+     * @param _label
+     * @return self explained
+     */
+    virtual int labelTemplates(int _label) const;
 
     virtual Mat  getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error=0) const = 0;
 

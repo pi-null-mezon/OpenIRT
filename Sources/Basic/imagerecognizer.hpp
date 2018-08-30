@@ -132,8 +132,6 @@ public:
 
     std::map<int,String> getLabelsInfo() const;
 
-    virtual int labelTemplates(int _label) const = 0;
-
 protected:
     // Stored pairs "label id - string info"
     std::map<int, String> labelsInfo;
