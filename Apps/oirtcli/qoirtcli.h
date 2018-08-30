@@ -45,7 +45,7 @@ private:
     QString             imgfilename;
     QString             vimgfilename;
 
-    int repeatlength;
+    int                 repeatlength;
 };
 
 #endif // QOIRTCLI_H

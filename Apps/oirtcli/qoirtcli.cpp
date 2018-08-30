@@ -15,7 +15,10 @@ void QOIRTCli::connectTo(const QHostAddress &_addr, quint16 _port)
 {
     tcpsocket.connectToHost(_addr,_port);
     repeatlength = -1;
-    QTimer::singleShot(10000,[=]() {qWarning("Seems that %s:%u can not be accessed",_addr.toString().toUtf8().constData(),static_cast<uint>(_port));});
+    QTimer::singleShot(10000,[=]() {
+                                        qWarning("Seems that %s:%u can not be accessed! Abort...",_addr.toString().toUtf8().constData(),static_cast<uint>(_port));
+                                        emit taskAccomplished();
+                                    });
 }
 
 void QOIRTCli::deleteAllFiles()
