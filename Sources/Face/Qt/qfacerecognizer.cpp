@@ -36,8 +36,12 @@ void QFaceRecognizer::predict(cv::Mat _faceimg)
 
 void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinfo, const QByteArray &_encimg)
 {
-    int _label;
-    auto _vlabels = ptrrec->getLabelsByString(_labelinfo.constData());
+    // Conversion to base64 is necessary because user could pass markup symbols
+    // like { or [ that will corrupt classifier file storage
+    QByteArray _encodedlabelinfo = _labelinfo.toBase64();
+
+    int _label;   
+    auto _vlabels = ptrrec->getLabelsByString(_encodedlabelinfo.constData());
     if(_vlabels.size() > 0) {      
        qDebug("This labelinfo already in use, so this example will be added to existed label");
        _label = _vlabels[0];
@@ -52,8 +56,8 @@ void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinf
     int _error = 0;
     if(_vmats[0].empty() == false) {
         ptrrec->update(_vmats,_vlbls,false,&_error);
-        if(_error == 0) {
-            ptrrec->setLabelInfo(_label,_labelinfo.constData());
+        if(_error == 0) {           
+            ptrrec->setLabelInfo(_label,_encodedlabelinfo.constData());
             ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
             _json["status"]    = "Success";
             _json["label"]     = _label;
@@ -72,9 +76,13 @@ void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinf
 
 void QFaceRecognizer::deleteLabel(qintptr _taskid, const QByteArray &_labelinfo)
 {
+    // Conversion to base64 is necessary because user could pass markup symbols
+    // like { or [ that will corrupt classifier file storage
+    QByteArray _encodedlabelinfo = _labelinfo.toBase64();
+
     QJsonObject _json;
     if(ptrrec->empty() == false) {
-        auto _vlabels = ptrrec->getLabelsByString(_labelinfo.constData());
+        auto _vlabels = ptrrec->getLabelsByString(_encodedlabelinfo.constData());
         if(ptrrec->remove(_vlabels) > 0) {
             ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
             _json["status"]  = "Success";
@@ -102,7 +110,9 @@ void QFaceRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
         if(_error == 0) {
             _json["status"]    = "Success";
             _json["label"]     = _label;
-            _json["labelinfo"] = ptrrec->getLabelInfo(_label).c_str();
+            // Conversion to base64 is necessary because user could pass markup symbols
+            // like { or [ that will corrupt classifier file storage
+            _json["labelinfo"] = QByteArray::fromBase64(ptrrec->getLabelInfo(_label).c_str()).constData();
             _json["distance"]  = _distance;
             _json["distancethresh"]    = ptrrec->getThreshold();
         } else {
@@ -141,7 +151,9 @@ void QFaceRecognizer::getLabelsList(qintptr _taskid)
     for(auto const &_info : _labelsInfo) {
         QJsonObject _json;
         _json["label"]     = _info.first;
-        _json["labelinfo"] = _info.second.c_str();
+        // Conversion to base64 is necessary because user could pass markup symbols
+        // like { or [ that will corrupt classifier file storage
+        _json["labelinfo"] = QByteArray::fromBase64(_info.second.c_str()).constData();
         _json["templates"] = ptrrec->labelTemplates(_info.first);
         _jsonarray.push_back(_json);
     }
