@@ -3,6 +3,8 @@
 #include <QFile>
 #include <QTimer>
 #include <QDataStream>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 QOIRTCli::QOIRTCli(OIRTTask::TaskCode _taskcode, QObject *parent): QObject(parent),
     taskcode(_taskcode)
@@ -16,7 +18,10 @@ void QOIRTCli::connectTo(const QHostAddress &_addr, quint16 _port)
     tcpsocket.connectToHost(_addr,_port);
     repeatlength = -1;
     QTimer::singleShot(10000,[=]() {
-                                        qWarning("Seems that %s:%u can not be accessed! Abort...",_addr.toString().toUtf8().constData(),static_cast<uint>(_port));
+                                        QJsonObject _json;
+                                        _json["status"] = "Error";
+                                        _json["message"] = QString("Seems that oirtsrv can not be accessed on %1:%2!").arg(_addr.toString(),QString::number(_port));
+                                        qInfo("%s",QJsonDocument(_json).toJson().constData());
                                         emit taskAccomplished();
                                     });
 }
