@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
     QObject::connect(&server,SIGNAL(deleteLabel(qintptr,QByteArray)),&qfacerec,SLOT(deleteLabel(qintptr,QByteArray)));
     QObject::connect(&server,SIGNAL(askLabelsList(qintptr)),&qfacerec,SLOT(getLabelsList(qintptr)));
     QObject::connect(&server,SIGNAL(verifyImage(qintptr,QByteArray,QByteArray)),&qfacerec,SLOT(verifyImage(qintptr,QByteArray,QByteArray)));
+    QObject::connect(&server,SIGNAL(updateWhitelist(qintptr,QByteArray)),&qfacerec,SLOT(updateWhitelist(qintptr,QByteArray)));
     QObject::connect(&qfacerec,SIGNAL(taskAccomplished(qintptr,QByteArray)),&server,SLOT(repeatToClient(qintptr,QByteArray)));
 
     qfacerecthread.start();

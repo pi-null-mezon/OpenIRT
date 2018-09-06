@@ -8,7 +8,9 @@ OIRTTask::OIRTTask(QTcpSocket *_tcpsocket) :
     encimgbytes(-1),
     encimgaccepted(false),
     vencimgbytes(-1),
-    vencimgaccepted(false)
+    vencimgaccepted(false),
+    whitelistbytes(-1),
+    whitelistaccepted(false)
 {    
 }
 
@@ -29,6 +31,8 @@ OIRTTask::TaskCode OIRTTask::getTaskCode(quint8 _val)
             return OIRTTask::AskLabelsList;
         case 5:
             return OIRTTask::VerifyImage;
+        case 6:
+            return OIRTTask::UpdateWhitelist;
         default:
             return OIRTTask::UnknownTask;
     }
@@ -47,6 +51,8 @@ quint8 OIRTTask::getTaskCodeValue(OIRTTask::TaskCode _taskcode)
             return 4;
         case OIRTTask::VerifyImage:
             return 5;
+        case OIRTTask::UpdateWhitelist:
+            return 6;
         default:
             return 0;
     }

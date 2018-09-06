@@ -20,6 +20,7 @@ signals:
     void identifyImage(qintptr _taskid, const QByteArray &_encimg);
     void verifyImage(qintptr _taskid, const QByteArray &_eimg, const QByteArray &_vimg);
     void askLabelsList(qintptr _taskid);
+    void updateWhitelist(qintptr _taskid, const QByteArray &_jsonwhitelist);
 
 public slots:    
     bool start(quint16 _port);

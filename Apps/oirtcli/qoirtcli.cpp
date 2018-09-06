@@ -20,19 +20,25 @@ void QOIRTCli::connectTo(const QHostAddress &_addr, quint16 _port)
     QTimer::singleShot(10000,[=]() {
                                         QJsonObject _json;
                                         _json["status"] = "Error";
-                                        _json["message"] = QString("Seems that oirtsrv can not be accessed on %1:%2!").arg(_addr.toString(),QString::number(_port));
+                                        _json["message"] = QString("Server oirtsrv can not be accessed on %1:%2!").arg(_addr.toString(),QString::number(_port));
                                         qInfo("%s",QJsonDocument(_json).toJson().constData());
                                         emit taskAccomplished();
                                     });
 }
 
-void QOIRTCli::deleteAllFiles()
+void QOIRTCli::deleteFiles()
 {
-    bool _deleted = QFile::remove(getImgfilename());
-    qDebug("File %s delete status: %s", getImgfilename().toUtf8().constData(), _deleted ? "deleted" : "can not be deleted");
-    if(taskcode == OIRTTask::TaskCode::VerifyImage) {
-        _deleted = QFile::remove(getVimgfilename());
-        qDebug("File %s delete status: %s", getVimgfilename().toUtf8().constData(), _deleted ? "deleted" : "can not be deleted");
+    if(!imgfilename.isEmpty()) {
+        bool _deleted = QFile::remove(imgfilename);
+        qDebug("File %s delete status: %s", imgfilename.toUtf8().constData(), _deleted ? "deleted" : "can not be deleted");
+    }
+    if(!vimgfilename.isEmpty()) {
+        bool _deleted = QFile::remove(vimgfilename);
+        qDebug("File %s delete status: %s", vimgfilename.toUtf8().constData(), _deleted ? "deleted" : "can not be deleted");
+    }
+    if(!whitelistfilename.isEmpty()) {
+        bool _deleted = QFile::remove(whitelistfilename);
+        qDebug("File %s delete status: %s", whitelistfilename.toUtf8().constData(), _deleted ? "deleted" : "can not be deleted");
     }
     emit filesDeleted();
 }
@@ -50,7 +56,7 @@ void QOIRTCli::sendTask()
             qDebug("RememberLabel");             
             _ods << static_cast<qint32>(labelinfo.size());
             _ods << labelinfo;
-            QByteArray _encimg = __readImgfileContent(getImgfilename());
+            QByteArray _encimg = __readImgfileContent(imgfilename);
             _ods << static_cast<qint32>(_encimg.size());
             _ods << _encimg;
         } break;
@@ -63,20 +69,29 @@ void QOIRTCli::sendTask()
 
         case OIRTTask::IdentifyImage: {
             qDebug("IdentifyImage");
-            QByteArray _encimg = __readImgfileContent(getImgfilename());
+            QByteArray _encimg = __readImgfileContent(imgfilename);
             _ods << static_cast<qint32>(_encimg.size());
             _ods << _encimg;
         } break;
 
         case OIRTTask::VerifyImage: {
             qDebug("VerifyImage");
-            QByteArray _data = __readImgfileContent(getImgfilename());
+            QByteArray _data = __readImgfileContent(imgfilename);
             _ods << static_cast<qint32>(_data.size());
             _ods << _data;
-            _data = __readImgfileContent(getVimgfilename());
+            _data = __readImgfileContent(vimgfilename);
             _ods << static_cast<qint32>(_data.size());
             _ods << _data;
         }
+
+        case OIRTTask::UpdateWhitelist: {
+            qDebug("UpdateWhitelist");
+            QFile _file(whitelistfilename);
+            _file.open(QIODevice::ReadOnly);
+            QByteArray _json = _file.readAll();
+            _ods << static_cast<qint32>(_json.size());
+            _ods << _json;
+        } break;
 
         default:
             qDebug("UnknownTask");
@@ -113,9 +128,9 @@ QByteArray QOIRTCli::__readImgfileContent(const QString &_filename)
     return _tmpfile.readAll();
 }
 
-QString QOIRTCli::getVimgfilename() const
+void QOIRTCli::setWhitelistfilename(const QString &value)
 {
-    return vimgfilename;
+    whitelistfilename = value;
 }
 
 void QOIRTCli::setVimgfilename(const QString &value)
@@ -123,19 +138,9 @@ void QOIRTCli::setVimgfilename(const QString &value)
     vimgfilename = value;
 }
 
-QString QOIRTCli::getImgfilename() const
-{
-    return imgfilename;
-}
-
 void QOIRTCli::setImgfilename(const QString &value)
 {
     imgfilename = value;
-}
-
-QByteArray QOIRTCli::getLabelinfo() const
-{
-    return labelinfo;
 }
 
 void QOIRTCli::setLabelinfo(const QByteArray &value)

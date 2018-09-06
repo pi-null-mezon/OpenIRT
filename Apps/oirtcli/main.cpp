@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     //-----------------------------
     quint16 port = 8080;
     QHostAddress srvaddr = QHostAddress::LocalHost;
-    QString imgfilename, vimgfilename;
+    QString imgfilename, vimgfilename, whitelistfilename;
     QString labelinfo;
     OIRTTask::TaskCode taskcode = OIRTTask::UnknownTask;
     bool deletefile = false;
@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
                 qInfo(" -p[int] - port of the server to connect (default: 8080)\n");
                 qInfo(" -i[str] - filename of the image that should be processed\n");
                 qInfo(" -v[str] - filename of the second image that should be processed (for verification)\n");
+                qInfo(" -w[str] - filename of the whitelist (it should be valid json file)");
                 qInfo(" -l[str] - label info string\n");
                 qInfo(" -t[int] - task code {RememberLabel=1, DeleteLabel=2, IdentifyImage=3, AskLabels=4}\n");
                 qInfo(" -d      - delete image files after server's repeat\n");
@@ -71,6 +72,10 @@ int main(int argc, char *argv[])
 
             case 'v':
                 vimgfilename = QString::fromLocal8Bit(++argv[0]);
+                break;
+
+            case 'w':
+                whitelistfilename = QString::fromLocal8Bit(++argv[0]);
                 break;
 
             case 'l':
@@ -121,16 +126,29 @@ int main(int argc, char *argv[])
         }
     }
 
+    if(taskcode == OIRTTask::UpdateWhitelist) {
+        if(whitelistfilename.isEmpty()) {
+            qWarning("Empty whitelist file name! Abort...");
+            return 7;
+        }
+        QFileInfo _finfo(whitelistfilename);
+        if(_finfo.exists() == false) {
+            qWarning("Whitelist file can not be found! Abort...");
+            return 8;
+        }
+    }
+
     QOIRTCli _client(taskcode);
     _client.setLabelinfo(labelinfo.toUtf8());    
     _client.setImgfilename(imgfilename);
     _client.setVimgfilename(vimgfilename);
+    _client.setWhitelistfilename(whitelistfilename);
     _client.connectTo(srvaddr,port);
 
     if(deletefile == false) {
         QObject::connect(&_client,&QOIRTCli::taskAccomplished,&a,&QCoreApplication::quit);
     } else {
-        QObject::connect(&_client,&QOIRTCli::taskAccomplished,&_client,&QOIRTCli::deleteAllFiles);
+        QObject::connect(&_client,&QOIRTCli::taskAccomplished,&_client,&QOIRTCli::deleteFiles);
         QObject::connect(&_client,&QOIRTCli::filesDeleted,&a,&QCoreApplication::quit);
     }
 

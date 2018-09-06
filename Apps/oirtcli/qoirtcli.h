@@ -16,21 +16,17 @@ public:
 
     void connectTo(const QHostAddress &_addr, quint16 _port);
 
-    QByteArray getLabelinfo() const;
     void setLabelinfo(const QByteArray &value);
-
-    QString getImgfilename() const;
     void setImgfilename(const QString &value);
-
-    QString getVimgfilename() const;
     void setVimgfilename(const QString &value);
+    void setWhitelistfilename(const QString &value);
 
 signals:
     void taskAccomplished();
     void filesDeleted();
 
 public slots:
-    void deleteAllFiles();
+    void deleteFiles();
 
 private slots:
     void sendTask();
@@ -44,6 +40,7 @@ private:
     QByteArray          labelinfo;
     QString             imgfilename;
     QString             vimgfilename;
+    QString             whitelistfilename;
 
     int                 repeatlength;
 };

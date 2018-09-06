@@ -1,4 +1,4 @@
-import subprocess, os, sys, uuid
+import subprocess, os, sys, uuid, json
 from flask import Flask, request, redirect, jsonify, make_response
 from werkzeug.utils import secure_filename
 from waitress import serve
@@ -42,9 +42,7 @@ def remember_face():
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),
-														"-i%s" % filepath,
-														"-l%s" % labelinfo, "-d", "-t1"]), 200	)
+		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-i%s" % filepath, "-l%s" % labelinfo, "-d", "-t1"]), 200	)
 		response.headers['Content-Type'] = "application/json"
 		return response													
 	return jsonify({"status": "Error", "info": "File you have try to upload seems to be bad"}), 400
@@ -69,11 +67,17 @@ def identify_face():
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),
-											   "-i%s" % filepath, "-d", "-t3"]), 200)
+		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),  "-i%s" % filepath, "-d", "-t3"]), 200)
 		response.headers['Content-Type'] = "application/json"
 		return response														
 	return jsonify({"status": "Error", "info": "File you have try to upload seems to be bad"}), 400
+	
+	
+@app.route("%s/labels" % apiprefix, methods=['GET'])
+def get_labels():
+	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-t4"]), 200)
+	response.headers['Content-Type'] = "application/json"
+	return response
 	
 	
 @app.route("%s/verify" % apiprefix, methods=['POST'])
@@ -95,18 +99,25 @@ def verify_face():
 		vfilename = randomize_name(secure_filename(vfile.filename))
 		vfilepath = os.path.join(app.config['UPLOAD_FOLDER'], vfilename) 
 		vfile.save(vfilepath)
-		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),
-											   "-i%s" % efilepath, "-v%s" % vfilepath, "-d", "-t5"]), 200)
+		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-i%s" % efilepath, "-v%s" % vfilepath, "-d", "-t5"]), 200)
 		response.headers['Content-Type'] = "application/json"
 		return response														
-	return jsonify({"status": "Error", "info": "Files you have try to upload seems to be bad"}), 400
+	return jsonify({"status": "Error", "info": "Files you have try to upload seems to be bad"}), 400	
 	
-
-@app.route("%s/labels" % apiprefix, methods=['GET'])
-def get_labels():
-	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-t4"]), 200)
+	
+@app.route("%s/whitelist" % apiprefix, methods=['POST'])
+def set_whitelist():
+	if not request.is_json: 
+		return jsonify({"status": "Error", "info": "Your input is not JSON"}), 400 
+	whitelist = request.get_json()
+	filepath = os.path.join(app.config['UPLOAD_FOLDER'], str(uuid.uuid4()) + '.json') 
+	with open(filepath, 'w') as outfile:
+		json.dump(whitelist, outfile)
+		try subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-w%s" % filepath, "-d", "-t6"]) 
+	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-w%s" % filepath, "-d", "-t6"]), 200)
 	response.headers['Content-Type'] = "application/json"
-	return response
+	return response																													
+	
 	
 if __name__ == "__main__":
 	#app.run()

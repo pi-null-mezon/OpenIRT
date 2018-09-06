@@ -163,6 +163,21 @@ void QOIRTServer::readClient()
                 }
                 break;
 
+            case OIRTTask::UpdateWhitelist:
+                if(_task->whitelistbytes == -1) {
+                    if(_task->tcpsocket->bytesAvailable() < (qint64)sizeof(qint32))
+                        return;
+                    _ids >> _task->whitelistbytes;
+                }
+                if(_task->whitelistaccepted == false) {
+                    if(_task->tcpsocket->bytesAvailable() < _task->whitelistbytes)
+                        return;
+                    _ids >> _task->whitelist;
+                    _task->whitelistaccepted = true;
+                    emit updateWhitelist(_taskid,_task->whitelist);
+                }
+                break;
+
             default:
                 // TO SUPPRESS WARNINGS
                 break;

@@ -144,6 +144,44 @@ void QFaceRecognizer::verifyImage(qintptr _taskid, const QByteArray &_eimg, cons
     emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
 }
 
+void QFaceRecognizer::updateWhitelist(qintptr _taskid, const QByteArray &_jsonwhitelist)
+{
+    QJsonParseError _error;
+    QJsonArray _jsonarray = QJsonDocument::fromJson(_jsonwhitelist,&_error).array();
+    QJsonObject _json;
+    if(_error.error != QJsonParseError::NoError) {
+        _json["status"]         = "Error";
+        _json["message"]        = _error.errorString();
+    } else if(_jsonarray.size() == 0) {
+        _json["status"]         = "Error";
+        _json["message"]        = "Empty whitelist!";
+    } else {
+        std::vector<cv::String> _vlabelinfo(_jsonarray.size(),cv::String());
+        bool _error = false;
+        for(int i = 0; i < _jsonarray.size(); ++i) {
+            QJsonValue _jsonval = _jsonarray[i].toObject().value("labelinfo");
+            if(_jsonval.type() != QJsonValue::Undefined) {
+                _vlabelinfo[i] = _jsonval.toString().toUtf8().toBase64().constData();
+            } else {
+                _json["status"]  = "Error";
+                _json["message"] = QString("Can not find labelinfo value in the whitelist element #%1!").arg(QString::number(i));
+                _error = true;
+                break;
+            }
+        }
+        if(_error == false) {
+            qDebug("Whitelist to be applied:");
+            for(int i = 0; i < _vlabelinfo.size(); ++i) {
+                qDebug("%d) %s", i, _vlabelinfo[i].c_str());
+            }
+            //ptrrec->updateWhitelist(_vlabelinfo);
+            _json["status"]      = "Success";
+            _json["message"]     = "Whitelist has been updated";
+        }
+    }
+    emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
+}
+
 void QFaceRecognizer::getLabelsList(qintptr _taskid)
 {
     std::map<int,cv::String> _labelsInfo = ptrrec->getLabelsInfo();
