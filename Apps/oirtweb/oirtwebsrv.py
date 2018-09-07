@@ -113,7 +113,6 @@ def set_whitelist():
 	filepath = os.path.join(app.config['UPLOAD_FOLDER'], str(uuid.uuid4()) + '.json') 
 	with open(filepath, 'w') as outfile:
 		json.dump(whitelist, outfile)
-		try subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-w%s" % filepath, "-d", "-t6"]) 
 	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-w%s" % filepath, "-d", "-t6"]), 200)
 	response.headers['Content-Type'] = "application/json"
 	return response																													

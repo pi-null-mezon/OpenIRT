@@ -21,6 +21,7 @@ enum CropMethod {NoCrop, Inside, Outside, OutsideJitter};
 template<typename _Tp>
 inline void readFileNodeList(const FileNode& fn, std::vector<_Tp>& result) {
     if (fn.type() == FileNode::SEQ) {
+        result.reserve(fn.size());
         for (FileNodeIterator it = fn.begin(); it != fn.end();) {
             _Tp item;
             it >> item;
@@ -58,11 +59,6 @@ struct LabelInfo
     {
         label = (int)node["label"];
         value = (String)node["value"];
-    }
-    std::ostream& operator<<(std::ostream& out)
-    {
-        out << "{ label = " << label << ", " << "value = " << value.c_str() << "}";
-        return out;
     }
 };
 

@@ -25,14 +25,22 @@ public:
     void    save(FileStorage &fs) const override;
     void    clear() override;
     bool    empty() const override;
+    bool    emptyWhitelist() const;
     int     nextfreeLabel() const;
+    /**
+     * @brief Set whitelist of labels allowed for identification
+     * @param _vlabelinfo - vector of labels identifiers
+     */
+    void setWhitelist(const std::vector<cv::String> &_vlabelinfo);
 
     /**
      * @brief Call to get number of knowing templates for the particualr label
      * @param _label
      * @return self explained
      */
-    virtual int labelTemplates(int _label) const;
+    int labelTemplates(int _label) const;
+
+    bool isLabelWhitelisted(int _label) const;
 
     virtual Mat  getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error=0) const = 0;
 
@@ -42,7 +50,8 @@ protected:
     Size                                inputSize;
     int                                 inputChannels;
     std::vector<int>                    v_labels;
-    std::vector<Mat>                    v_descriptions;    
+    std::vector<Mat>                    v_descriptions;
+    std::vector<uchar>                  v_whitelist;
 };
 
 }}

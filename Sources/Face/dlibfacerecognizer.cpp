@@ -54,17 +54,19 @@ void DlibFaceRecognizer::predict(InputArray src, Ptr<PredictCollector> collector
     cv::Mat _description = getImageDescription(src.getMat(),_error);
     collector->init(v_labels.size());
     for (size_t sampleIdx = 0; sampleIdx < v_labels.size(); sampleIdx++) {
-        double distance = DBL_MAX;
-        switch(getDistanceType()) {
+        if(v_whitelist[sampleIdx] != 0x00) { // only whitelisted values
+            double distance = DBL_MAX;
+            switch(getDistanceType()) {
             case DistanceType::Euclidean:
                 distance = euclideanDistance(v_descriptions[sampleIdx], _description);
                 break;
             case DistanceType::Cosine:
                 distance =  cosineDistance(v_descriptions[sampleIdx], _description);
                 break;
-        }
-        if( !collector->collect(v_labels[sampleIdx], distance) ) {
-            return;
+            }
+            if( !collector->collect(v_labels[sampleIdx], distance) ) {
+                return;
+            }
         }
     }
 }

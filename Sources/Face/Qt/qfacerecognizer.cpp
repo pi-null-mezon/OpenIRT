@@ -37,7 +37,7 @@ void QFaceRecognizer::predict(cv::Mat _faceimg)
 void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinfo, const QByteArray &_encimg)
 {
     // Conversion to base64 is necessary because user could pass markup symbols
-    // like { or [ that will corrupt classifier file storage
+    // like { or [ that will corrupt classifier's file storage
     QByteArray _encodedlabelinfo = _labelinfo.toBase64();
 
     int _label;   
@@ -63,6 +63,7 @@ void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinf
             _json["label"]     = _label;
             _json["labelinfo"] = _labelinfo.constData();
             _json["templates"] = ptrrec->labelTemplates(_label);
+            _json["whitelist"] = ptrrec->isLabelWhitelisted(_label);
         } else {
             _json["status"]    = "Error";
             _json["message"]   = ptrrec->getErrorInfo(_error).c_str();
@@ -102,22 +103,27 @@ void QFaceRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
 {
     QJsonObject _json;
     if(ptrrec->empty() == false) {
-        cv::Mat _faceimg = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
-        int _label;
-        double _distance;
-        int _error = 0;
-        ptrrec->predict(_faceimg,_label,_distance,&_error);
-        if(_error == 0) {
-            _json["status"]    = "Success";
-            _json["label"]     = _label;
-            // Conversion to base64 is necessary because user could pass markup symbols
-            // like { or [ that will corrupt classifier file storage
-            _json["labelinfo"] = QByteArray::fromBase64(ptrrec->getLabelInfo(_label).c_str()).constData();
-            _json["distance"]  = _distance;
-            _json["distancethresh"]    = ptrrec->getThreshold();
+        if(ptrrec->emptyWhitelist() == false) {
+            cv::Mat _faceimg = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
+            int _label;
+            double _distance;
+            int _error = 0;
+            ptrrec->predict(_faceimg,_label,_distance,&_error);
+            if(_error == 0) {
+                _json["status"]    = "Success";
+                _json["label"]     = _label;
+                // Conversion to base64 is necessary because user could pass markup symbols
+                // like { or [ that will corrupt classifier file storage
+                _json["labelinfo"] = QByteArray::fromBase64(ptrrec->getLabelInfo(_label).c_str()).constData();
+                _json["distance"]  = _distance;
+                _json["distancethresh"]    = ptrrec->getThreshold();
+            } else {
+                _json["status"]    = "Error";
+                _json["message"]   = ptrrec->getErrorInfo(_error).c_str();
+            }
         } else {
-            _json["status"]    = "Error";
-            _json["message"]   = ptrrec->getErrorInfo(_error).c_str();
+            _json["status"]  = "Error";
+            _json["message"] = "No labels in whitelist, can not identify anything!";
         }
     } else {
         _json["status"]  = "Error";
@@ -147,11 +153,12 @@ void QFaceRecognizer::verifyImage(qintptr _taskid, const QByteArray &_eimg, cons
 void QFaceRecognizer::updateWhitelist(qintptr _taskid, const QByteArray &_jsonwhitelist)
 {
     QJsonParseError _error;
-    QJsonArray _jsonarray = QJsonDocument::fromJson(_jsonwhitelist,&_error).array();
+    QJsonObject _jsonobject = QJsonDocument::fromJson(_jsonwhitelist,&_error).object();
+    QJsonArray _jsonarray = _jsonobject.value("whitelist").toArray();
     QJsonObject _json;
     if(_error.error != QJsonParseError::NoError) {
         _json["status"]         = "Error";
-        _json["message"]        = _error.errorString();
+        _json["message"]        = QString("JSON parsing error: %1").arg(_error.errorString());
     } else if(_jsonarray.size() == 0) {
         _json["status"]         = "Error";
         _json["message"]        = "Empty whitelist!";
@@ -164,17 +171,14 @@ void QFaceRecognizer::updateWhitelist(qintptr _taskid, const QByteArray &_jsonwh
                 _vlabelinfo[i] = _jsonval.toString().toUtf8().toBase64().constData();
             } else {
                 _json["status"]  = "Error";
-                _json["message"] = QString("Can not find labelinfo value in the whitelist element #%1!").arg(QString::number(i));
+                _json["message"] = "Wrong whitelist format!";
                 _error = true;
                 break;
             }
         }
         if(_error == false) {
-            qDebug("Whitelist to be applied:");
-            for(int i = 0; i < _vlabelinfo.size(); ++i) {
-                qDebug("%d) %s", i, _vlabelinfo[i].c_str());
-            }
-            //ptrrec->updateWhitelist(_vlabelinfo);
+            ptrrec->setWhitelist(_vlabelinfo);
+            ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
             _json["status"]      = "Success";
             _json["message"]     = "Whitelist has been updated";
         }
@@ -193,6 +197,7 @@ void QFaceRecognizer::getLabelsList(qintptr _taskid)
         // like { or [ that will corrupt classifier file storage
         _json["labelinfo"] = QByteArray::fromBase64(_info.second.c_str()).constData();
         _json["templates"] = ptrrec->labelTemplates(_info.first);
+        _json["whitelist"] = ptrrec->isLabelWhitelisted(_info.first);
         _jsonarray.push_back(_json);
     }
     QJsonObject _jsonobj{

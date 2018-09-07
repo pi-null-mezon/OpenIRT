@@ -33,6 +33,8 @@ int CNNImageRecognizer::remove(InputArray labels)
     _vlabels.reserve(v_labels.size());
     std::vector<cv::Mat> _vdescriptions;
     _vdescriptions.reserve(v_descriptions.size());
+    std::vector<uchar> _whitelist;
+    _whitelist.reserve(v_whitelist.size());
 
     for(size_t i = 0; i < v_labels.size(); ++i) {
         bool _shouldberemoved = false;
@@ -45,6 +47,7 @@ int CNNImageRecognizer::remove(InputArray labels)
         if(_shouldberemoved == false) {
             _vlabels.push_back(v_labels[i]);
             _vdescriptions.push_back(v_descriptions[i]);
+            _whitelist.push_back(v_whitelist[i]);
         } else {
             labelsInfo.erase(v_labels[i]);
             _removed++;
@@ -52,6 +55,7 @@ int CNNImageRecognizer::remove(InputArray labels)
     }
     v_labels = std::move(_vlabels);
     v_descriptions = std::move(_vdescriptions);
+    v_whitelist = std::move(_whitelist);
     return _removed;
 }
 
@@ -81,8 +85,14 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
 
     // if this model should be trained without preserving old data, delete old model data
     if(_preserveData == false) {
-        v_descriptions.clear();
-        v_labels.clear();
+        clear();
+        v_labels.reserve(lbls.total());
+        v_descriptions.reserve(lbls.total());
+        v_whitelist.reserve(lbls.total());
+    } else if(v_labels.size() == 0) { // let's reserve memory if there are no labels have been remembered yet
+        v_labels.reserve(1024);
+        v_descriptions.reserve(1024);
+        v_whitelist.reserve(1024);
     }
 
     // append labels and images to the storage
@@ -100,14 +110,20 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
         }
         v_labels.push_back(lbls.at<int>((int)labelIdx));
         v_descriptions.push_back(_dscrmat);
+        v_whitelist.push_back(0x01); // 0x00 - not in list, all values greater than 0x00 - in list
     }
 }
 
 void CNNImageRecognizer::load(const FileStorage &fs)
 {
+    clear();
     readFileNodeList(fs["descriptions"],  v_descriptions);
 
     fs["labels"] >> v_labels;
+    fs["whitelist"] >> v_whitelist;
+    if(v_whitelist.size() < v_labels.size()) {
+        v_whitelist = std::move(std::vector<uchar>(v_labels.size(),0x01));
+    }
     const FileNode& fn = fs["labelsInfo"];
     if (fn.type() == FileNode::SEQ)
     {
@@ -126,6 +142,7 @@ void CNNImageRecognizer::save(FileStorage &fs) const
     writeFileNodeList(fs, "descriptions", v_descriptions);
 
     fs << "labels" << v_labels;
+    fs << "whitelist" << v_whitelist;
     fs << "labelsInfo" << "[";
     for (std::map<int, String>::const_iterator it = labelsInfo.begin(); it != labelsInfo.end(); it++)
         fs << LabelInfo(it->first, it->second);
@@ -136,12 +153,24 @@ void CNNImageRecognizer::clear()
 {
     v_labels.clear();
     v_descriptions.clear();
+    v_whitelist.clear();
 }
 
 bool CNNImageRecognizer::empty() const
 {
     if(v_labels.size() > 0)
         return false;
+    return true;
+}
+
+bool CNNImageRecognizer::emptyWhitelist() const
+{
+    if(v_whitelist.size() > 0) {
+        for(size_t i = 0; i < v_whitelist.size(); ++i) {
+            if(v_whitelist[i] != 0x00)
+                return false;
+        }
+    }
     return true;
 }
 
@@ -153,6 +182,21 @@ int CNNImageRecognizer::nextfreeLabel() const
     return *std::max_element(v_labels.begin(), v_labels.end()) + 1;
 }
 
+void CNNImageRecognizer::setWhitelist(const std::vector<String> &_vlabelinfo)
+{
+    // Drop old whitelist data
+    v_whitelist = std::move(std::vector<uchar>(v_labels.size(),0x00));
+    for(size_t i = 0; i < _vlabelinfo.size(); ++i) {
+        std::vector<int> _vlbls = getLabelsByString(_vlabelinfo[i]);
+        if(_vlbls.size() > 0) { // so, recognizer knows this labelinfo
+            for(size_t j = 0; j < v_labels.size(); ++j) {
+                if(v_labels[j] == _vlbls[0])
+                    v_whitelist[j] = 0x01;
+            }
+        }
+    }
+}
+
 int CNNImageRecognizer::labelTemplates(int _label) const
 {
     int _templates = 0;
@@ -162,6 +206,20 @@ int CNNImageRecognizer::labelTemplates(int _label) const
         }
     }
     return _templates;
+}
+
+bool CNNImageRecognizer::isLabelWhitelisted(int _label) const
+{
+    bool _whitelisted = false;
+    for(size_t i = 0; i < v_labels.size(); ++i) {
+        if(v_labels[i] == _label) {
+            if(v_whitelist[i] != 0x00) {
+                _whitelisted = true;
+                break;
+            }
+        }
+    }
+    return _whitelisted;
 }
 
 }}
