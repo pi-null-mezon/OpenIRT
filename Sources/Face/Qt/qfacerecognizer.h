@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QJsonDocument>
+#include <QTimer>
 
 #include "dlibfacerecognizer.h"
 
@@ -22,6 +23,7 @@ signals:
     void        taskAccomplished(qintptr _taskid, const QByteArray &_info);
 
 public slots:
+    void        initBackupTimer();
     void        setThreshold(double _val);
     void        predict(cv::Mat _faceimg);
 
@@ -32,10 +34,14 @@ public slots:
     void        verifyImage(qintptr _taskid, const QByteArray &_eimg, const QByteArray &_vimg);
     void        updateWhitelist(qintptr _taskid, const QByteArray &_jsonwhitelist);
 
+private slots:
+    void        saveTemplatesOnDisk();
+
 private:
     cv::Ptr<cv::oirt::CNNImageRecognizer> ptrrec;
     QString labelsfilename;
     QJsonDocument::JsonFormat jsonformat;
+    QTimer *backuptimer;
 };
 
 #endif // QFACERECOGNIZER_H

@@ -5,9 +5,12 @@
 
 #include <opencv2/imgcodecs.hpp>
 
+#include <QElapsedTimer>
+
 QFaceRecognizer::QFaceRecognizer(QObject *parent) : QObject(parent),
-    jsonformat(QJsonDocument::Indented)
-{
+    jsonformat(QJsonDocument::Indented),
+    backuptimer(nullptr)
+{    
 }
 
 void QFaceRecognizer::loadResources(const QString &_faceshapepredictormodel, const QString &_dlibfacedescriptor)
@@ -17,7 +20,10 @@ void QFaceRecognizer::loadResources(const QString &_faceshapepredictormodel, con
 
 bool QFaceRecognizer::loadLabels(const QString &_labelsfilename)
 {
+    QElapsedTimer et;
+    et.start();
     ptrrec->ImageRecognizer::load(_labelsfilename.toUtf8().constData());
+    qInfo("Templates loading time: %u ms", static_cast<uint>(et.elapsed()));
     return !ptrrec->empty();   
 }
 
@@ -58,7 +64,7 @@ void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinf
         ptrrec->update(_vmats,_vlbls,false,&_error);
         if(_error == 0) {           
             ptrrec->setLabelInfo(_label,_encodedlabelinfo.constData());
-            ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
+            backuptimer->start();
             _json["status"]    = "Success";
             _json["label"]     = _label;
             _json["labelinfo"] = _labelinfo.constData();
@@ -85,7 +91,7 @@ void QFaceRecognizer::deleteLabel(qintptr _taskid, const QByteArray &_labelinfo)
     if(ptrrec->empty() == false) {
         auto _vlabels = ptrrec->getLabelsByString(_encodedlabelinfo.constData());
         if(ptrrec->remove(_vlabels) > 0) {
-            ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
+            backuptimer->start();
             _json["status"]  = "Success";
             _json["message"] = QString("%1 has been deleted").arg(_labelinfo.constData()).toUtf8().constData();
         } else {
@@ -178,12 +184,20 @@ void QFaceRecognizer::updateWhitelist(qintptr _taskid, const QByteArray &_jsonwh
         }
         if(_error == false) {
             ptrrec->setWhitelist(_vlabelinfo);
-            ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
+            backuptimer->start();
             _json["status"]      = "Success";
             _json["message"]     = "Whitelist has been updated";
         }
     }
     emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
+}
+
+void QFaceRecognizer::saveTemplatesOnDisk()
+{
+    if(ptrrec->empty() == false) {
+        ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
+        backuptimer->stop();
+    }
 }
 
 void QFaceRecognizer::getLabelsList(qintptr _taskid)
@@ -215,4 +229,11 @@ QString QFaceRecognizer::getLabelsfilename() const
 void QFaceRecognizer::setLabelsfilename(const QString &value)
 {
     labelsfilename = value;
+}
+
+void QFaceRecognizer::initBackupTimer()
+{
+    backuptimer = new QTimer(this);
+    backuptimer->setInterval(11000);
+    connect(backuptimer,SIGNAL(timeout()),this,SLOT(saveTemplatesOnDisk()));
 }

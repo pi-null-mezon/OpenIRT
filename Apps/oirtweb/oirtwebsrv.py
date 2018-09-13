@@ -3,6 +3,10 @@ from flask import Flask, request, redirect, jsonify, make_response
 from werkzeug.utils import secure_filename
 from waitress import serve
 
+OS_WIN = False
+if sys.platform == 'win32':
+	OS_WIN = True
+
 # Specify address where oirtsrv is listening
 oirtsrvaddr = "127.0.0.1"
 # Specify port where oirtsrv is listining
@@ -11,11 +15,10 @@ oirtsrvport = 8080
 apiprefix = "/facerec/api/v1.0"
 #Specify where files should be uploaded
 UPLOAD_FOLDER = '/home/Testdata'
-if sys.platform == 'win32':
+if OS_WIN:
 	UPLOAD_FOLDER = 'C:\Testdata'
 #Specify allowed files extensions	
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
-
 # Flask's stuff
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -37,12 +40,15 @@ def remember_face():
 	file = request.files['file']	
 	if file.filename == '':
 		return jsonify({"status": "Error", "info": "Empty file name parameter"}), 400
-	labelinfo = request.form['labelinfo']		
+	labelinfo = request.form['labelinfo']	
 	if file and allowed_file(file.filename):
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-i%s" % filepath, "-l%s" % labelinfo, "-d", "-t1"]), 200	)
+		oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-i%s" % filepath, "-l%s" % labelinfo, "-d", "-t1"])
+		if OS_WIN:
+			oirtsrvoutput = oirtsrvoutput.decode('cp1251')
+		response = make_response(oirtsrvoutput, 200)
 		response.headers['Content-Type'] = "application/json"
 		return response													
 	return jsonify({"status": "Error", "info": "File you have try to upload seems to be bad"}), 400
@@ -50,8 +56,11 @@ def remember_face():
 	
 @app.route("%s/delete" % apiprefix, methods=['POST'])
 def delete_face():
-	labelinfo = request.form['labelinfo']		
-	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-l%s" % labelinfo, "-t2"]), 200)
+	labelinfo = request.form['labelinfo']
+	oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-l%s" % labelinfo, "-t2"])
+	if OS_WIN:
+		oirtsrvoutput = oirtsrvoutput.decode('cp1251')	
+	response = make_response(oirtsrvoutput, 200)
 	response.headers['Content-Type'] = "application/json"
 	return response	
 
@@ -67,7 +76,10 @@ def identify_face():
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),  "-i%s" % filepath, "-d", "-t3"]), 200)
+		oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),  "-i%s" % filepath, "-d", "-t3"]) 
+		if OS_WIN:
+			oirtsrvoutput = oirtsrvoutput.decode('cp1251')
+		response = make_response(oirtsrvoutput, 200)
 		response.headers['Content-Type'] = "application/json"
 		return response														
 	return jsonify({"status": "Error", "info": "File you have try to upload seems to be bad"}), 400
@@ -75,7 +87,10 @@ def identify_face():
 	
 @app.route("%s/labels" % apiprefix, methods=['GET'])
 def get_labels():
-	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-t4"]), 200)
+	oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-t4"])
+	if OS_WIN:
+			oirtsrvoutput = oirtsrvoutput.decode('cp1251')
+	response = make_response(oirtsrvoutput, 200)
 	response.headers['Content-Type'] = "application/json"
 	return response
 	

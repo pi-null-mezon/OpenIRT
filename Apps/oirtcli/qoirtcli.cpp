@@ -17,10 +17,10 @@ void QOIRTCli::connectTo(const QHostAddress &_addr, quint16 _port)
 {
     tcpsocket.connectToHost(_addr,_port);
     repeatlength = -1;
-    QTimer::singleShot(10000,[=]() {
+    QTimer::singleShot(11000,[=]() {
                                         QJsonObject _json;
-                                        _json["status"] = "Error";
-                                        _json["message"] = QString("Server oirtsrv can not be accessed on %1:%2!").arg(_addr.toString(),QString::number(_port));
+                                        _json["status"]  = "Error";
+                                        _json["message"] = "Server 'oirtsrv' can not be accessed!";
                                         qInfo("%s",QJsonDocument(_json).toJson().constData());
                                         emit taskAccomplished();
                                     });
