@@ -1,4 +1,4 @@
-#include "qfacerecognizer.h"
+#include "qrecognizer.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -7,18 +7,18 @@
 
 #include <QElapsedTimer>
 
-QFaceRecognizer::QFaceRecognizer(QObject *parent) : QObject(parent),
+QRecognizer::QRecognizer(QObject *parent) : QObject(parent),
     jsonformat(QJsonDocument::Indented),
     backuptimer(nullptr)
 {    
 }
 
-void QFaceRecognizer::loadResources(const QString &_faceshapepredictormodel, const QString &_dlibfacedescriptor)
+void QRecognizer::loadResources(const cv::Ptr<cv::oirt::CNNImageRecognizer> &_ptr)
 {
-    ptrrec = cv::oirt::createDlibFaceRecognizer(_faceshapepredictormodel.toUtf8().constData(),_dlibfacedescriptor.toUtf8().constData());
+    ptrrec = _ptr;
 }
 
-bool QFaceRecognizer::loadLabels(const QString &_labelsfilename)
+bool QRecognizer::loadLabels(const QString &_labelsfilename)
 {
     QElapsedTimer et;
     et.start();
@@ -27,12 +27,12 @@ bool QFaceRecognizer::loadLabels(const QString &_labelsfilename)
     return !ptrrec->empty();   
 }
 
-void QFaceRecognizer::setThreshold(double _val)
+void QRecognizer::setThreshold(double _val)
 {
     ptrrec->setThreshold(_val);
 }
 
-void QFaceRecognizer::predict(cv::Mat _faceimg)
+void QRecognizer::predict(cv::Mat _faceimg)
 {
     int _label;
     double _distance;
@@ -40,7 +40,7 @@ void QFaceRecognizer::predict(cv::Mat _faceimg)
     emit labelPredicted(_label,_distance,ptrrec->getLabelInfo(_label).c_str());
 }
 
-void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinfo, const QByteArray &_encimg)
+void QRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinfo, const QByteArray &_encimg)
 {
     // Conversion to base64 is necessary because user could pass markup symbols
     // like { or [ that will corrupt classifier's file storage
@@ -81,7 +81,7 @@ void QFaceRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinf
     emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
 }
 
-void QFaceRecognizer::deleteLabel(qintptr _taskid, const QByteArray &_labelinfo)
+void QRecognizer::deleteLabel(qintptr _taskid, const QByteArray &_labelinfo)
 {
     // Conversion to base64 is necessary because user could pass markup symbols
     // like { or [ that will corrupt classifier file storage
@@ -105,7 +105,7 @@ void QFaceRecognizer::deleteLabel(qintptr _taskid, const QByteArray &_labelinfo)
     emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
 }
 
-void QFaceRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
+void QRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
 {
     QJsonObject _json;
     if(ptrrec->empty() == false) {
@@ -138,7 +138,7 @@ void QFaceRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
     emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
 }
 
-void QFaceRecognizer::verifyImage(qintptr _taskid, const QByteArray &_eimg, const QByteArray &_vimg)
+void QRecognizer::verifyImage(qintptr _taskid, const QByteArray &_eimg, const QByteArray &_vimg)
 {
     cv::Mat _efaceimg = cv::imdecode(std::vector<unsigned char>(_eimg.begin(),_eimg.end()),cv::IMREAD_UNCHANGED);
     cv::Mat _vfaceimg = cv::imdecode(std::vector<unsigned char>(_vimg.begin(),_vimg.end()),cv::IMREAD_UNCHANGED);
@@ -156,7 +156,7 @@ void QFaceRecognizer::verifyImage(qintptr _taskid, const QByteArray &_eimg, cons
     emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
 }
 
-void QFaceRecognizer::updateWhitelist(qintptr _taskid, const QByteArray &_jsonwhitelist)
+void QRecognizer::updateWhitelist(qintptr _taskid, const QByteArray &_jsonwhitelist)
 {
     QJsonParseError _error;
     QJsonObject _jsonobject = QJsonDocument::fromJson(_jsonwhitelist,&_error).object();
@@ -192,7 +192,7 @@ void QFaceRecognizer::updateWhitelist(qintptr _taskid, const QByteArray &_jsonwh
     emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
 }
 
-void QFaceRecognizer::saveTemplatesOnDisk()
+void QRecognizer::saveTemplatesOnDisk()
 {
     if(ptrrec->empty() == false) {
         ptrrec->ImageRecognizer::save(getLabelsfilename().toUtf8().constData());
@@ -200,7 +200,7 @@ void QFaceRecognizer::saveTemplatesOnDisk()
     }
 }
 
-void QFaceRecognizer::getLabelsList(qintptr _taskid)
+void QRecognizer::getLabelsList(qintptr _taskid)
 {
     std::map<int,cv::String> _labelsInfo = ptrrec->getLabelsInfo();
     QJsonArray _jsonarray;
@@ -221,17 +221,17 @@ void QFaceRecognizer::getLabelsList(qintptr _taskid)
     emit taskAccomplished(_taskid,QJsonDocument(_jsonobj).toJson(jsonformat));
 }
 
-QString QFaceRecognizer::getLabelsfilename() const
+QString QRecognizer::getLabelsfilename() const
 {
     return labelsfilename;
 }
 
-void QFaceRecognizer::setLabelsfilename(const QString &value)
+void QRecognizer::setLabelsfilename(const QString &value)
 {
     labelsfilename = value;
 }
 
-void QFaceRecognizer::initBackupTimer()
+void QRecognizer::initBackupTimer()
 {
     backuptimer = new QTimer(this);
     backuptimer->setInterval(11000);

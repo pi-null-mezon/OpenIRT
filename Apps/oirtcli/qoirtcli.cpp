@@ -20,7 +20,7 @@ void QOIRTCli::connectTo(const QHostAddress &_addr, quint16 _port)
     QTimer::singleShot(11000,[=]() {
                                         QJsonObject _json;
                                         _json["status"]  = "Error";
-                                        _json["message"] = "Server 'oirtsrv' can not be accessed!";
+                                        _json["message"] = "Recognition server can not be accessed! It could be busy or unreachable...";
                                         qInfo("%s",QJsonDocument(_json).toJson().constData());
                                         emit taskAccomplished();
                                     });

@@ -4,7 +4,9 @@
 #include <QTimer>
 
 #include "qoirtserver.h"
-#include "qfacerecognizer.h"
+#include "qrecognizer.h"
+
+#include "dialyzerrecognizer.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +15,7 @@ int main(int argc, char *argv[])
 #endif
     QCoreApplication a(argc, argv);
     //-----------------------------
-    quint16 port = 8080;
+    quint16 port = 8081;
     QString labelsfilename = a.applicationDirPath().append("/labels.yml");
     while((--argc > 0) && ((*++argv)[0] == '-')) {
         switch(*++argv[0]) {
@@ -41,9 +43,8 @@ int main(int argc, char *argv[])
     }
 
     // Let's run facerecognizer in separate thread
-    QFaceRecognizer qfacerec;
-    qfacerec.loadResources(a.applicationDirPath().append("/shape_predictor_5_face_landmarks.dat"),
-                           a.applicationDirPath().append("/dlib_face_recognition_resnet_model_v1.dat"));
+    QRecognizer qfacerec;
+    qfacerec.loadResources(cv::oirt::createDialyzerRecognizer(a.applicationDirPath().append("/dlib_resnet_metric_dialyzer.dat").toUtf8().constData()));
     qfacerec.setLabelsfilename(labelsfilename);
     QFileInfo _fi(labelsfilename);
     if(_fi.exists())

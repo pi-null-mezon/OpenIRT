@@ -1,18 +1,18 @@
-#ifndef QFACERECOGNIZER_H
-#define QFACERECOGNIZER_H
+#ifndef QRECOGNIZER_H
+#define QRECOGNIZER_H
 
 #include <QObject>
 #include <QJsonDocument>
 #include <QTimer>
 
-#include "dlibfacerecognizer.h"
+#include "cnnimagerecognizer.hpp"
 
-class QFaceRecognizer : public QObject
+class QRecognizer : public QObject
 {
     Q_OBJECT
 public:
-    explicit    QFaceRecognizer(QObject *parent = nullptr);
-    void        loadResources(const QString &_faceshapepredictormodel, const QString &_dlibfacedescriptor);
+    explicit    QRecognizer(QObject *parent = nullptr);
+    void        loadResources(const cv::Ptr<cv::oirt::CNNImageRecognizer> &_ptr);
     bool        loadLabels(const QString &_labelsfilename);
 
     QString     getLabelsfilename() const;
@@ -44,4 +44,4 @@ private:
     QTimer *backuptimer;
 };
 
-#endif // QFACERECOGNIZER_H
+#endif // QRECOGNIZER_H
