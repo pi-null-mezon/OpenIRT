@@ -3,7 +3,7 @@
 namespace cv { namespace oirt {
 
 ResNet50ImageNetRecognizer::ResNet50ImageNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(Size(224,224), 3, CropMethod::Inside, _disttype, _threshold)
+    CNNImageRecognizer(Size(224,224), CropMethod::Inside, ColorOrder::BGR, _disttype, _threshold)
 {
     try {
         net = dnn::readNetFromCaffe(_prototextfilename,_caffemodelfilename);
@@ -15,7 +15,7 @@ ResNet50ImageNetRecognizer::ResNet50ImageNetRecognizer(const String &_prototextf
 Mat ResNet50ImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     // Prepare image
-    cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels(), getCropInput());
+    cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
     // Set image as network input data blob
     cv::Mat inputBlob = dnn::blobFromImage(_preprocessedmat);
     net.setInput(inputBlob, "data");

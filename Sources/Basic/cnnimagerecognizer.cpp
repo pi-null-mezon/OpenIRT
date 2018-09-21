@@ -4,8 +4,8 @@
 
 namespace cv { namespace oirt {
 
-CNNImageRecognizer::CNNImageRecognizer(Size _inputsize, int _inputchannels, CropMethod _cropinput, DistanceType _disttype, double _threshold) :
-    ImageRecognizer(_inputsize, _inputchannels, _cropinput, _disttype, _threshold)
+CNNImageRecognizer::CNNImageRecognizer(Size _inputsize, CropMethod _cropinput, ColorOrder _colororder, DistanceType _disttype, double _threshold) :
+    ImageRecognizer(_inputsize, _cropinput, _colororder, _disttype, _threshold)
 {
 }
 
@@ -98,7 +98,7 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
     // append labels and images to the storage
     for(size_t labelIdx = 0; labelIdx < lbls.total(); labelIdx++) {             
         if(_visualize) {
-            cv::Mat _tmpmat = preprocessImageForCNN(raw[labelIdx], getInputSize(), getInputChannels(), getCropInput());
+            cv::Mat _tmpmat = preprocessImageForCNN(raw[labelIdx], getInputSize(), getColorOrder(), getCropInput());
             cv::imshow("CNNFaceRecognizer",_tmpmat);
             cv::waitKey(1);
         }

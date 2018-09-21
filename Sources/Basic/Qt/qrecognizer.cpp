@@ -234,6 +234,6 @@ void QRecognizer::setLabelsfilename(const QString &value)
 void QRecognizer::initBackupTimer()
 {
     backuptimer = new QTimer(this);
-    backuptimer->setInterval(11000);
+    backuptimer->setInterval(5000);
     connect(backuptimer,SIGNAL(timeout()),this,SLOT(saveTemplatesOnDisk()));
 }

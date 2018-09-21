@@ -20,11 +20,11 @@
 
 namespace cv { namespace oirt {
 
-ImageRecognizer::ImageRecognizer(Size _inputsize, int _inputchannels, CropMethod _cropinput, DistanceType _distancetype, double _threshold) :
+ImageRecognizer::ImageRecognizer(Size _inputsize, CropMethod _cropinput, ColorOrder _colororder, DistanceType _distancetype, double _threshold) :
     distanceType(_distancetype),
+    colororder(_colororder),
     threshold(_threshold),
     inputSize(_inputsize),
-    inputChannels(_inputchannels),
     cropInput(_cropinput)
 {
 }
@@ -64,29 +64,9 @@ DistanceType ImageRecognizer::getDistanceType() const
     return distanceType;
 }
 
-void ImageRecognizer::setDistanceType(DistanceType _type)
-{
-    distanceType = _type;
-}
-
 Size ImageRecognizer::getInputSize() const
 {
     return inputSize;
-}
-
-void ImageRecognizer::setInputSize(Size _size)
-{
-    inputSize = _size;
-}
-
-int ImageRecognizer::getInputChannels() const
-{
-    return inputChannels;
-}
-
-void ImageRecognizer::setInputChannels(int _val)
-{
-    inputChannels = _val;
 }
 
 CropMethod ImageRecognizer::getCropInput() const
@@ -94,14 +74,14 @@ CropMethod ImageRecognizer::getCropInput() const
     return cropInput;
 }
 
-void ImageRecognizer::setCropInput(CropMethod value)
-{
-    cropInput = value;
-}
-
 std::map<int,String> ImageRecognizer::getLabelsInfo() const
 {
     return labelsInfo;
+}
+
+ColorOrder ImageRecognizer::getColorOrder() const
+{
+    return colororder;
 }
 
 String ImageRecognizer::getLabelInfo(int label) const

@@ -16,7 +16,7 @@ apiprefix = "/dialyzerrec/api/v1.0"
 #Specify where files should be uploaded
 UPLOAD_FOLDER = '/home/Testdata'
 if OS_WIN:
-	UPLOAD_FOLDER = 'C:\Testdata'
+	UPLOAD_FOLDER = 'C:/Testdata/Dialyzer/Users'
 #Specify allowed files extensions	
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 # Flask's stuff
@@ -45,7 +45,7 @@ def remember_face():
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport), "-i%s" % filepath, "-l%s" % labelinfo, "-d", "-t1"])
+		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport), "-i%s" % filepath, "-l%s" % labelinfo, "-t1"])
 		if OS_WIN:
 			dialyzersrvoutput = dialyzersrvoutput.decode('cp1251')
 		response = make_response(dialyzersrvoutput, 200)
@@ -76,7 +76,7 @@ def identify_face():
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport),  "-i%s" % filepath, "-d", "-t3"]) 
+		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport),  "-i%s" % filepath, "-t3"]) 
 		if OS_WIN:
 			dialyzersrvoutput = dialyzersrvoutput.decode('cp1251')
 		response = make_response(dialyzersrvoutput, 200)
@@ -114,7 +114,7 @@ def verify_face():
 		vfilename = randomize_name(secure_filename(vfile.filename))
 		vfilepath = os.path.join(app.config['UPLOAD_FOLDER'], vfilename) 
 		vfile.save(vfilepath)
-		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport), "-i%s" % efilepath, "-v%s" % vfilepath, "-d", "-t5"]), 200)
+		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport), "-i%s" % efilepath, "-v%s" % vfilepath, "-t5"]), 200)
 		response.headers['Content-Type'] = "application/json"
 		return response														
 	return jsonify({"status": "Error", "info": "Files you have try to upload seems to be bad"}), 400	

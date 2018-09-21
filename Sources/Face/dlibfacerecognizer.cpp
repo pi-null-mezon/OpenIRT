@@ -3,7 +3,7 @@
 namespace cv { namespace oirt {
 
 DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(0,0),3,NoCrop,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
+    CNNImageRecognizer(cv::Size(0,0),NoCrop,ColorOrder::RGB,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
 {
     try {
         dlibfacedet = dlib::get_frontal_face_detector();
@@ -28,8 +28,7 @@ DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const 
 Mat DlibFaceRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     cv::String _str = _blobname; // to suppress 'unused variable' compiler warning
-    // Prepare image
-    dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(preprocessImageForCNN(_img, getInputSize(), getInputChannels(), getCropInput()));
+    dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput()));
 
     /*cv::Mat _viewmat(num_rows(_facechip), num_columns(_facechip), CV_8UC3, image_data(_facechip));
     cv::imshow("Input of DLIB",_viewmat);
@@ -75,7 +74,7 @@ dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inma
 {
     cv::Mat _rgbmat = _inmat;
     cv::Mat _graymat;
-    cv::cvtColor(_rgbmat, _graymat, CV_BGR2GRAY);
+    cv::cvtColor(_rgbmat, _graymat, CV_RGB2GRAY);
 
     dlib::cv_image<unsigned char> _graycv_image(_graymat);
     dlib::cv_image<dlib::rgb_pixel> _rgbcv_image(_rgbmat);

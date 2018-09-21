@@ -16,7 +16,7 @@ namespace cv { namespace oirt {
 class ImageClassifier : public Algorithm
 {
 public:
-    ImageClassifier(Size _inputsize, int _inputchannels, CropMethod _cropinput);
+    ImageClassifier(Size _inputsize, ColorOrder _colororder, CropMethod _cropinput);
     virtual ~ImageClassifier();
 
     /**
@@ -31,19 +31,18 @@ public:
     virtual void setLabelInfo(int label, const String& strInfo);
 
     Size getInputSize() const;
-    void setInputSize(const Size &value);
 
-    int getInputChannels() const;
-    void setInputChannels(int value);
 
     CropMethod getCropInput() const;
     void setCropInput(const CropMethod &value);
 
+    ColorOrder getColorOrder() const;
+
 protected:
     std::map<int, String> labelsInfo;
     Size            inputSize;
-    int             inputChannels;
     CropMethod      cropInput;
+    ColorOrder      colororder;
 };
 
 }}

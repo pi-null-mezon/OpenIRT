@@ -3,7 +3,7 @@
 namespace cv { namespace oirt {
 
 SqueezeNetImageNetRecognizer::SqueezeNetImageNetRecognizer(const String &_prototextfilename, const String &_caffemodelfilename, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(Size(227,227), 3, CropMethod::Inside, _disttype, _threshold)
+    CNNImageRecognizer(Size(227,227), CropMethod::Inside, ColorOrder::BGR, _disttype, _threshold)
 {
     try {
         net = dnn::readNetFromCaffe(_prototextfilename,_caffemodelfilename);
@@ -15,7 +15,7 @@ SqueezeNetImageNetRecognizer::SqueezeNetImageNetRecognizer(const String &_protot
 Mat SqueezeNetImageNetRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     // Prepare image
-    cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels(), getCropInput());
+    cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
     // Set image as network input data blob
     cv::Mat inputBlob = dnn::blobFromImage(_preprocessedmat,1,Size(),cv::Scalar(104,117,123)); // this values has been copied from https://github.com/BVLC/caffe/blob/master/models/bvlc_googlenet/train_val.prototxt
     net.setInput(inputBlob, "data");

@@ -13,9 +13,13 @@ namespace cv { namespace oirt {
  */
 enum DistanceType {Euclidean, Cosine};
 /**
- * @brief The CropMethod enum defines how image will be preprocessed at
+ * @brief The CropMethod enum defines how image will be preprocessed
  */
 enum CropMethod {NoCrop, Inside, Outside, OutsideJitter};
+/**
+ * @brief The ColorOrder enum defines how image will be preprocessed
+ */
+enum ColorOrder {BGR, RGB, Gray};
 
 // Reads a sequence from a FileNode::SEQ with type _Tp into a result vector.
 template<typename _Tp>
@@ -161,46 +165,79 @@ inline cv::Mat cropOutsideWithJitter(const cv::Mat &_inmat, cv::RNG &_cvrng, con
     return _outmat;
 }
 
-inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, int _targetchannels, CropMethod _crop)
+inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorOrder _targetcolororder, CropMethod _crop)
 {
-    cv::Mat _outmat = _inmat;
-	if((_inmat.channels() == 4) && (_targetchannels == 3)) {
-        cv::cvtColor(_inmat,_outmat,CV_BGRA2BGR);
-	} else if((_inmat.channels() == 4) && (_targetchannels == 1)) {
-		cv::cvtColor(_inmat,_outmat,CV_BGRA2GRAY);
-    } else if((_inmat.channels() == 3) && (_targetchannels == 1)) {
-		cv::cvtColor(_inmat,_outmat,CV_BGR2GRAY);
-    } else if((_inmat.channels() == 1) && (_targetchannels == 3)) {
-        cv::cvtColor(_inmat,_outmat,CV_GRAY2BGR);
-    }
-
-    if(_targetsize.width != 0 && _targetsize.height != 0) {
-        if((_outmat.cols != _targetsize.width) || (_outmat.rows != _targetsize.height)) {
-
+    cv::Mat _outmat;
+    // First we need to make resize if needed
+    if((_targetsize.width != 0) && (_targetsize.height != 0)) {
+        if((_inmat.cols != _targetsize.width) || (_inmat.rows != _targetsize.height)) {
             switch(_crop) {
 
                 case CropMethod::NoCrop: {
                     int _im = CV_INTER_AREA;
-                    if(_targetsize.area() > (_outmat.rows*_outmat.cols))
+                    if(_targetsize.area() > (_inmat.rows*_inmat.cols))
                         _im = CV_INTER_CUBIC;
-                    cv::resize(_outmat, _outmat, _targetsize, 0, 0, _im);
+                    cv::resize(_inmat, _outmat, _targetsize, 0, 0, _im);
                 } break;
 
                 case CropMethod::Inside:
-                    _outmat = cropInsideFromCenterAndResize(_outmat, _targetsize);
+                    _outmat = cropInsideFromCenterAndResize(_inmat, _targetsize);
                     break;
 
                 case CropMethod::Outside:
-                    _outmat = cropOutsideFromCenterAndResize(_outmat, _targetsize);
+                    _outmat = cropOutsideFromCenterAndResize(_inmat, _targetsize);
                     break;
 
                 case CropMethod::OutsideJitter: {
                     cv::RNG cvrng(0);
-                    _outmat = cropOutsideWithJitter(_outmat,cvrng,_targetsize);
+                    _outmat = cropOutsideWithJitter(_inmat,cvrng,_targetsize);
                 } break;
-
             }
-        }
+        }        
+    } else {
+        _outmat = _inmat;
+    }
+    // Now we should optionally convert color scheme
+    int _convcode = -1;
+    switch(_targetcolororder) {
+        case ColorOrder::RGB:
+            switch(_outmat.channels()) {
+                case 4:
+                    _convcode = CV_BGRA2RGB;
+                    break;
+                case 3:
+                    _convcode = CV_BGR2RGB;
+                    break;
+                case 1:
+                    _convcode = CV_GRAY2RGB;
+                    break;
+            }
+            break;
+
+        case ColorOrder::BGR:
+            switch(_outmat.channels()) {
+                case 4:
+                    _convcode = CV_BGRA2BGR;
+                    break;
+                case 1:
+                    _convcode = CV_GRAY2BGR;
+                    break;
+            }
+            break;
+
+        case ColorOrder::Gray:
+            switch(_outmat.channels()) {
+                case 4:
+                    _convcode = CV_BGRA2GRAY;
+                    break;
+                case 3:
+                    _convcode = CV_BGR2GRAY;
+                    break;
+            }
+            break;
+    }
+    if(_convcode != -1) {
+        cv::cvtColor(_outmat,_outmat,_convcode);
     }
     return _outmat;
 }

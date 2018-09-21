@@ -2,10 +2,10 @@
 
 namespace cv { namespace oirt {
 
-ImageClassifier::ImageClassifier(Size _inputsize, int _inputchannels, CropMethod _cropinput) :
+ImageClassifier::ImageClassifier(Size _inputsize, ColorOrder _colororder, CropMethod _cropinput) :
     inputSize(_inputsize),
-    inputChannels(_inputchannels),
-    cropInput(_cropinput)
+    cropInput(_cropinput),
+    colororder(_colororder)
 {
 }
 
@@ -29,21 +29,6 @@ Size ImageClassifier::getInputSize() const
     return inputSize;
 }
 
-void ImageClassifier::setInputSize(const Size &value)
-{
-    inputSize = value;
-}
-
-int ImageClassifier::getInputChannels() const
-{
-    return inputChannels;
-}
-
-void ImageClassifier::setInputChannels(int value)
-{
-    inputChannels = value;
-}
-
 CropMethod ImageClassifier::getCropInput() const
 {
     return cropInput;
@@ -52,6 +37,11 @@ CropMethod ImageClassifier::getCropInput() const
 void ImageClassifier::setCropInput(const CropMethod &value)
 {
     cropInput = value;
+}
+
+ColorOrder ImageClassifier::getColorOrder() const
+{
+    return colororder;
 }
 
 }}

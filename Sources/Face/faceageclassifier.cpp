@@ -5,7 +5,7 @@
 namespace cv { namespace oirt {
 
 FaceAgeClassifier::FaceAgeClassifier(const cv::String &_prototextfilename, const cv::String &_caffemodelfilename, const cv::String &_dlibshapepredictor) :
-    CNNImageClassifier(Size(0,0),3,CropMethod::NoCrop)
+    CNNImageClassifier(Size(0,0),ColorOrder::BGR,CropMethod::NoCrop)
 {
     try {
         net = dnn::readNetFromCaffe(_prototextfilename,_caffemodelfilename);
@@ -36,7 +36,7 @@ FaceAgeClassifier::FaceAgeClassifier(const cv::String &_prototextfilename, const
 
 void FaceAgeClassifier::predict(InputArray src, int &label, double &conf) const
 {
-    auto _dlibfacechip = __extractface(preprocessImageForCNN(src.getMat(),getInputSize(),getInputChannels(),getCropInput()));
+    auto _dlibfacechip = __extractface(preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput()));
     cv::Mat _preprocmat = dlib::toMat(_dlibfacechip);
     //cv::imshow("FaceAgeClassifier::predict",_preprocmat);
     net.setInput(dnn::blobFromImage(_preprocmat,1,Size(),cv::Scalar(104,117,123)),"data");

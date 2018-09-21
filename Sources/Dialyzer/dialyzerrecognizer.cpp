@@ -3,7 +3,7 @@
 namespace cv { namespace oirt {
 
 DialyzerRecognizer::DialyzerRecognizer(const String &_modelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(300,224),3,Inside,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
+    CNNImageRecognizer(cv::Size(300,224),Inside,ColorOrder::RGB,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
 {
     try {
         dlib::deserialize(_modelfile.c_str()) >> net;
@@ -18,8 +18,7 @@ DialyzerRecognizer::DialyzerRecognizer(const String &_modelfile, DistanceType _d
 Mat DialyzerRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     cv::String _str = _blobname; // to suppress 'unused variable' compiler warning
-    // Prepare image
-    cv::Mat _rgbmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels(), getCropInput());
+    cv::Mat _rgbmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
 	dlib::cv_image<dlib::rgb_pixel> _iimg(_rgbmat);
 	dlib::matrix<dlib::rgb_pixel> _preprocessed;
 	dlib::assign_image(_preprocessed,_iimg);

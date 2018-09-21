@@ -15,7 +15,7 @@ namespace cv { namespace oirt {
 class CNNImageRecognizer : public ImageRecognizer
 {
 public:
-    CNNImageRecognizer(Size _inputsize, int _inputchannels, CropMethod _cropinput, DistanceType _disttype, double _threshold);
+    CNNImageRecognizer(Size _inputsize, CropMethod _cropinput, ColorOrder _colororder, DistanceType _disttype, double _threshold);
     virtual ~CNNImageRecognizer();
 
     void    train(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;

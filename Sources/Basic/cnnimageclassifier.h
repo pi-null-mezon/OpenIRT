@@ -8,7 +8,7 @@ namespace cv { namespace oirt {
 class CNNImageClassifier : public ImageClassifier
 {
 public:
-    CNNImageClassifier(Size _inputsize, int _inputchannels, CropMethod _cropinput);
+    CNNImageClassifier(Size _inputsize, ColorOrder _colororder, CropMethod _cropinput);
     virtual ~CNNImageClassifier();
 };
 

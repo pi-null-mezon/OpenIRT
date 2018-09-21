@@ -49,7 +49,7 @@ namespace cv { namespace oirt {
 class ImageRecognizer : public Algorithm
 {
 public:
-    ImageRecognizer(Size _inputsize, int _inputchannels, CropMethod _cropinput, DistanceType _distancetype, double _threshold);
+    ImageRecognizer(Size _inputsize, CropMethod _cropinput, ColorOrder _colororder, DistanceType _distancetype, double _threshold);
     virtual ~ImageRecognizer();
 
     virtual void train(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
@@ -114,23 +114,15 @@ public:
 
     virtual void setThreshold(double val);
 
-    virtual DistanceType getDistanceType() const;
+    DistanceType getDistanceType() const;
 
-    virtual void setDistanceType(DistanceType _type);
+    Size getInputSize() const;
 
-    virtual Size getInputSize() const;
-
-    virtual void setInputSize(Size _size);
-
-    virtual int getInputChannels() const;
-
-    virtual void setInputChannels(int _val);
-
-    virtual CropMethod getCropInput() const;
-
-    virtual void setCropInput(CropMethod value);
+    CropMethod getCropInput() const;
 
     std::map<int,String> getLabelsInfo() const;
+
+    ColorOrder getColorOrder() const;
 
 protected:
     // Stored pairs "label id - string info"
@@ -139,11 +131,11 @@ protected:
     // errorsInfo should be defined in the descendants, zero error will be used as "no error" code
     std::map<int, String> errorsInfo;
 
-    DistanceType    distanceType;
+    DistanceType    distanceType;   
     double          threshold;
     Size            inputSize;
-    int             inputChannels;
     CropMethod      cropInput;
+    ColorOrder      colororder;
 };
 
 }}
