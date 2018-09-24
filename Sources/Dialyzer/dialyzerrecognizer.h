@@ -9,7 +9,7 @@
 #include <dlib/dnn.h>
 
 namespace dlib {
-    template <template <int,template<typename>class,int,typename> class block, int N, template<typename>class BN, typename SUBNET>
+template <template <int,template<typename>class,int,typename> class block, int N, template<typename>class BN, typename SUBNET>
 using residual = add_prev1<block<N,BN,1,tag1<SUBNET>>>;
 
 template <template <int,template<typename>class,int,typename> class block, int N, template<typename>class BN, typename SUBNET>
@@ -23,13 +23,12 @@ template <int N, typename SUBNET> using ares      = relu<residual<block,N,affine
 template <int N, typename SUBNET> using res_down  = relu<residual_down<block,N,bn_con,SUBNET>>;
 template <int N, typename SUBNET> using ares_down = relu<residual_down<block,N,affine,SUBNET>>;
 // ----------------------------------------------------------------------------------------
-#define FNUM 16
-template <typename SUBNET> using alevel0 = ares<FNUM*128,ares_down<FNUM*128,SUBNET>>;
-template <typename SUBNET> using alevel1 = ares<FNUM*64,ares_down<FNUM*64,SUBNET>>;
-template <typename SUBNET> using alevel2 = ares<FNUM*32,ares_down<FNUM*32,SUBNET>>;
-template <typename SUBNET> using alevel3 = ares<FNUM*16,ares_down<FNUM*16,SUBNET>>;
-template <typename SUBNET> using alevel4 = ares<FNUM*8,ares_down<FNUM*8,SUBNET>>;
-template <typename SUBNET> using alevel5 = ares<FNUM*4,ares_down<FNUM*4,SUBNET>>;
+#define FNUM 32
+template <typename SUBNET> using alevel1 = ares<FNUM*7,ares_down<FNUM*7,SUBNET>>;
+template <typename SUBNET> using alevel2 = ares<FNUM*6,ares_down<FNUM*6,SUBNET>>;
+template <typename SUBNET> using alevel3 = ares<FNUM*5,ares_down<FNUM*5,SUBNET>>;
+template <typename SUBNET> using alevel4 = ares<FNUM*4,ares_down<FNUM*4,SUBNET>>;
+template <typename SUBNET> using alevel5 = ares<FNUM*3,ares_down<FNUM*3,SUBNET>>;
 template <typename SUBNET> using alevel6 = ares<FNUM*2,ares_down<FNUM*2,SUBNET>>;
 // testing network type (replaced batch normalization with fixed affine transforms)
 using anet_type = loss_metric<fc_no_bias<128,avg_pool_everything<
@@ -59,7 +58,7 @@ private:
     mutable dlib::anet_type net;
 };
 
-Ptr<CNNImageRecognizer> createDialyzerRecognizer(const String &_modelfile="dlib_resnet_metric_dialyzer.dat", DistanceType _disttype=DistanceType::Euclidean, double _threshold=0.335);
+Ptr<CNNImageRecognizer> createDialyzerRecognizer(const String &_modelfile="dlib_resnet_metric_dialyzer.dat", DistanceType _disttype=DistanceType::Euclidean, double _threshold=0.400);
 
 }}
 

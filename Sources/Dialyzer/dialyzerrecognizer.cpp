@@ -3,7 +3,7 @@
 namespace cv { namespace oirt {
 
 DialyzerRecognizer::DialyzerRecognizer(const String &_modelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(300,224),Inside,ColorOrder::RGB,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
+    CNNImageRecognizer(cv::Size(360,360),Inside,ColorOrder::RGB,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
 {
     try {
         dlib::deserialize(_modelfile.c_str()) >> net;
