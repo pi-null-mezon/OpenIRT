@@ -25,11 +25,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         qoirtcli.cpp \
-        $${PWD}/../oirtsrv/shared/oirttask.cpp
+        $${PWD}/../Shared/oirttask.cpp
 
 HEADERS += \
         qoirtcli.h \
-        $${PWD}/../oirtsrv/shared/oirttask.h
+        $${PWD}/../Shared/oirttask.h
 
 INCLUDEPATH += $${PWD}/../oirtsrv/shared
 
