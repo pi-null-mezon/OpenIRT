@@ -21,11 +21,11 @@
 namespace cv { namespace oirt {
 
 ImageRecognizer::ImageRecognizer(Size _inputsize, CropMethod _cropinput, ColorOrder _colororder, DistanceType _distancetype, double _threshold) :
-    distanceType(_distancetype),
-    colororder(_colororder),
+    distanceType(_distancetype),    
     threshold(_threshold),
     inputSize(_inputsize),
-    cropInput(_cropinput)
+    cropInput(_cropinput),
+    colororder(_colororder)
 {
 }
 
