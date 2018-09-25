@@ -31,6 +31,6 @@ HEADERS += \
         qoirtcli.h \
         $${PWD}/../Shared/oirttask.h
 
-INCLUDEPATH += $${PWD}/../oirtsrv/shared
+INCLUDEPATH += $${PWD}/../Shared
 
 CONFIG(release, debug|release): DEFINES += QT_NO_DEBUG_OUTPUT
