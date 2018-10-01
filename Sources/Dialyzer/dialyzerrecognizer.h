@@ -58,7 +58,7 @@ private:
     mutable dlib::anet_type net;
 };
 
-Ptr<CNNImageRecognizer> createDialyzerRecognizer(const String &_modelfile="dlib_resnet_metric_dialyzer.dat", DistanceType _disttype=DistanceType::Euclidean, double _threshold=0.45);
+Ptr<CNNImageRecognizer> createDialyzerRecognizer(const String &_modelfile="dlib_resnet_metric_dialyzer.dat", DistanceType _disttype=DistanceType::Euclidean, double _threshold=0.4);
 
 }}
 

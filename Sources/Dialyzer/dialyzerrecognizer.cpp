@@ -23,7 +23,7 @@ Mat DialyzerRecognizer::getImageDescriptionByLayerName(const Mat &_img, const St
     cv::Mat _rgbmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
 
     // Let's mask periferials
-    int _thresh = _rgbmat.rows/7;
+    /*int _thresh = _rgbmat.rows/7;
     for(int y = 0; y < _rgbmat.rows; ++y) {
         unsigned char *_p = _rgbmat.ptr<unsigned char>(y);
         for(int x = 0; x < _rgbmat.cols; ++x) {
@@ -35,7 +35,7 @@ Mat DialyzerRecognizer::getImageDescriptionByLayerName(const Mat &_img, const St
                 _p[3*x+2] *= _multiplier;
             //}
         }
-    }
+    }*/
 
 	dlib::cv_image<dlib::rgb_pixel> _iimg(_rgbmat);
 	dlib::matrix<dlib::rgb_pixel> _preprocessed;

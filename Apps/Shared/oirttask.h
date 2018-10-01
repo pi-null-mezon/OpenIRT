@@ -13,8 +13,9 @@ struct OIRTTask
      * AskLabelsList    - return result code with list of known labels
      * VerifyImage      - get two images, compare them, return result code
      * UpdateWhitelist  - get list of the labels that should be used for identification, update classifier, return result code
+     * RecognizeImage   - get input image, make identiifcation template, find labels for all templates with distance lower that distance thresh
      */
-    enum TaskCode {UnknownTask, RememberLabel, DeleteLabel, IdentifyImage, AskLabelsList, VerifyImage, UpdateWhitelist};
+    enum TaskCode {UnknownTask, RememberLabel, DeleteLabel, IdentifyImage, AskLabelsList, VerifyImage, UpdateWhitelist, RecognizeImage};
 
     OIRTTask(QTcpSocket *_tcpsocket=0);
     ~OIRTTask();

@@ -138,6 +138,52 @@ void QRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
     emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
 }
 
+void QRecognizer::recognizeImage(qintptr _taskid, const QByteArray &_encimg)
+{
+    QJsonObject _json;
+    if(ptrrec->empty() == false) {
+        if(ptrrec->emptyWhitelist() == false) {
+            cv::Mat _faceimg = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
+            int _error = 0;
+            std::vector<std::pair<int,double>> vpredictions = ptrrec->recognize(_faceimg,true,&_error);
+            if(_error == 0) {
+                if(vpredictions.size() > 0) {
+                    _json["status"]    = "Success";
+                    QJsonArray _jsonarray;
+                    for(size_t i = 0; i < vpredictions.size(); ++i) {
+                        if(vpredictions[i].second < ptrrec->getThreshold()) {
+                            QJsonObject _tmpjson;
+                            _tmpjson["label"]     = vpredictions[i].first;
+                            // Conversion to base64 is necessary because user could pass markup symbols
+                            // like { or [ that will corrupt classifier file storage
+                            _tmpjson["labelinfo"] = QByteArray::fromBase64(ptrrec->getLabelInfo(vpredictions[i].first).c_str()).constData();
+                            _tmpjson["distance"]  = vpredictions[i].second;
+                            _tmpjson["distancethresh"] = ptrrec->getThreshold();
+                            _jsonarray.push_back(_tmpjson);
+                        }
+                    }
+                    if(_jsonarray.size() > 0) {
+                        _json["predictions"] = _jsonarray;
+                    } else {
+                        _json["status"]    = "Error";
+                        _json["message"]   = "Can not find anything close enough to this image!";
+                    }
+                }
+            } else {
+                _json["status"]    = "Error";
+                _json["message"]   = ptrrec->getErrorInfo(_error).c_str();
+            }
+        } else {
+            _json["status"]  = "Error";
+            _json["message"] = "No labels in whitelist, can not identify anything!";
+        }
+    } else {
+        _json["status"]  = "Error";
+        _json["message"] = "Empty labels list, can not identify anything!";
+    }
+    emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
+}
+
 void QRecognizer::verifyImage(qintptr _taskid, const QByteArray &_eimg, const QByteArray &_vimg)
 {
     cv::Mat _efaceimg = cv::imdecode(std::vector<unsigned char>(_eimg.begin(),_eimg.end()),cv::IMREAD_UNCHANGED);

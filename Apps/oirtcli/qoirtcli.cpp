@@ -17,7 +17,7 @@ void QOIRTCli::connectTo(const QHostAddress &_addr, quint16 _port)
 {
     tcpsocket.connectToHost(_addr,_port);
     repeatlength = -1;
-    QTimer::singleShot(11000,[=]() {
+    QTimer::singleShot(10000,[=]() {
                                         QJsonObject _json;
                                         _json["status"]  = "Error";
                                         _json["message"] = "Recognition server can not be accessed! It could be busy or unreachable...";
@@ -69,6 +69,13 @@ void QOIRTCli::sendTask()
 
         case OIRTTask::IdentifyImage: {
             qDebug("IdentifyImage");
+            QByteArray _encimg = __readImgfileContent(imgfilename);
+            _ods << static_cast<qint32>(_encimg.size());
+            _ods << _encimg;
+        } break;
+
+        case OIRTTask::RecognizeImage: {
+            qDebug("RecognizeImage");
             QByteArray _encimg = __readImgfileContent(imgfilename);
             _ods << static_cast<qint32>(_encimg.size());
             _ods << _encimg;

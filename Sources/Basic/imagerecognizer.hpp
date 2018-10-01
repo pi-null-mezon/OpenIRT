@@ -80,7 +80,7 @@ public:
      * 'uniquelabels == false' - if recognizer stores N templates for the label L, the result will contain N pairs for the label L
      *       in this case all predictions are simply sorted in ascending distance order
      */
-    std::vector<std::pair<int,double>> recognize(InputArray src, bool unique=true) const;
+    std::vector<std::pair<int,double>> recognize(InputArray src, bool unique=true, int *_error=0) const;
 
     virtual void predict(InputArray src, Ptr<PredictCollector> collector, int *_error=0) const = 0;
 

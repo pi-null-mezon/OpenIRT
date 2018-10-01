@@ -85,6 +85,26 @@ def identify_face():
 	return jsonify({"status": "Error", "info": "File you have try to upload seems to be bad"}), 400
 	
 	
+@app.route("%s/recognize" % apiprefix, methods=['POST'])
+def recognize_face():
+	if 'file' not in request.files:
+		return jsonify({"status": "Error", "info": "file part is missing in request"}), 400
+	file = request.files['file']	
+	if file.filename == '':
+		return jsonify({"status": "Error", "info": "Empty filename parameter"}), 400	
+	if file and allowed_file(file.filename):
+		filename = randomize_name(secure_filename(file.filename))
+		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
+		file.save(filepath)
+		oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),  "-i%s" % filepath, "-d", "-t7"]) 
+		if OS_WIN:
+			oirtsrvoutput = oirtsrvoutput.decode('cp1251')
+		response = make_response(oirtsrvoutput, 200)
+		response.headers['Content-Type'] = "application/json"
+		return response														
+	return jsonify({"status": "Error", "info": "File you have try to upload seems to be bad"}), 400
+	
+	
 @app.route("%s/labels" % apiprefix, methods=['GET'])
 def get_labels():
 	oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-t4"])

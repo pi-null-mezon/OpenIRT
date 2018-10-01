@@ -23,7 +23,7 @@ bool QOIRTServer::start(quint16 _port)
         stop();
     }
     if(tcpserver.listen(QHostAddress::AnyIPv4, _port)) {
-        qInfo("QOIRTServer: Start to listening:");
+        qInfo("Server start to listening:");
         QList<QHostAddress> _laddr = QNetworkInterface::allAddresses();
         if(_laddr.size() > 0) {
             int k = 1;
@@ -33,7 +33,7 @@ bool QOIRTServer::start(quint16 _port)
                 }
             }
         } else {
-            qWarning("QMAGTServer: server can not listen port %d!",_port);
+            qWarning("QOIRTServer: server can not listen port %d!",_port);
         }
         return true;
     } else {
@@ -128,6 +128,22 @@ void QOIRTServer::readClient()
                     _ids >> _task->encimg;
                     _task->encimgaccepted = true;
                     emit identifyImage(_taskid,_task->encimg);
+                }
+                break;
+
+            case OIRTTask::RecognizeImage:
+                // WAIT ENCODED PICTURE
+                if(_task->encimgbytes == -1) {
+                    if(_task->tcpsocket->bytesAvailable() < (qint64)sizeof(qint32))
+                        return;
+                    _ids >> _task->encimgbytes;
+                }
+                if(_task->encimgaccepted == false) {
+                    if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
+                        return;
+                    _ids >> _task->encimg;
+                    _task->encimgaccepted = true;
+                    emit recognizeImage(_taskid,_task->encimg);
                 }
                 break;
 
