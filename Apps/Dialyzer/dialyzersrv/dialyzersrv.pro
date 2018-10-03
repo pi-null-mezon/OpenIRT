@@ -10,7 +10,7 @@ QT -= gui
 CONFIG += c++11
 
 TARGET = dialyzersrv
-VERSION = 1.0.6.0
+VERSION = 1.0.7.0
 
 TEMPLATE = app
 CONFIG += console
@@ -20,10 +20,7 @@ DEFINES +=  APP_NAME=\\\"$${TARGET}\\\" \
             APP_VERSION=\\\"$${VERSION}\\\" \
             APP_DESIGNER=\\\"Alex.A.Taranov\\\"
 
-SOURCES += main.cpp\
-           qoirtserver.cpp
-
-HEADERS  += qoirtserver.h
+SOURCES += main.cpp
 
 include($${PWD}/../../../Shared/opencv.pri)
 include($${PWD}/../../../Shared/dlib.pri)
@@ -31,10 +28,12 @@ include($${PWD}/../../../Sources/Basic/imagerecognizer.pri)
 
 SOURCES += $${PWD}/../../../Sources/Dialyzer/dialyzerrecognizer.cpp \
            $${PWD}/../../../Sources/Basic/Qt/qrecognizer.cpp \
+           $${PWD}/../../Shared/qoirtserver.cpp \
            $${PWD}/../../Shared/oirttask.cpp
 
 HEADERS += $${PWD}/../../../Sources/Dialyzer/dialyzerrecognizer.h \
            $${PWD}/../../../Sources/Basic/Qt/qrecognizer.h \
+           $${PWD}/../../Shared/qoirtserver.h \
            $${PWD}/../../Shared/oirttask.h
 
 INCLUDEPATH += $${PWD}/../../../Sources/Dialyzer \

@@ -5,7 +5,7 @@
 namespace cv { namespace oirt {
 
 DialyzerRecognizer::DialyzerRecognizer(const String &_modelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(360,360),Inside,ColorOrder::RGB,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
+    CNNImageRecognizer(cv::Size(300,300),Inside,ColorOrder::RGB,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
 {
     try {
         dlib::deserialize(_modelfile.c_str()) >> net;
@@ -23,16 +23,16 @@ Mat DialyzerRecognizer::getImageDescriptionByLayerName(const Mat &_img, const St
     cv::Mat _rgbmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
 
     // Let's mask periferials
-    /*int _thresh = _rgbmat.rows/7;
+    /*cv::Scalar _mean = cv::mean(_rgbmat);
     for(int y = 0; y < _rgbmat.rows; ++y) {
         unsigned char *_p = _rgbmat.ptr<unsigned char>(y);
         for(int x = 0; x < _rgbmat.cols; ++x) {
             float _multiplier = (1.0f - std::abs(y - _rgbmat.rows/2.0f)/(_rgbmat.rows/2.0f));
             _multiplier = _multiplier*_multiplier;
             //if(std::abs(y - _rgbmat.rows/2) > _thresh) {
-                _p[3*x]   *= _multiplier;
-                _p[3*x+1] *= _multiplier;
-                _p[3*x+2] *= _multiplier;
+                _p[3*x]   = _multiplier*_p[3*x] + (1.0f - _multiplier)*_mean[0];
+                _p[3*x+1] = _multiplier*_p[3*x+1] + (1.0f - _multiplier)*_mean[1];
+                _p[3*x+2] = _multiplier*_p[3*x+2] + (1.0f - _multiplier)*_mean[2];
             //}
         }
     }*/

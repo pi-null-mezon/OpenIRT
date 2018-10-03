@@ -34,7 +34,7 @@ def randomize_name(filename):
 		   
 		   		   
 @app.route("%s/remember" % apiprefix, methods=['POST'])
-def remember_face():
+def remember_image():
 	if 'file' not in request.files:
 		return jsonify({"status": "Error", "info": "file part is missing in request"}), 400
 	file = request.files['file']	
@@ -55,7 +55,7 @@ def remember_face():
 	
 	
 @app.route("%s/delete" % apiprefix, methods=['POST'])
-def delete_face():
+def delete_image():
 	labelinfo = request.form['labelinfo']
 	dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport), "-l%s" % labelinfo, "-t2"])
 	if OS_WIN:
@@ -66,7 +66,7 @@ def delete_face():
 
 	
 @app.route("%s/identify" % apiprefix, methods=['POST'])
-def identify_face():
+def identify_image():
 	if 'file' not in request.files:
 		return jsonify({"status": "Error", "info": "file part is missing in request"}), 400
 	file = request.files['file']	
@@ -77,6 +77,26 @@ def identify_face():
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
 		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport),  "-i%s" % filepath, "-t3"]) 
+		if OS_WIN:
+			dialyzersrvoutput = dialyzersrvoutput.decode('cp1251')
+		response = make_response(dialyzersrvoutput, 200)
+		response.headers['Content-Type'] = "application/json"
+		return response														
+	return jsonify({"status": "Error", "info": "File you have try to upload seems to be bad"}), 400
+	
+	
+@app.route("%s/recognize" % apiprefix, methods=['POST'])
+def recognize_image():
+	if 'file' not in request.files:
+		return jsonify({"status": "Error", "info": "file part is missing in request"}), 400
+	file = request.files['file']	
+	if file.filename == '':
+		return jsonify({"status": "Error", "info": "Empty filename parameter"}), 400	
+	if file and allowed_file(file.filename):
+		filename = randomize_name(secure_filename(file.filename))
+		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
+		file.save(filepath)
+		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport),  "-i%s" % filepath, "-t7"]) 
 		if OS_WIN:
 			dialyzersrvoutput = dialyzersrvoutput.decode('cp1251')
 		response = make_response(dialyzersrvoutput, 200)
@@ -96,7 +116,7 @@ def get_labels():
 	
 	
 @app.route("%s/verify" % apiprefix, methods=['POST'])
-def verify_face():
+def verify_image():
 	if 'efile' not in request.files:
 		return jsonify({"status": "Error", "info": "efile part is missing in request"}), 400
 	efile = request.files['efile']	
