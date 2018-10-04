@@ -34,6 +34,7 @@ public slots:
     void        getLabelsList(qintptr _taskid);
     void        verifyImage(qintptr _taskid, const QByteArray &_eimg, const QByteArray &_vimg);
     void        updateWhitelist(qintptr _taskid, const QByteArray &_jsonwhitelist);
+    void        dropWhitelist(qintptr _taskid);
 
 private slots:
     void        saveTemplatesOnDisk();

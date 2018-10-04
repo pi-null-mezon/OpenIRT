@@ -32,6 +32,10 @@ public:
      * @param _vlabelinfo - vector of labels identifiers
      */
     void setWhitelist(const std::vector<cv::String> &_vlabelinfo);
+    /**
+     * @brief Add all known labels to the whitelist
+     */
+    void dropWhitelist();
 
     /**
      * @brief Call to get number of knowing templates for the particualr label

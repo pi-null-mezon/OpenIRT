@@ -238,6 +238,16 @@ void QRecognizer::updateWhitelist(qintptr _taskid, const QByteArray &_jsonwhitel
     emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
 }
 
+void QRecognizer::dropWhitelist(qintptr _taskid)
+{
+    QJsonObject _json;
+    ptrrec->dropWhitelist();
+    backuptimer->start();
+    _json["status"]      = "Success";
+    _json["message"]     = "Whitelist has been updated";
+    emit taskAccomplished(_taskid,QJsonDocument(_json).toJson(jsonformat));
+}
+
 void QRecognizer::saveTemplatesOnDisk()
 {
     if(ptrrec->empty() == false) {

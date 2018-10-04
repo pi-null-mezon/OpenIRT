@@ -150,7 +150,14 @@ def set_whitelist():
 		json.dump(whitelist, outfile)
 	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-w%s" % filepath, "-d", "-t6"]), 200)
 	response.headers['Content-Type'] = "application/json"
-	return response																													
+	return response
+
+	
+@app.route("%s/whitelist/drop" % apiprefix, methods=['POST'])
+def drop_whitelist():
+	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-t8"]), 200)
+	response.headers['Content-Type'] = "application/json"
+	return response		
 	
 	
 if __name__ == "__main__":

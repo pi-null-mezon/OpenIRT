@@ -194,6 +194,10 @@ void QOIRTServer::readClient()
                 }
                 break;
 
+            case OIRTTask::DropWhitelist:
+                emit dropWhitelist(_taskid);
+                break;
+
             default:
                 // TO SUPPRESS WARNINGS
                 break;

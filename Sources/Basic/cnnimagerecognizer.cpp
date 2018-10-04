@@ -122,7 +122,7 @@ void CNNImageRecognizer::load(const FileStorage &fs)
     fs["labels"] >> v_labels;
     fs["whitelist"] >> v_whitelist;
     if(v_whitelist.size() < v_labels.size()) {
-        v_whitelist = std::move(std::vector<uchar>(v_labels.size(),0x01));
+        v_whitelist = std::vector<uchar>(v_labels.size(),0x01);
     }
     const FileNode& fn = fs["labelsInfo"];
     if (fn.type() == FileNode::SEQ)
@@ -185,7 +185,7 @@ int CNNImageRecognizer::nextfreeLabel() const
 void CNNImageRecognizer::setWhitelist(const std::vector<String> &_vlabelinfo)
 {
     // Drop old whitelist data
-    v_whitelist = std::move(std::vector<uchar>(v_labels.size(),0x00));
+    v_whitelist = std::vector<uchar>(v_labels.size(),0x00);
     for(size_t i = 0; i < _vlabelinfo.size(); ++i) {
         std::vector<int> _vlbls = getLabelsByString(_vlabelinfo[i]);
         if(_vlbls.size() > 0) { // so, recognizer knows this labelinfo
@@ -194,6 +194,13 @@ void CNNImageRecognizer::setWhitelist(const std::vector<String> &_vlabelinfo)
                     v_whitelist[j] = 0x01;
             }
         }
+    }
+}
+
+void CNNImageRecognizer::dropWhitelist()
+{
+    for(size_t i = 0; i < v_whitelist.size(); ++i) {
+        v_whitelist[i] = 0x01;
     }
 }
 

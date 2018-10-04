@@ -100,6 +100,11 @@ void QOIRTCli::sendTask()
             _ods << _json;
         } break;
 
+        case OIRTTask::DropWhitelist: {
+            qDebug("DropWhitelist");
+            // No data is needed
+        } break;
+
         default:
             qDebug("UnknownTask");
             // To suppress warnings

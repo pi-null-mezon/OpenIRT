@@ -35,6 +35,8 @@ OIRTTask::TaskCode OIRTTask::getTaskCode(quint8 _val)
             return OIRTTask::UpdateWhitelist;
         case 7:
             return OIRTTask::RecognizeImage;
+        case 8:
+            return OIRTTask::DropWhitelist;
         default:
             return OIRTTask::UnknownTask;
     }
@@ -57,6 +59,8 @@ quint8 OIRTTask::getTaskCodeValue(OIRTTask::TaskCode _taskcode)
             return 6;
         case OIRTTask::RecognizeImage:
             return 7;
+        case OIRTTask::DropWhitelist:
+            return 8;
         default:
             return 0;
     }

@@ -61,7 +61,8 @@ int main(int argc, char *argv[])
                       "           4 - AskLabelsList\n"
                       "           5 - VerifyImage (compare two images)\n"
                       "           6 - UpdateWhitelist\n"
-                      "           7 - RecognizeImage (query closest predictions)\n");
+                      "           7 - RecognizeImage (query closest predictions)\n"
+                      "           8 - DropWhitelist (query closest predictions)\n");
                 qInfo(" -d      - delete image files after server's repeat\n");
                 return 0;
 

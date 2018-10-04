@@ -1,11 +1,9 @@
 #include "dialyzerrecognizer.h"
 
-#include <opencv2/highgui.hpp>
-
 namespace cv { namespace oirt {
 
 DialyzerRecognizer::DialyzerRecognizer(const String &_modelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(300,300),Inside,ColorOrder::RGB,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
+    CNNImageRecognizer(cv::Size(400,300),Inside,ColorOrder::RGB,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
 {
     try {
         dlib::deserialize(_modelfile.c_str()) >> net;
@@ -22,28 +20,13 @@ Mat DialyzerRecognizer::getImageDescriptionByLayerName(const Mat &_img, const St
     cv::String _str = _blobname; // to suppress 'unused variable' compiler warning
     cv::Mat _rgbmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
 
-    // Let's mask periferials
-    /*cv::Scalar _mean = cv::mean(_rgbmat);
-    for(int y = 0; y < _rgbmat.rows; ++y) {
-        unsigned char *_p = _rgbmat.ptr<unsigned char>(y);
-        for(int x = 0; x < _rgbmat.cols; ++x) {
-            float _multiplier = (1.0f - std::abs(y - _rgbmat.rows/2.0f)/(_rgbmat.rows/2.0f));
-            _multiplier = _multiplier*_multiplier;
-            //if(std::abs(y - _rgbmat.rows/2) > _thresh) {
-                _p[3*x]   = _multiplier*_p[3*x] + (1.0f - _multiplier)*_mean[0];
-                _p[3*x+1] = _multiplier*_p[3*x+1] + (1.0f - _multiplier)*_mean[1];
-                _p[3*x+2] = _multiplier*_p[3*x+2] + (1.0f - _multiplier)*_mean[2];
-            //}
-        }
-    }*/
-
 	dlib::cv_image<dlib::rgb_pixel> _iimg(_rgbmat);
 	dlib::matrix<dlib::rgb_pixel> _preprocessed;
 	dlib::assign_image(_preprocessed,_iimg);
 
-    cv::Mat _viewmat(num_rows(_preprocessed), num_columns(_preprocessed), CV_8UC3, image_data(_preprocessed));
+    /*cv::Mat _viewmat(num_rows(_preprocessed), num_columns(_preprocessed), CV_8UC3, image_data(_preprocessed));
     cv::imshow("Input of DLIB",_viewmat);
-    cv::waitKey(1);
+    cv::waitKey(1);*/
 
 	dlib::matrix<float,0,1> _facedescription = net(_preprocessed);
 	return dlib::toMat(_facedescription).reshape(1,1).clone();
