@@ -10,7 +10,7 @@ QT -= gui
 CONFIG += c++11
 
 TARGET = dialyzersrv
-VERSION = 1.0.7.0
+VERSION = 1.0.8.0
 
 TEMPLATE = app
 CONFIG += console
@@ -41,3 +41,8 @@ INCLUDEPATH += $${PWD}/../../../Sources/Dialyzer \
                $${PWD}/../../Shared
 
 CONFIG(release, debug|release): DEFINES += QT_NO_DEBUG_OUTPUT
+
+unix {
+    target.path = /usr/local/bin
+    INSTALLS += target
+}
