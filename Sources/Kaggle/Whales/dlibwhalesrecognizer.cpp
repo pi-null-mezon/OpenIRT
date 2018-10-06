@@ -1,9 +1,9 @@
 #include "dlibwhalesrecognizer.h"
 
-namespace cv { namespace imgrec {
+namespace cv { namespace oirt {
 
 DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_descriptormodelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(512,192),3,NoCrop,_disttype,_threshold)
+    CNNImageRecognizer(cv::Size(500,200),CropMethod::Inside,ColorOrder::RGB,_disttype,_threshold)
 {
     try {
         dlib::deserialize(_descriptormodelfile.c_str()) >> net;
@@ -12,26 +12,12 @@ DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_descriptormodelfile, D
     }
 }
 
-Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname) const
+Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     cv::String _str = _blobname; // to suppress 'unused variable' compiler warning
     // Prepare image
-    cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels(), getCropInput());
+    cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
 
-    //-----------------------------
-    /*cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getInputChannels(), getCropInput());
-    _preprocessedmat.convertTo(_preprocessedmat,CV_32F);
-    cv::Mat _vchannelmean, _vchannelstdev;
-    cv::meanStdDev(_preprocessedmat,_vchannelmean,_vchannelstdev);
-    cv::Mat _nmat = (_preprocessedmat - _vchannelmean.at<const double>(0)) / _vchannelstdev.at<const double>(0);
-
-    float *_p = _nmat.ptr<float>(0);
-    dlib::matrix<float> _dlibimg(_nmat.rows,_nmat.cols);
-    for(long i = 0; i < _nmat.rows*_nmat.cols; ++i)
-        _dlibimg(i) = _p[i];
-
-    dlib::matrix<float,0,1> _description = net(_dlibimg);*/
-    //-----------------------------
     dlib::cv_image<dlib::rgb_pixel> _dlibcvimg(_preprocessedmat);
     dlib::matrix<dlib::rgb_pixel> _dlibmatrix;
     dlib::assign_image(_dlibmatrix,_dlibcvimg);
@@ -41,14 +27,14 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
     return dlib::toMat(_description).reshape(1,1).clone();
 }
 
-Mat DlibWhalesRecognizer::getImageDescription(const Mat &_img) const
+Mat DlibWhalesRecognizer::getImageDescription(const Mat &_img, int *_error) const
 {
-    return getImageDescriptionByLayerName(_img,cv::String());
+    return getImageDescriptionByLayerName(_img,cv::String(),_error);
 }
 
-void DlibWhalesRecognizer::predict(InputArray src, Ptr<PredictCollector> collector) const
+void DlibWhalesRecognizer::predict(InputArray src, Ptr<PredictCollector> collector, int *_error) const
 {
-    cv::Mat _description = getImageDescription(src.getMat());
+    cv::Mat _description = getImageDescription(src.getMat(),_error);
     collector->init(v_labels.size());
     for (size_t sampleIdx = 0; sampleIdx < v_labels.size(); sampleIdx++) {
         double confidence = DBL_MAX;

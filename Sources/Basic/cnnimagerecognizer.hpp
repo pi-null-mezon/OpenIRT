@@ -16,10 +16,10 @@ class CNNImageRecognizer : public ImageRecognizer
 {
 public:
     CNNImageRecognizer(Size _inputsize, CropMethod _cropinput, ColorOrder _colororder, DistanceType _disttype, double _threshold);
-    virtual ~CNNImageRecognizer();
+    virtual ~CNNImageRecognizer() override;
 
     void    train(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;
-    void    update(InputArrayOfArrays src, InputArray labels, bool _visualize=true, int *_error=0) override;
+    void    update(InputArrayOfArrays src, InputArray labels, bool _visualize=true, int *_error=nullptr) override;
     int     remove(InputArray labels) override;
     void    load(const FileStorage &fs) override;
     void    save(FileStorage &fs) const override;
@@ -46,12 +46,11 @@ public:
 
     bool isLabelWhitelisted(int _label) const;
 
-    virtual Mat  getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error=0) const = 0;
+    virtual Mat  getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error=nullptr) const = 0;
 
 protected:
-    void __train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData, bool _visualize, int *_error=0);
+    void __train(InputArrayOfArrays _src, InputArray _labels, bool _preserveData, bool _visualize, int *_error=nullptr);
 
-    Size                                inputSize;
     int                                 inputChannels;
     std::vector<int>                    v_labels;
     std::vector<Mat>                    v_descriptions;

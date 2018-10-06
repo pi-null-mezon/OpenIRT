@@ -39,7 +39,7 @@ int CNNImageRecognizer::remove(InputArray labels)
     for(size_t i = 0; i < v_labels.size(); ++i) {
         bool _shouldberemoved = false;
         for(size_t j = 0; j < lbls.total(); ++j) {            
-            if(lbls.at<int>((int)j) == v_labels[i]) {                
+            if(lbls.at<int>(static_cast<int>(j)) == v_labels[i]) {
                 _shouldberemoved = true;               
                 break;
             }
@@ -103,12 +103,12 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
             cv::waitKey(1);
         }
         cv::Mat _dscrmat = getImageDescription(raw[labelIdx], _error);
-        if(_error != 0) {
+        if(_error != nullptr) {
             if(*_error != 0) {
                 return;
             }
         }
-        v_labels.push_back(lbls.at<int>((int)labelIdx));
+        v_labels.push_back(lbls.at<int>(static_cast<int>(labelIdx)));
         v_descriptions.push_back(_dscrmat);
         v_whitelist.push_back(0x01); // 0x00 - not in list, all values greater than 0x00 - in list
     }

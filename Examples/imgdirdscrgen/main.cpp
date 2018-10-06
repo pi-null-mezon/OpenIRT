@@ -14,6 +14,7 @@
 const cv::String options = "{help h       |        | show app's help}"
                            "{inputdir i   |        | set input directory in which subdirs will be searched}"
                            "{outputfile o |        | set output filename}"
+                           "{model m      |        | set model filename}"
                            "{visualize v  |  true  | set visualization option}";
 
 int main(int argc, char *argv[])
@@ -35,23 +36,27 @@ int main(int argc, char *argv[])
         qInfo("You have not provide outputfile name. Abort...");
         return 2;
     }
+    if(_cmdparser.has("model") == false) {
+        qInfo("You have not provide model file name. Abort...");
+        return 3;
+    }
 
     QDir _dir(_cmdparser.get<cv::String>("inputdir").c_str());
     if(_dir.exists() == false) {
         qInfo("Input directory is not existed. Abort...");
-        return 3;
+        return 4;
     }
 
     qInfo("Step_1 - Uploading recognizer resources from HDD...");
-    /*cv::Ptr<imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createSqueezeNetImageNetRecognizer(cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
+    /*cv::Ptr<oirt::CNNImageRecognizer> _ptr = cv::oirt::createSqueezeNetImageNetRecognizer(cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.prototxt"),
                                                                                           cv::String("C:/Programming/3rdParties/Caffe/models/ImageNet-SqueezeNet/squeezenet_v1.1.caffemodel"));*/
 
-    /*cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createGoogleNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
+    /*cv::Ptr<cv::oirt::CNNImageRecognizer> _ptr = cv::oirt::createGoogleNetRecognizer( cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.prototxt"),
                                                                                         cv::String("C:/Programming/3rdParties/Caffe/models/bvlc_googlenet/bvlc_googlenet.caffemodel") );*/
 
-    cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createDlibWhalesRecognizer(cv::String("/home/alex/Programming/Kaggle/Whales/Dlib/build/build-Learner-Desktop_Qt_5_10_0_GCC_64bit-Release/whales_metric_network_resnet.dat"));
+    cv::Ptr<cv::oirt::CNNImageRecognizer> _ptr = cv::oirt::createDlibWhalesRecognizer(_cmdparser.get<cv::String>("model"));
 
-    /*cv::Ptr<cv::imgrec::CNNImageRecognizer> _ptr = cv::imgrec::createFurnitureRecognizer(cv::String("/home/alex/Fastdata/Kaggle/Furniture/Metricbench/net.dat"));*/
+    /*cv::Ptr<cv::oirt::CNNImageRecognizer> _ptr = cv::oirt::createFurnitureRecognizer(cv::String("/home/alex/Fastdata/Kaggle/Furniture/Metricbench/net.dat"));*/
 
     qInfo("Step_2 - Generating descriptions for labels");
     QStringList _lsubdirname = _dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);

@@ -53,7 +53,7 @@ public:
     virtual ~ImageRecognizer();
 
     virtual void train(InputArrayOfArrays src, InputArray labels, bool _visualize) = 0;
-    virtual void update(InputArrayOfArrays src, InputArray labels, bool _visualize, int *_error=0) = 0;
+    virtual void update(InputArrayOfArrays src, InputArray labels, bool _visualize, int *_error=nullptr) = 0;
     virtual int remove(InputArray labels) = 0;
 
     /**
@@ -62,7 +62,7 @@ public:
      * @param label - predicted label
      * @param distance - computed distance to predicted label
      */
-    void predict(InputArray src, int &label, double &distance, int *_error=0) const;
+    void predict(InputArray src, int &label, double &distance, int *_error=nullptr) const;
 
     /**
      * @brief get predictions for all unique labels
@@ -80,9 +80,9 @@ public:
      * 'uniquelabels == false' - if recognizer stores N templates for the label L, the result will contain N pairs for the label L
      *       in this case all predictions are simply sorted in ascending distance order
      */
-    std::vector<std::pair<int,double>> recognize(InputArray src, bool unique=true, int *_error=0) const;
+    std::vector<std::pair<int,double>> recognize(InputArray src, bool unique=true, int *_error=nullptr) const;
 
-    virtual void predict(InputArray src, Ptr<PredictCollector> collector, int *_error=0) const = 0;
+    virtual void predict(InputArray src, Ptr<PredictCollector> collector, int *_error=nullptr) const = 0;
 
     /**
      * @brief compare two images by the recognizer
@@ -90,9 +90,9 @@ public:
      * @param vsrc - verification image
      * @return distance between escr and vscr (if esrc == vsrc then 0 should be returned)
      */
-    virtual double compare(InputArray esrc, InputArray vsrc, int *_error=0) const;
+    virtual double compare(InputArray esrc, InputArray vsrc, int *_error=nullptr) const;
 
-    virtual Mat getImageDescription(const Mat &_img, int *_error=0) const = 0;
+    virtual Mat getImageDescription(const Mat &_img, int *_error=nullptr) const = 0;
 
     virtual void save(const String& filename) const;
 
