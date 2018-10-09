@@ -17,12 +17,14 @@ int main(int argc, char *argv[])
     //-----------------------------
     quint16 port = 8080;
     QString labelsfilename = a.applicationDirPath().append("/labels.yml");
+    double recthresh = 0.485;
     while((--argc > 0) && ((*++argv)[0] == '-')) {
         switch(*++argv[0]) {
             case 'h':
                 qInfo("%s v.%s\n", APP_NAME, APP_VERSION);
-                qInfo(" -p - port number to listen (default: %u)", (uint)port);
-                qInfo(" -l - filename of the file to store labels (default: %s)", labelsfilename.toUtf8().constData());
+                qInfo(" -p[int]  - port number to listen (default: %u)", (uint)port);
+                qInfo(" -l[str]  - filename of the file to store labels (default: %s)", labelsfilename.toUtf8().constData());
+                qInfo(" -t[real] - recognition threshold (default: %f)", recthresh);
                 return 0;
 
             case 'l':
@@ -31,6 +33,10 @@ int main(int argc, char *argv[])
 
             case 'p':
                 port = QString(++argv[0]).toInt();
+                break;
+
+            case 't':
+                recthresh = QString(++argv[0]).toDouble();
                 break;
         }
     }
@@ -45,7 +51,9 @@ int main(int argc, char *argv[])
     // Let's run facerecognizer in separate thread
     QRecognizer qfacerec;
     qfacerec.loadResources(cv::oirt::createDlibFaceRecognizer(a.applicationDirPath().append("/shape_predictor_5_face_landmarks.dat").toUtf8().constData(),
-                                                              a.applicationDirPath().append("/dlib_face_recognition_resnet_model_v1.dat").toUtf8().constData()));
+                                                              a.applicationDirPath().append("/dlib_face_recognition_resnet_model_v1.dat").toUtf8().constData(),
+                                                              cv::oirt::DistanceType::Euclidean,
+                                                              recthresh));
     qfacerec.setLabelsfilename(labelsfilename);
     QFileInfo _fi(labelsfilename);
     if(_fi.exists())
