@@ -43,25 +43,27 @@ int main(int argc, char *argv[])
     }
 
     // Let's run facerecognizer in separate thread
-    QRecognizer qfacerec;
-    qfacerec.loadResources(cv::oirt::createDialyzerRecognizer(a.applicationDirPath().append("/dlib_resnet_metric_dialyzer.dat").toUtf8().constData()));
-    qfacerec.setLabelsfilename(labelsfilename);
+    QRecognizer qrecognizer;
+    qrecognizer.loadResources(cv::oirt::createDialyzerRecognizer(a.applicationDirPath().append("/dlib_resnet_metric_dialyzer.dat").toUtf8().constData()));
+    qrecognizer.setLabelsfilename(labelsfilename);
     QFileInfo _fi(labelsfilename);
     if(_fi.exists())
-        qfacerec.loadLabels(labelsfilename);
-    QThread qfacerecthread;
-    qfacerec.moveToThread(&qfacerecthread);
+        qrecognizer.loadLabels(labelsfilename);
+    QThread qrecognizerthread;
+    qrecognizer.moveToThread(&qrecognizerthread);
 
-    QObject::connect(&server,SIGNAL(rememberLabel(qintptr,QByteArray,QByteArray)),&qfacerec,SLOT(rememberLabel(qintptr,QByteArray,QByteArray)));
-    QObject::connect(&server,SIGNAL(identifyImage(qintptr,QByteArray)),&qfacerec,SLOT(identifyImage(qintptr,QByteArray)));
-    QObject::connect(&server,SIGNAL(deleteLabel(qintptr,QByteArray)),&qfacerec,SLOT(deleteLabel(qintptr,QByteArray)));
-    QObject::connect(&server,SIGNAL(askLabelsList(qintptr)),&qfacerec,SLOT(getLabelsList(qintptr)));
-    QObject::connect(&server,SIGNAL(verifyImage(qintptr,QByteArray,QByteArray)),&qfacerec,SLOT(verifyImage(qintptr,QByteArray,QByteArray)));
-    QObject::connect(&server,SIGNAL(updateWhitelist(qintptr,QByteArray)),&qfacerec,SLOT(updateWhitelist(qintptr,QByteArray)));
-    QObject::connect(&qfacerec,SIGNAL(taskAccomplished(qintptr,QByteArray)),&server,SLOT(repeatToClient(qintptr,QByteArray)));
-    QObject::connect(&qfacerecthread,SIGNAL(started()),&qfacerec,SLOT(initBackupTimer()));
+    QObject::connect(&server,SIGNAL(rememberLabel(qintptr,QByteArray,QByteArray)),&qrecognizer,SLOT(rememberLabel(qintptr,QByteArray,QByteArray)));
+    QObject::connect(&server,SIGNAL(identifyImage(qintptr,QByteArray)),&qrecognizer,SLOT(identifyImage(qintptr,QByteArray)));
+    QObject::connect(&server,SIGNAL(deleteLabel(qintptr,QByteArray)),&qrecognizer,SLOT(deleteLabel(qintptr,QByteArray)));
+    QObject::connect(&server,SIGNAL(askLabelsList(qintptr)),&qrecognizer,SLOT(getLabelsList(qintptr)));
+    QObject::connect(&server,SIGNAL(verifyImage(qintptr,QByteArray,QByteArray)),&qrecognizer,SLOT(verifyImage(qintptr,QByteArray,QByteArray)));
+    QObject::connect(&server,SIGNAL(updateWhitelist(qintptr,QByteArray)),&qrecognizer,SLOT(updateWhitelist(qintptr,QByteArray)));
+    QObject::connect(&server,SIGNAL(dropWhitelist(qintptr)),&qrecognizer,SLOT(dropWhitelist(qintptr)));
+    QObject::connect(&server,SIGNAL(recognizeImage(qintptr,QByteArray)),&qrecognizer,SLOT(recognizeImage(qintptr,QByteArray)));
+    QObject::connect(&qrecognizer,SIGNAL(taskAccomplished(qintptr,QByteArray)),&server,SLOT(repeatToClient(qintptr,QByteArray)));
+    QObject::connect(&qrecognizerthread,SIGNAL(started()),&qrecognizer,SLOT(initBackupTimer()));
 
-    qfacerecthread.start();
+    qrecognizerthread.start();
 
     return a.exec();
 }

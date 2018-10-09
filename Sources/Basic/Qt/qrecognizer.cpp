@@ -147,8 +147,7 @@ void QRecognizer::recognizeImage(qintptr _taskid, const QByteArray &_encimg)
             int _error = 0;
             std::vector<std::pair<int,double>> vpredictions = ptrrec->recognize(_faceimg,true,&_error);
             if(_error == 0) {
-                if(vpredictions.size() > 0) {
-                    _json["status"]    = "Success";
+                if(vpredictions.size() > 0) {                   
                     QJsonArray _jsonarray;
                     for(size_t i = 0; i < vpredictions.size(); ++i) {
                         if(vpredictions[i].second < ptrrec->getThreshold()) {
@@ -163,6 +162,7 @@ void QRecognizer::recognizeImage(qintptr _taskid, const QByteArray &_encimg)
                         }
                     }
                     if(_jsonarray.size() > 0) {
+                        _json["status"] =    "Success";
                         _json["predictions"] = _jsonarray;
                     } else {
                         _json["status"]    = "Error";

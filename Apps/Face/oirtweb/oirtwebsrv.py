@@ -45,7 +45,7 @@ def remember_face():
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-i%s" % filepath, "-l%s" % labelinfo, "-d", "-t1"])
+		oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-i%s" % filepath, "-l%s" % labelinfo, "-d", "-t1"])
 		if OS_WIN:
 			oirtsrvoutput = oirtsrvoutput.decode('cp1251')
 		response = make_response(oirtsrvoutput, 200)
@@ -57,7 +57,7 @@ def remember_face():
 @app.route("%s/delete" % apiprefix, methods=['POST'])
 def delete_face():
 	labelinfo = request.form['labelinfo']
-	oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-l%s" % labelinfo, "-t2"])
+	oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-l%s" % labelinfo, "-t2"])
 	if OS_WIN:
 		oirtsrvoutput = oirtsrvoutput.decode('cp1251')	
 	response = make_response(oirtsrvoutput, 200)
@@ -76,7 +76,7 @@ def identify_face():
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),  "-i%s" % filepath, "-d", "-t3"]) 
+		oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport,  "-i%s" % filepath, "-d", "-t3"]) 
 		if OS_WIN:
 			oirtsrvoutput = oirtsrvoutput.decode('cp1251')
 		response = make_response(oirtsrvoutput, 200)
@@ -96,7 +96,7 @@ def recognize_face():
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport),  "-i%s" % filepath, "-d", "-t7"]) 
+		oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport,  "-i%s" % filepath, "-d", "-t7"]) 
 		if OS_WIN:
 			oirtsrvoutput = oirtsrvoutput.decode('cp1251')
 		response = make_response(oirtsrvoutput, 200)
@@ -107,7 +107,7 @@ def recognize_face():
 	
 @app.route("%s/labels" % apiprefix, methods=['GET'])
 def get_labels():
-	oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-t4"])
+	oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-t4"])
 	if OS_WIN:
 			oirtsrvoutput = oirtsrvoutput.decode('cp1251')
 	response = make_response(oirtsrvoutput, 200)
@@ -134,7 +134,7 @@ def verify_face():
 		vfilename = randomize_name(secure_filename(vfile.filename))
 		vfilepath = os.path.join(app.config['UPLOAD_FOLDER'], vfilename) 
 		vfile.save(vfilepath)
-		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-i%s" % efilepath, "-v%s" % vfilepath, "-d", "-t5"]), 200)
+		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-i%s" % efilepath, "-v%s" % vfilepath, "-d", "-t5"]), 200)
 		response.headers['Content-Type'] = "application/json"
 		return response														
 	return jsonify({"status": "Error", "info": "Files you have try to upload seems to be bad"}), 400	
@@ -148,14 +148,14 @@ def set_whitelist():
 	filepath = os.path.join(app.config['UPLOAD_FOLDER'], str(uuid.uuid4()) + '.json') 
 	with open(filepath, 'w') as outfile:
 		json.dump(whitelist, outfile)
-	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-w%s" % filepath, "-d", "-t6"]), 200)
+	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-w%s" % filepath, "-d", "-t6"]), 200)
 	response.headers['Content-Type'] = "application/json"
 	return response
 
 	
 @app.route("%s/whitelist/drop" % apiprefix, methods=['POST'])
 def drop_whitelist():
-	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%s" % str(oirtsrvport), "-t8"]), 200)
+	response = make_response(subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-t8"]), 200)
 	response.headers['Content-Type'] = "application/json"
 	return response		
 	

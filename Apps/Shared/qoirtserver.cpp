@@ -68,6 +68,7 @@ void QOIRTServer::readClient()
              quint8 _code;
              _ids >> _code;
              _task->taskcode = OIRTTask::getTaskCode(_code);
+             qDebug("Task code recieved: %d", _task->taskcode);
         }
 
         switch(_task->taskcode) {
