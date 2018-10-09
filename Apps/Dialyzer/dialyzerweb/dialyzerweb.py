@@ -45,7 +45,7 @@ def remember_image():
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport), "-i%s" % filepath, "-l%s" % labelinfo, "-t1"])
+		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport), "-i%s" % filepath, "-l%s" % labelinfo, "-d", "-t1"])
 		if OS_WIN:
 			dialyzersrvoutput = dialyzersrvoutput.decode('cp1251')
 		response = make_response(dialyzersrvoutput, 200)
@@ -76,7 +76,7 @@ def identify_image():
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport),  "-i%s" % filepath, "-t3"]) 
+		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport),  "-i%s" % filepath, "-d", "-t3"]) 
 		if OS_WIN:
 			dialyzersrvoutput = dialyzersrvoutput.decode('cp1251')
 		response = make_response(dialyzersrvoutput, 200)
@@ -96,7 +96,7 @@ def recognize_image():
 		filename = randomize_name(secure_filename(file.filename))
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
 		file.save(filepath)
-		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport),  "-i%s" % filepath, "-t7"]) 
+		dialyzersrvoutput = subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport),  "-i%s" % filepath, "-d", "-t7"]) 
 		if OS_WIN:
 			dialyzersrvoutput = dialyzersrvoutput.decode('cp1251')
 		response = make_response(dialyzersrvoutput, 200)
@@ -134,7 +134,7 @@ def verify_image():
 		vfilename = randomize_name(secure_filename(vfile.filename))
 		vfilepath = os.path.join(app.config['UPLOAD_FOLDER'], vfilename) 
 		vfile.save(vfilepath)
-		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport), "-i%s" % efilepath, "-v%s" % vfilepath, "-t5"]), 200)
+		response = make_response(subprocess.check_output(["oirtcli", "-a%s" % dialyzersrvaddr, "-p%s" % str(dialyzersrvport), "-i%s" % efilepath, "-v%s" % vfilepath, "-d", "-t5"]), 200)
 		response.headers['Content-Type'] = "application/json"
 		return response														
 	return jsonify({"status": "Error", "info": "Files you have try to upload seems to be bad"}), 400	
@@ -162,4 +162,4 @@ def drop_whitelist():
 	
 if __name__ == "__main__":
 	#app.run()
-	serve(app, host = "0.0.0.0", port = 5001)
+	serve(app, host = "0.0.0.0", port = 6000)
