@@ -89,7 +89,7 @@ void QOIRTCli::sendTask()
             _data = __readImgfileContent(vimgfilename);
             _ods << static_cast<qint32>(_data.size());
             _ods << _data;
-        }
+        } break;
 
         case OIRTTask::UpdateWhitelist: {
             qDebug("UpdateWhitelist");
