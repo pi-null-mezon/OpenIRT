@@ -1,0 +1,36 @@
+stages:
+ - build_container
+ - deploy_container
+ - notify
+
+build:docker-image:
+ stage: build_container
+ variables:
+  GIT_STRATEGY: fetch
+ script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+  - docker build --force-rm -t $CI_REGISTRY_IMAGE:$CI_REGISTRY_VER .
+
+deploy:docker-image:
+ stage: deploy_container
+ variables:
+  GIT_STRATEGY: none
+ dependencies: []
+ script:
+   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+   - docker push $CI_REGISTRY_IMAGE:$CI_REGISTRY_VER
+
+notify:on_success:
+ stage: notify
+ variables:
+  GIT_STRATEGY: none
+ dependencies: []
+ before_script:
+  - if [ -n "${CI_COMMIT_TAG}" ]; then export BUILD_VER=${CI_COMMIT_TAG}; export BUILD_ORIGIN="tag"; else export BUILD_VER=${CI_COMMIT_REF_NAME}; export BUILD_ORIGIN="branch"; fi
+ script:
+  - curl -X POST -H 'Content-type:application/json' --data "{\"icon_emoji\":\":white_check_mark:\", \"text\":\"Build success\",\"attachments\":[{\"text\":\"${BUILD_ORIGIN}:${BUILD_VER}\n pipeline_id:<${CI_PROJECT_URL}/pipelines/${CI_PIPELINE_ID}|${CI_PIPELINE_ID}>\"}]}" ${SLACK_URL}
+ tags:
+  - docker-host
+ when: on_success
+ except:
+  - triggers
