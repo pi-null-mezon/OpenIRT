@@ -45,6 +45,6 @@ EXPOSE 5000
 # Enable unicode support
 ENV LANG en_US.UTF-8
 	
-# Run server	
-CMD ./startwebsrv ; oirtsrv -a127.0.0.1 -l/var/facerec/labels.yml
+# Check server	
+CMD oirtsrv -h
     
