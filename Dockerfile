@@ -1,3 +1,4 @@
+# Qt5 + opencv3.4 (with libatlas) + dlib (with openblas) + python3 (with flask and waitress)
 FROM alextaranov/ubuntu18
 
 COPY /Sources /Sources 
@@ -39,12 +40,8 @@ RUN mkdir /home/Testdata && \
 	echo "python3 /Apps/Face/oirtweb/oirtwebsrv.py &" > startwebsrv && \
 	chmod +x startwebsrv
 
-# Port forwarding
+# This port is listening by oirtweb server by default
 EXPOSE 5000
 
 # Enable unicode support
-ENV LANG en_US.UTF-8
-	
-# Check server	
-CMD oirtsrv -h
-    
+ENV LANG en_US.UTF-8   
