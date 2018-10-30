@@ -1,8 +1,8 @@
 FROM alextaranov/ubuntu18
 
-COPY Sources Sources \
-     Shared Shared \
-     Apps Apps
+COPY /Sources /Sources 
+COPY /Shared /Shared 
+COPY /Apps /Apps
 
 # Download resources 
 RUN wget https://github.com/davisking/dlib-models/blob/master/dlib_face_recognition_resnet_model_v1.dat.bz2?raw=true && \
