@@ -17,12 +17,34 @@ RUN wget https://github.com/davisking/dlib-models/blob/master/dlib_face_recognit
     bzip2 -d shape_predictor_5_face_landmarks.dat.bz2 && \
     mv shape_predictor_5_face_landmarks.dat /usr/local/bin
 
-# Build sources 
+# Build oirtcli 
 RUN cd Apps/oirtcli && \
     mkdir build && cd build && \
     qmake ../oirtcli.pro && \
     make && \
     make install && \
-    cd ../ && rm -rf build && \
-    oirtcli -h
+    cd ../ && rm -rf build && cd ~
+	
+# Build oirtsrv 
+RUN cd Apps/Face/oirtsrv && \
+    mkdir build && cd build && \
+    qmake ../oirtsrv.pro && \
+    make -j2 && \
+    make install && \
+    cd ../ && rm -rf build && cd ~ && \
+	mkdir -p /var/facerec
+	
+# Prepare web server
+RUN mkdir /home/Testdata && \
+	echo "python3 /Apps/Face/oirtweb/oirtwebsrv.py &" > startwebsrv && \
+	chmod +x startwebsrv
+
+# Port forwarding
+EXPOSE 5000
+
+# Enable unicode support
+ENV LANG en_US.UTF-8
+	
+# Run server	
+CMD ./startwebsrv ; oirtsrv -a127.0.0.1 -l/var/facerec/labels.yml
     
