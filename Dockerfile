@@ -29,7 +29,7 @@ RUN apt-get install -y libavcodec-dev libavformat-dev libswscale-dev libtbb2 lib
           -D BUILD_opencv_flann=OFF \
           -D BUILD_opencv_photo=OFF \
           -D BUILD_opencv_video=OFF \
-		  -D BUILD_opencv_ts=OFF \
+          -D BUILD_opencv_ts=OFF \
           -D BUILD_opencv_java_bindings_generator=OFF \
           -D BUILD_opencv_python_bindings_generator=OFF \
           .. && \
@@ -63,7 +63,7 @@ RUN cd Apps/oirtcli && \
     qmake ../oirtcli.pro && \
     make && \
     make install && \
-    cd ../ && rm -rf build && cd ~
+    cd ../ && rm -rf build && cd ~/..
 	
 # Build oirtsrv 
 RUN cd Apps/Face/oirtsrv && \
@@ -71,7 +71,7 @@ RUN cd Apps/Face/oirtsrv && \
     qmake ../oirtsrv.pro && \
     make -j2 && \
     make install && \
-    cd ../ && rm -rf build && cd ~ && \
+    cd ../ && rm -rf build && cd ~/.. && \
 	mkdir -p /var/facerec
 	
 # Download resources 
