@@ -12,7 +12,7 @@ COPY /Shared /Shared
 COPY /Apps /Apps
 
 # Update OS and install build tools
-RUN pt-get update && \
+RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y build-essential cmake git pkg-config wget 
 
@@ -33,7 +33,7 @@ RUN apt-get install -y libavcodec-dev libavformat-dev libswscale-dev libtbb2 lib
           -D BUILD_opencv_java_bindings_generator=OFF \
           -D BUILD_opencv_python_bindings_generator=OFF \
           .. && \
-    make -j$(nproc) && \
+    make && \
     make install && \
     ldconfig && \
     cd ../../ && rm -rf opencv
@@ -69,7 +69,7 @@ RUN cd Apps/oirtcli && \
 RUN cd Apps/Face/oirtsrv && \
     mkdir build && cd build && \
     qmake ../oirtsrv.pro && \
-    make -j2 && \
+    make && \
     make install && \
     cd ../ && rm -rf build && cd ~/.. && \
 	mkdir -p /var/facerec
