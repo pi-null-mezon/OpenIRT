@@ -2,8 +2,22 @@
 
 namespace cv { namespace oirt {
 
+dlib::matrix<float> cvmat2dlibmatrix(const cv::Mat &_cvmat)
+{
+    assert(_cvmat.channels() == 1);
+    assert(_cvmat.depth() == CV_32F);
+    cv::Mat _mat = _cvmat;
+    if(_cvmat.isContinuous() == false)
+        _mat = _cvmat.clone();
+    float *_p = _mat.ptr<float>(0);
+    dlib::matrix<float> _img(_cvmat.rows,_cvmat.cols);
+    for(long i = 0; i < _cvmat.cols*_cvmat.rows; ++i)
+        _img(i) = _p[i];
+    return _img;
+}
+
 DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_descriptormodelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(500,200),CropMethod::Inside,ColorOrder::RGB,_disttype,_threshold)
+    CNNImageRecognizer(cv::Size(500,200),CropMethod::NoCrop,ColorOrder::Gray,_disttype,_threshold)
 {
     try {
         dlib::deserialize(_descriptormodelfile.c_str()) >> net;
@@ -18,12 +32,13 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
     // Prepare image
     cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
 
-    dlib::cv_image<dlib::rgb_pixel> _dlibcvimg(_preprocessedmat);
-    dlib::matrix<dlib::rgb_pixel> _dlibmatrix;
-    dlib::assign_image(_dlibmatrix,_dlibcvimg);
+    _preprocessedmat.convertTo(_preprocessedmat,CV_32F);
+    cv::Mat _vchannelmean, _vchannelstdev;
+    cv::meanStdDev(_preprocessedmat,_vchannelmean,_vchannelstdev);
+    _preprocessedmat = (_preprocessedmat - _vchannelmean.at<const double>(0)) / (3.0*_vchannelstdev.at<const double>(0));
+
     // Get description
-    dlib::matrix<float,0,1> _description = net(_dlibmatrix);
-    // Perform forward propagation
+    dlib::matrix<float,0,1> _description = net(cvmat2dlibmatrix(_preprocessedmat));
     return dlib::toMat(_description).reshape(1,1).clone();
 }
 
