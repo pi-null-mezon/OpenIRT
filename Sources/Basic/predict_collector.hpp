@@ -107,7 +107,7 @@ public:
     /** @brief Return results as vector
     @param sorted If set, results will be sorted by distance
     @param unique If set only unique labels will be returned
-    Each values is a pair of label and distance.
+    @note  each value is a pair of label and distance.
     */
     std::vector< std::pair<int, double> > getResults(bool sorted, bool unique) const;
     /** @brief Return results as map
