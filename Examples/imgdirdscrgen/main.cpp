@@ -39,12 +39,18 @@ int main(int argc, char *argv[])
     if(_cmdparser.has("model") == false) {
         qInfo("You have not provide model file name. Abort...");
         return 3;
+    } else {
+        QFileInfo _fi(_cmdparser.get<cv::String>("model").c_str());
+        if(!_fi.exists()) {
+            qInfo("Model file name you have provided does not exists. Abort...");
+            return 4;
+        }
     }
 
     QDir _dir(_cmdparser.get<cv::String>("inputdir").c_str());
     if(_dir.exists() == false) {
         qInfo("Input directory is not existed. Abort...");
-        return 4;
+        return 5;
     }
 
     qInfo("Step_1 - Uploading recognizer resources from HDD...");
