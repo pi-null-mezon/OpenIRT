@@ -102,7 +102,8 @@ std::vector< std::pair<int, double> > StandardCollector::getResults(bool sorted,
         std::sort(res.begin(), res.end(), &pairLabelLess);
         auto last = std::unique(res.begin(), res.end(), &pairEqualLabel);
         res.erase(last,res.end());
-    } else if(sorted) {
+    }
+    if(sorted) {
         std::sort(res.begin(), res.end(), &pairDistLess);
     }
     return res;
