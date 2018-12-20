@@ -99,7 +99,7 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
     for(size_t labelIdx = 0; labelIdx < lbls.total(); labelIdx++) {             
         if(_visualize) {
             cv::Mat _tmpmat = preprocessImageForCNN(raw[labelIdx], getInputSize(), getColorOrder(), getCropInput());
-            cv::imshow("CNNFaceRecognizer",_tmpmat);
+            cv::imshow("CNNImageRecognizer::__train",_tmpmat);
             cv::waitKey(1);
         }
         cv::Mat _dscrmat = getImageDescription(raw[labelIdx], _error);

@@ -193,7 +193,9 @@ inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorO
                     _outmat = cropOutsideWithJitter(_inmat,cvrng,_targetsize);
                 } break;
             }
-        }        
+        } else {
+            _outmat = _inmat;
+        }
     } else {
         _outmat = _inmat;
     }

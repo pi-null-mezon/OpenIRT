@@ -17,7 +17,7 @@ dlib::matrix<float> cvmat2dlibmatrix(const cv::Mat &_cvmat)
 }
 
 DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_descriptormodelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(500,200),CropMethod::NoCrop,ColorOrder::Gray,_disttype,_threshold)
+    CNNImageRecognizer(cv::Size(512,192),CropMethod::NoCrop,ColorOrder::Gray,_disttype,_threshold)
 {
     try {
         dlib::deserialize(_descriptormodelfile.c_str()) >> net;
