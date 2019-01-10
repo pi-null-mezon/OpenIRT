@@ -54,6 +54,7 @@ public:
 
 private:
     mutable dlib::anet_type net;
+    mutable cv::RNG cvrng;
 };
 
 Ptr<CNNImageRecognizer> createDlibWhalesRecognizer(const String &_descriptormodelfile="dlib_whales_metric_resnet.dat", DistanceType _disttype=DistanceType::Euclidean, double _threshold=DBL_MAX);

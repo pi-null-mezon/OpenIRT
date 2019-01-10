@@ -29,8 +29,9 @@ DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_descriptormodelfile, D
 Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     cv::String _str = _blobname; // to suppress 'unused variable' compiler warning
+
     // Prepare image
-    cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
+    cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput(),cvrng);
 
     _preprocessedmat.convertTo(_preprocessedmat,CV_32F);
     cv::Mat _vchannelmean, _vchannelstdev;
@@ -39,6 +40,20 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
 
     // Get description
     dlib::matrix<float,0,1> _description = net(cvmat2dlibmatrix(_preprocessedmat));
+
+
+    /*std::vector<dlib::matrix<float>> _crops;
+    _crops.resize(33);
+    for(size_t i = 0; i < _crops.size(); ++i) {
+        cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput(),cvrng);
+        _preprocessedmat.convertTo(_preprocessedmat,CV_32F);
+        cv::Mat _vchannelmean, _vchannelstdev;
+        cv::meanStdDev(_preprocessedmat,_vchannelmean,_vchannelstdev);
+        _preprocessedmat = (_preprocessedmat - _vchannelmean.at<const double>(0)) / (3.0*_vchannelstdev.at<const double>(0));
+        _crops[i] = cvmat2dlibmatrix(_preprocessedmat);
+    }
+    dlib::matrix<float,0,1> _description = dlib::mean(dlib::mat(net(_crops)));*/
+
     return dlib::toMat(_description).reshape(1,1).clone();
 }
 

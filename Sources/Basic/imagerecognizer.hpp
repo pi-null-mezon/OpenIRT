@@ -131,6 +131,9 @@ protected:
     // errorsInfo should be defined in the descendants, zero error will be used as "no error" code
     std::map<int, String> errorsInfo;
 
+    // Some image augmentation techniques demand random number generators
+    cv::RNG cvrng;
+
     DistanceType    distanceType;   
     double          threshold;
     Size            inputSize;

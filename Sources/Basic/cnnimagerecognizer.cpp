@@ -98,7 +98,7 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
     // append labels and images to the storage
     for(size_t labelIdx = 0; labelIdx < lbls.total(); labelIdx++) {             
         if(_visualize) {
-            cv::Mat _tmpmat = preprocessImageForCNN(raw[labelIdx], getInputSize(), getColorOrder(), getCropInput());
+            cv::Mat _tmpmat = preprocessImageForCNN(raw[labelIdx], getInputSize(), getColorOrder(), getCropInput(), cvrng);
             cv::imshow("CNNImageRecognizer::__train",_tmpmat);
             cv::waitKey(1);
         }

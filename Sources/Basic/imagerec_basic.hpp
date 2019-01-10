@@ -14,8 +14,9 @@ namespace cv { namespace oirt {
 enum DistanceType {Euclidean, Cosine};
 /**
  * @brief The CropMethod enum defines how image will be preprocessed
+ * @note  makes sense only if target size.width !=0 and target size.width != 0
  */
-enum CropMethod {NoCrop, Inside, Outside, OutsideJitter};
+enum CropMethod {NoCrop, Inside, Outside, Jitter};
 /**
  * @brief The ColorOrder enum defines how image will be preprocessed
  */
@@ -140,18 +141,19 @@ inline cv::Mat cropOutsideFromCenterAndResize(const cv::Mat &input, cv::Size siz
  * @param _maxshift - translation deviation
  * @param _maxangle - angle deviation in degrees
  * @param _bordertype - opencv border type
+ * @param _alwaysshrink - if scale should be always less or equal to 1
  * @return transformed image
  */
-inline cv::Mat cropOutsideWithJitter(const cv::Mat &_inmat, cv::RNG &_cvrng, const cv::Size &_targetsize=cv::Size(0,0), double _maxscale=0.05, double _maxshift=0.02, double _maxangle=3.0, int _bordertype=cv::BORDER_CONSTANT)
+inline cv::Mat jitterimage(const cv::Mat &_inmat, cv::RNG &_cvrng, const cv::Size &_targetsize=cv::Size(0,0), double _maxscale=0.05, double _maxshift=0.03, double _maxangle=7, int _bordertype=cv::BORDER_REFLECT101, bool _alwaysshrink=true)
 {
     cv::Mat _outmat;
     const cv::Size _insize(_inmat.cols,_inmat.rows);
-    double _scale = 1.0;
+    double _scale = 1.;
     if(_targetsize.area() > 0)
         _scale = std::min((double)_targetsize.width/_insize.width, (double)_targetsize.height/_insize.height);
     cv::Mat _matrix = cv::getRotationMatrix2D(cv::Point2f(_inmat.cols/2.f,_inmat.rows/2.f),
                                               _maxangle * (_cvrng.uniform(0.,2.) - 1.),
-                                              _scale * (1. + _maxscale*(_cvrng.uniform(0.,2.) - 1.)));
+                                              _alwaysshrink ? _scale * (1. - _maxscale*_cvrng.uniform(0.,1.0)) : _scale * (1. + _maxscale*(_cvrng.uniform(0.,2.) - 1.)));
     if((_targetsize.width > 0) && (_targetsize.height > 0)) {
         _matrix.at<double>(0,2) += -(_insize.width - _targetsize.width) / 2.;
         _matrix.at<double>(1,2) += -(_insize.height - _targetsize.height) / 2.;
@@ -165,7 +167,7 @@ inline cv::Mat cropOutsideWithJitter(const cv::Mat &_inmat, cv::RNG &_cvrng, con
     return _outmat;
 }
 
-inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorOrder _targetcolororder, CropMethod _crop)
+inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorOrder _targetcolororder, CropMethod _crop, cv::RNG &_cvrng)
 {
     cv::Mat _outmat;
     // First we need to make resize if needed
@@ -188,10 +190,9 @@ inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorO
                     _outmat = cropOutsideFromCenterAndResize(_inmat, _targetsize);
                     break;
 
-                case CropMethod::OutsideJitter: {
-                    cv::RNG cvrng(0);
-                    _outmat = cropOutsideWithJitter(_inmat,cvrng,_targetsize);
-                } break;
+                case CropMethod::Jitter:
+                    _outmat = jitterimage(_inmat,_cvrng,_targetsize);
+                    break;
             }
         } else {
             _outmat = _inmat;
