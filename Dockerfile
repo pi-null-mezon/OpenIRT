@@ -19,7 +19,7 @@ RUN apt-get update && \
 # Build opencv
 RUN apt-get install -y libavcodec-dev libavformat-dev libswscale-dev libtbb2 libtbb-dev libjpeg-dev libpng-dev libatlas-base-dev && \
     git clone https://github.com/opencv/opencv.git opencv && cd opencv && git checkout 3.4 && mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=RELEASE \
+    cmake -D CMAKE_BUILD_TYPE=RELEASE \
           -D CMAKE_INSTALL_PREFIX=/usr/local \
           -D INSTALL_C_EXAMPLES=OFF \
           -D INSTALL_PYTHON_EXAMPLES=OFF \
