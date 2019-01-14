@@ -132,7 +132,7 @@ protected:
     std::map<int, String> errorsInfo;
 
     // Some image augmentation techniques demand random number generators
-    cv::RNG cvrng;
+    mutable cv::RNG cvrng;
 
     DistanceType    distanceType;   
     double          threshold;
