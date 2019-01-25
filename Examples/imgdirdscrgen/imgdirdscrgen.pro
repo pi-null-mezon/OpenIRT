@@ -30,3 +30,8 @@ include($${PWD}/../../Sources/Basic/imagerecognizer.pri)
 #include($${PWD}/../../Sources/Face/dlibfacerecognizer.pri)
 include($${PWD}/../../Sources/Kaggle/Whales/dlibwhalesrecognizer.pri)
 #include($${PWD}/../../Sources/Kaggle/Furniture/furniturerecognizer.pri)
+
+unix {
+   target.path = /usr/local/bin
+   INSTALLS += target
+}
