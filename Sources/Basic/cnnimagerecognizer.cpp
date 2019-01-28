@@ -23,6 +23,13 @@ void CNNImageRecognizer::update(InputArrayOfArrays src, InputArray labels, bool 
     __train(src, labels, true, _visualize, _error);
 }
 
+void CNNImageRecognizer::addKnownDescription(const Mat &_dscrmat, int _label)
+{
+    v_labels.push_back(_label);
+    v_descriptions.push_back(_dscrmat);
+    v_whitelist.push_back(0x01); // 0x00 - not in the white list, all values greater than 0x01 - in the list
+}
+
 int CNNImageRecognizer::remove(InputArray labels)
 {
     int _removed = 0;
@@ -110,7 +117,7 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
         }
         v_labels.push_back(lbls.at<int>(static_cast<int>(labelIdx)));
         v_descriptions.push_back(_dscrmat);
-        v_whitelist.push_back(0x01); // 0x00 - not in list, all values greater than 0x00 - in list
+        v_whitelist.push_back(0x01); // 0x00 - not in the white list, all values greater than 0x01 - in the list
     }
 }
 
