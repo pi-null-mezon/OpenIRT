@@ -163,7 +163,7 @@ inline cv::Mat jitterimage(const cv::Mat &_inmat, cv::RNG &_cvrng, const cv::Siz
     cv::warpAffine(_inmat,_outmat,_matrix,
                    _targetsize,
                    _insize.area() > _targetsize.area() ? CV_INTER_AREA : CV_INTER_CUBIC,
-                   _bordertype,cv::Scalar(104,117,123));
+                   _bordertype,cv::mean(_inmat));
     return _outmat;
 }
 

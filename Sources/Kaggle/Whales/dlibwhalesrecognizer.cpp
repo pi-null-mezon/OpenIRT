@@ -16,11 +16,30 @@ dlib::matrix<float> cvmat2dlibmatrix(const cv::Mat &_cvmat)
     return _img;
 }
 
-DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_descriptormodelfile, DistanceType _disttype, double _threshold) :
+DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_modelsfiles, DistanceType _disttype, double _threshold) :
     CNNImageRecognizer(cv::Size(512,192),CropMethod::NoCrop,ColorOrder::Gray,_disttype,_threshold)
 {
+    size_t pos1 = _modelsfiles.find(';');
+    if(pos1 != std::string::npos) {
+        try {
+            std::cout << "  " << _modelsfiles.substr(0,pos1) << std::endl;
+            dlib::deserialize(_modelsfiles.substr(0,pos1)) >> net_one;
+        } catch(const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
+    }
+    size_t pos2 = _modelsfiles.find(';',pos1+1);
+    if(pos2 != std::string::npos) {
+        try {
+            std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
+            dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> net_two;
+        } catch(const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
+    }
     try {
-        dlib::deserialize(_descriptormodelfile.c_str()) >> net;
+        std::cout << "  " << _modelsfiles.substr(pos2+1,_modelsfiles.size()-pos2-1) << std::endl;
+        dlib::deserialize(_modelsfiles.substr(pos2+1,_modelsfiles.size()-pos2-1)) >> net_three;
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
@@ -39,8 +58,16 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
     _preprocessedmat = (_preprocessedmat - _vchannelmean.at<const double>(0)) / (3.0*_vchannelstdev.at<const double>(0));
 
     // Get description
-    dlib::matrix<float,0,1> _description = net(cvmat2dlibmatrix(_preprocessedmat));
+    std::vector<cv::Mat> _vdscr;
+    dlib::matrix<float,0,1> _dscr1 = net_one(cvmat2dlibmatrix(_preprocessedmat));
+    _vdscr.push_back(dlib::toMat(_dscr1));
+    dlib::matrix<float,0,1> _dscr2 = net_two(cvmat2dlibmatrix(_preprocessedmat));
+    _vdscr.push_back(dlib::toMat(_dscr2));
+    dlib::matrix<float,0,1> _dscr3 = net_three(cvmat2dlibmatrix(_preprocessedmat));
+    _vdscr.push_back(dlib::toMat(_dscr3));
 
+    cv::Mat _dscr;
+    cv::merge(_vdscr,_dscr);
 
     /*std::vector<dlib::matrix<float>> _crops;
     _crops.resize(33);
@@ -52,9 +79,9 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
         _preprocessedmat = (_preprocessedmat - _vchannelmean.at<const double>(0)) / (3.0*_vchannelstdev.at<const double>(0));
         _crops[i] = cvmat2dlibmatrix(_preprocessedmat);
     }
-    dlib::matrix<float,0,1> _description = dlib::mean(dlib::mat(net(_crops)));*/
+    dlib::matrix<float,0,1> _description = dlib::mean(dlib::mat(net_one_1(_crops)));*/
 
-    return dlib::toMat(_description).reshape(1,1).clone();
+    return _dscr.reshape(1,1);
 }
 
 Mat DlibWhalesRecognizer::getImageDescription(const Mat &_img, int *_error) const
@@ -82,9 +109,9 @@ void DlibWhalesRecognizer::predict(InputArray src, Ptr<PredictCollector> collect
     }
 }
 
-Ptr<CNNImageRecognizer> createDlibWhalesRecognizer(const String &_descriptormodelfile, DistanceType _disttype, double _threshold)
+Ptr<CNNImageRecognizer> createDlibWhalesRecognizer(const String &_modelsfiles, DistanceType _disttype, double _threshold)
 {
-    return makePtr<DlibWhalesRecognizer>(_descriptormodelfile,_disttype,_threshold);
+    return makePtr<DlibWhalesRecognizer>(_modelsfiles,_disttype,_threshold);
 }
 
 }

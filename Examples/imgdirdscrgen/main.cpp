@@ -14,7 +14,7 @@
 const cv::String options = "{help h       |       | show app's help}"
                            "{inputdir i   |       | set input directory in which subdirs will be searched}"
                            "{outputfile o |       | set output filename}"
-                           "{model m      |       | set model filename}"
+                           "{model m      |       | set model filename/filenames (separate filenames by ;)}"
                            "{aggavg       | false | aggregate descriptions for label by averaging}"
                            "{aggmed       | false | aggregate descriptions for label by median}"
                            "{hflip        | false | add description of a horizontal flipped copy of image}"
@@ -47,10 +47,12 @@ int main(int argc, char *argv[])
         qInfo("You have not provide model file name! Abort...");
         return 3;
     } else {
-        QFileInfo _fi(_cmdparser.get<cv::String>("model").c_str());
-        if(!_fi.exists()) {
-            qInfo("Model file you have provided does not exists! Abort...");
-            return 4;
+        QStringList _models_list = QString(_cmdparser.get<cv::String>("model").c_str()).split(';');
+        for(int i = 0; i < _models_list.size(); ++i) {
+            if(QFileInfo(_models_list.at(i)).exists() == false) {
+                qInfo("Model file '%s' does not exists! Abort...", _models_list.at(i).toUtf8().constData());
+                return 4;
+            }
         }
     }
 
