@@ -23,7 +23,7 @@ DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_modelsfiles, DistanceT
     if(pos1 != std::string::npos) {
         try {
             std::cout << "  " << _modelsfiles.substr(0,pos1) << std::endl;
-            dlib::deserialize(_modelsfiles.substr(0,pos1)) >> net_one;
+            dlib::deserialize(_modelsfiles.substr(0,pos1)) >> resnet1;
         } catch(const std::exception& e) {
             std::cout << e.what() << std::endl;
         }
@@ -32,14 +32,23 @@ DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_modelsfiles, DistanceT
     if(pos2 != std::string::npos) {
         try {
             std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
-            dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> net_two;
+            dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> resnet2;
+        } catch(const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
+    }
+    size_t pos3 = _modelsfiles.find(';',pos2+1);
+    if(pos3 != std::string::npos) {
+        try {
+            std::cout << "  " << _modelsfiles.substr(pos2+1,pos3-pos2-1) << std::endl;
+            dlib::deserialize(_modelsfiles.substr(pos2+1,pos3-pos2-1)) >> resnet3;
         } catch(const std::exception& e) {
             std::cout << e.what() << std::endl;
         }
     }
     try {
-        std::cout << "  " << _modelsfiles.substr(pos2+1,_modelsfiles.size()-pos2-1) << std::endl;
-        dlib::deserialize(_modelsfiles.substr(pos2+1,_modelsfiles.size()-pos2-1)) >> net_three;
+        std::cout << "  " << _modelsfiles.substr(pos3+1,_modelsfiles.size()-pos3-1) << std::endl;
+        dlib::deserialize(_modelsfiles.substr(pos3+1,_modelsfiles.size()-pos3-1)) >> exresnet;
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
@@ -59,12 +68,14 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
 
     // Get description
     std::vector<cv::Mat> _vdscr;
-    dlib::matrix<float,0,1> _dscr1 = net_one(cvmat2dlibmatrix(_preprocessedmat));
+    dlib::matrix<float,0,1> _dscr1 = resnet1(cvmat2dlibmatrix(_preprocessedmat));
     _vdscr.push_back(dlib::toMat(_dscr1));
-    dlib::matrix<float,0,1> _dscr2 = net_two(cvmat2dlibmatrix(_preprocessedmat));
+    dlib::matrix<float,0,1> _dscr2 = resnet2(cvmat2dlibmatrix(_preprocessedmat));
     _vdscr.push_back(dlib::toMat(_dscr2));
-    dlib::matrix<float,0,1> _dscr3 = net_three(cvmat2dlibmatrix(_preprocessedmat));
+    dlib::matrix<float,0,1> _dscr3 = resnet3(cvmat2dlibmatrix(_preprocessedmat));
     _vdscr.push_back(dlib::toMat(_dscr3));
+    dlib::matrix<float,0,1> _dscr4 = exresnet(cvmat2dlibmatrix(_preprocessedmat));
+    _vdscr.push_back(dlib::toMat(_dscr4));
 
     cv::Mat _dscr;
     cv::merge(_vdscr,_dscr);

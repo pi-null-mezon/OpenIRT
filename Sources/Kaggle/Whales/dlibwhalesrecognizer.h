@@ -54,7 +54,7 @@ using resnet16 =  loss_metric<fc_no_bias<128,avg_pool_everything<
                             input<matrix<float>>
                             >>>>>>>>>>>;
 
-using resnet16_ex = loss_metric<fc_no_bias<128,avg_pool_everything<
+using exresnet16 = loss_metric<fc_no_bias<128,avg_pool_everything<
                                 alevel0<
                                 alevel1<
                                 alevel2_ex<
@@ -73,6 +73,25 @@ using sqresnet16 = loss_metric<fc_no_bias<128,avg_pool_everything<
                             relu<affine<con<FNUM,7,7,2,2,
                             input<matrix<float>>
                             >>>>>>>>>>>;
+
+template <int N, template <typename> class BN, typename SUBNET>
+using blk  = relu<BN<con<N,3,3,1,1,relu<BN<con<4*N,1,1,1,1,SUBNET>>>>>>;
+
+template <int N, int K, template <typename> class BN, typename SUBNET>
+using dense_block3 = relu<BN<con<N,1,1,1,1, concat4<tag4,tag3,tag2,tag1, tag4<blk<K,BN,concat3<tag3,tag2,tag1,  tag3<blk<K,BN,concat2<tag2,tag1, tag2<blk<K,BN, tag1<SUBNET>>>>>>>>>>>>>;
+
+template <int N, int K, typename SUBNET> using adense3 = dense_block3<N,K,affine,SUBNET>;
+
+using densenet16 =   loss_metric<fc_no_bias<128,
+                            avg_pool_everything<adense3<128,16,
+                            avg_pool<2,2,2,2,adense3<128,16,
+                            avg_pool<2,2,2,2,adense3<128,16,
+                            avg_pool<2,2,2,2,adense3<128,16,
+                            avg_pool<2,2,2,2,adense3<128,16,
+                            avg_pool<2,2,2,2,relu<affine<con<16,7,7,2,2,
+                            input<matrix<float>>
+                            >>>>>>>>>>>>>>>>;
+
 }
 
 namespace cv { namespace oirt {
@@ -87,9 +106,10 @@ public:
     void  predict(InputArray src, Ptr<PredictCollector> collector, int *_error=nullptr) const override;
 
 private:
-    mutable dlib::resnet16 net_one;
-    mutable dlib::resnet16_ex net_two;
-    mutable dlib::sqresnet16 net_three;
+    mutable dlib::resnet16 resnet1;
+    mutable dlib::resnet16 resnet2;
+    mutable dlib::resnet16 resnet3;
+    mutable dlib::exresnet16 exresnet;
     mutable cv::RNG cvrng;
 };
 

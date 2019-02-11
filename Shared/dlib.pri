@@ -14,9 +14,8 @@ win32 {
         DLIB_ARCHITECTURE = x86
     }
 
-    PATH_TO_DLIB_RESOURCES = C:/Programming/3rdParties/Dlib/build_$${DLIB_COMPILER}$${DLIB_ARCHITECTURE}/etc/data
-
     DLIB_INSTALL_PATH = C:/Programming/3rdParties/Dlib/build_$${DLIB_COMPILER}$${DLIB_ARCHITECTURE}
+
     INCLUDEPATH += $${DLIB_INSTALL_PATH}/include
     LIBS += -L$${DLIB_INSTALL_PATH}/lib    
 }
@@ -26,7 +25,7 @@ LIBS += -ldlib
 linux {
 
     #if Dlib had been built with OpenBLAS
-    CONFIG += openblasbackend
+    #CONFIG += openblasbackend
 
     openblasbackend {
         message(OpenBLAS backend enabled)
@@ -34,12 +33,12 @@ linux {
     }
 
     # if Dlib had been built with CUDA
-    #CONFIG += cudabackend
+    CONFIG += cudabackend
 
     cudabackend {
         message(CUDA backend enabled)
-        #LIBS += -L/usr/local/cuda-9.1/lib64 # remove in the future
-		LIBS += -L/usr/local/cuda/lib64
+        LIBS += -L/usr/local/cuda-9.1/lib64 # remove in the future
+        #LIBS += -L/usr/local/cuda/lib64
         LIBS += -lcudnn \
                 -lpthread \
                 -lcuda \
@@ -52,7 +51,5 @@ linux {
     }
 
 }
-
-DEFINES += PATH_TO_DLIB_RES=\\\"$${PATH_TO_DLIB_RESOURCES}\\\"
 
 

@@ -55,5 +55,3 @@ win32 {
             -lopencv_imgcodecs \
             -lopencv_dnn
 }
-
-DEFINES += OPENCV_DIR=\\\"$${OPENCV_DIR}\\\"
