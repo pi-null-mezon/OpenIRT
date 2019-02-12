@@ -53,14 +53,12 @@ DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_modelsfiles, DistanceT
         std::cout << e.what() << std::endl;
     }
 
-    pos1 = pos2;
-    pos2 = _modelsfiles.find(';',pos1+1);
-    try {
+    /*try {
         std::cout << "  " << _modelsfiles.substr(pos2+1,_modelsfiles.size()-pos2-1) << std::endl;
         dlib::deserialize(_modelsfiles.substr(pos2+1,_modelsfiles.size()-pos2-1)) >> headnet;
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
-    }
+    }*/
 }
 
 Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
@@ -88,7 +86,7 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
 
     cv::Mat _dscr;
     cv::merge(_vdscr,_dscr);
-    //return _dscr.reshape(1,1);
+    return _dscr.reshape(1,1);
 
     dlib::matrix<float,0,1> _headdscr = headnet(cvmat2dlibmatrix(_dscr.reshape(1,1)));
     return dlib::toMat(_headdscr).clone().reshape(1,1);
