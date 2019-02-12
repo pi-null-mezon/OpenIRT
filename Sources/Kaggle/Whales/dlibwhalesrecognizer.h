@@ -21,11 +21,7 @@ using residual_down = add_prev2<avg_pool<2,2,2,2,skip1<tag2<block<N,BN,2,tag1<SU
 template <int N, template <typename> class BN, int stride, typename SUBNET>
 using block  = BN<con<N,3,3,1,1,relu<BN<con<N,3,3,stride,stride,SUBNET>>>>>;
 
-template <int N, template <typename> class BN, int stride, typename SUBNET>
-using sqblock  = BN<con<N,1,1,1,1,relu<BN<con<N/4,3,3,1,1,relu<BN<con<N/4,1,1,1,1,SUBNET>>>>>>>>;
-
 template <int N, typename SUBNET> using ares      = relu<residual<block,N,affine,SUBNET>>;
-template <int N, typename SUBNET> using ares_sq   = relu<residual<sqblock,N,affine,SUBNET>>;
 template <int N, typename SUBNET> using ares_down = relu<residual_down<block,N,affine,SUBNET>>;
 
 template <typename SUBNET> using alevel0 = ares<32*FNUM,ares_down<32*FNUM,SUBNET>>;
@@ -37,12 +33,6 @@ template <typename SUBNET> using alevel4 = ares<2*FNUM,ares_down<2*FNUM,SUBNET>>
 template <typename SUBNET> using alevel2_ex = ares<8*FNUM,ares<8*FNUM,ares_down<8*FNUM,SUBNET>>>;
 template <typename SUBNET> using alevel3_ex = ares<4*FNUM,ares<4*FNUM,ares<4*FNUM,ares_down<4*FNUM,SUBNET>>>>;
 template <typename SUBNET> using alevel4_ex = ares<2*FNUM,ares<2*FNUM,ares_down<2*FNUM,SUBNET>>>;
-
-template <typename SUBNET> using alevel0_sq = ares_sq<32*FNUM,ares_down<32*FNUM,SUBNET>>;
-template <typename SUBNET> using alevel1_sq = ares_sq<16*FNUM,ares_down<16*FNUM,SUBNET>>;
-template <typename SUBNET> using alevel2_sq = ares_sq<8*FNUM,ares_down<8*FNUM,SUBNET>>;
-template <typename SUBNET> using alevel3_sq = ares_sq<4*FNUM,ares_down<4*FNUM,SUBNET>>;
-template <typename SUBNET> using alevel4_sq = ares_sq<2*FNUM,ares_down<2*FNUM,SUBNET>>;
 
 using resnet16 =  loss_metric<fc_no_bias<128,avg_pool_everything<
                             alevel0<
@@ -64,34 +54,11 @@ using exresnet16 = loss_metric<fc_no_bias<128,avg_pool_everything<
                                 input<matrix<float>>
                                 >>>>>>>>>>>;
 
-using sqresnet16 = loss_metric<fc_no_bias<128,avg_pool_everything<
-                            alevel0_sq<
-                            alevel1_sq<
-                            alevel2_sq<
-                            alevel3_sq<
-                            alevel4_sq<
-                            relu<affine<con<FNUM,7,7,2,2,
-                            input<matrix<float>>
-                            >>>>>>>>>>>;
 
-template <int N, template <typename> class BN, typename SUBNET>
-using blk  = relu<BN<con<N,3,3,1,1,relu<BN<con<4*N,1,1,1,1,SUBNET>>>>>>;
-
-template <int N, int K, template <typename> class BN, typename SUBNET>
-using dense_block3 = relu<BN<con<N,1,1,1,1, concat4<tag4,tag3,tag2,tag1, tag4<blk<K,BN,concat3<tag3,tag2,tag1,  tag3<blk<K,BN,concat2<tag2,tag1, tag2<blk<K,BN, tag1<SUBNET>>>>>>>>>>>>>;
-
-template <int N, int K, typename SUBNET> using adense3 = dense_block3<N,K,affine,SUBNET>;
-
-using densenet16 =   loss_metric<fc_no_bias<128,
-                            avg_pool_everything<adense3<128,16,
-                            avg_pool<2,2,2,2,adense3<128,16,
-                            avg_pool<2,2,2,2,adense3<128,16,
-                            avg_pool<2,2,2,2,adense3<128,16,
-                            avg_pool<2,2,2,2,adense3<128,16,
-                            avg_pool<2,2,2,2,relu<affine<con<16,7,7,2,2,
-                            input<matrix<float>>
-                            >>>>>>>>>>>>>>>>;
-
+using headnet = loss_metric<fc_no_bias<512,
+                              relu<affine<fc<512,
+                              relu<affine<fc<512,
+                              input<matrix<float>>>>>>>>>>;
 }
 
 namespace cv { namespace oirt {
@@ -110,6 +77,7 @@ private:
     mutable dlib::resnet16 resnet2;
     mutable dlib::resnet16 resnet3;
     mutable dlib::exresnet16 exresnet;
+    mutable dlib::headnet headnet;
     mutable cv::RNG cvrng;
 };
 

@@ -20,35 +20,44 @@ DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_modelsfiles, DistanceT
     CNNImageRecognizer(cv::Size(512,192),CropMethod::NoCrop,ColorOrder::Gray,_disttype,_threshold)
 {
     size_t pos1 = _modelsfiles.find(';');
-    if(pos1 != std::string::npos) {
-        try {
-            std::cout << "  " << _modelsfiles.substr(0,pos1) << std::endl;
-            dlib::deserialize(_modelsfiles.substr(0,pos1)) >> resnet1;
-        } catch(const std::exception& e) {
-            std::cout << e.what() << std::endl;
-        }
-    }
-    size_t pos2 = _modelsfiles.find(';',pos1+1);
-    if(pos2 != std::string::npos) {
-        try {
-            std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
-            dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> resnet2;
-        } catch(const std::exception& e) {
-            std::cout << e.what() << std::endl;
-        }
-    }
-    size_t pos3 = _modelsfiles.find(';',pos2+1);
-    if(pos3 != std::string::npos) {
-        try {
-            std::cout << "  " << _modelsfiles.substr(pos2+1,pos3-pos2-1) << std::endl;
-            dlib::deserialize(_modelsfiles.substr(pos2+1,pos3-pos2-1)) >> resnet3;
-        } catch(const std::exception& e) {
-            std::cout << e.what() << std::endl;
-        }
-    }
     try {
-        std::cout << "  " << _modelsfiles.substr(pos3+1,_modelsfiles.size()-pos3-1) << std::endl;
-        dlib::deserialize(_modelsfiles.substr(pos3+1,_modelsfiles.size()-pos3-1)) >> exresnet;
+        std::cout << "  " << _modelsfiles.substr(0,pos1) << std::endl;
+        dlib::deserialize(_modelsfiles.substr(0,pos1)) >> resnet1;
+    } catch(const std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+
+    size_t pos2 = _modelsfiles.find(';',pos1+1);
+    try {
+        std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
+        dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> resnet2;
+    } catch(const std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+
+    pos1 = pos2;
+    pos2 = _modelsfiles.find(';',pos1+1);
+    try {
+        std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
+        dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> resnet3;
+    } catch(const std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+
+    pos1 = pos2;
+    pos2 = _modelsfiles.find(';',pos1+1);
+    try {
+        std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
+        dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> exresnet;
+    } catch(const std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+
+    pos1 = pos2;
+    pos2 = _modelsfiles.find(';',pos1+1);
+    try {
+        std::cout << "  " << _modelsfiles.substr(pos2+1,_modelsfiles.size()-pos2-1) << std::endl;
+        dlib::deserialize(_modelsfiles.substr(pos2+1,_modelsfiles.size()-pos2-1)) >> headnet;
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
@@ -79,6 +88,10 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
 
     cv::Mat _dscr;
     cv::merge(_vdscr,_dscr);
+    //return _dscr.reshape(1,1);
+
+    dlib::matrix<float,0,1> _headdscr = headnet(cvmat2dlibmatrix(_dscr.reshape(1,1)));
+    return dlib::toMat(_headdscr).clone().reshape(1,1);
 
     /*std::vector<dlib::matrix<float>> _crops;
     _crops.resize(33);
@@ -90,9 +103,8 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
         _preprocessedmat = (_preprocessedmat - _vchannelmean.at<const double>(0)) / (3.0*_vchannelstdev.at<const double>(0));
         _crops[i] = cvmat2dlibmatrix(_preprocessedmat);
     }
-    dlib::matrix<float,0,1> _description = dlib::mean(dlib::mat(net_one_1(_crops)));*/
-
-    return _dscr.reshape(1,1);
+    dlib::matrix<float,0,1> _description = dlib::mean(dlib::mat(net_one_1(_crops)));
+    return dlib::toMat(_description).clone().reshape(1,1);*/
 }
 
 Mat DlibWhalesRecognizer::getImageDescription(const Mat &_img, int *_error) const
