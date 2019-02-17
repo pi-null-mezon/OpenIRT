@@ -24,15 +24,24 @@ using block  = BN<con<N,3,3,1,1,relu<BN<con<N,3,3,stride,stride,SUBNET>>>>>;
 template <int N, typename SUBNET> using ares      = relu<residual<block,N,affine,SUBNET>>;
 template <int N, typename SUBNET> using ares_down = relu<residual_down<block,N,affine,SUBNET>>;
 
+template <typename SUBNET> using alevel  = ares<64*FNUM,ares_down<64*FNUM,SUBNET>>;
 template <typename SUBNET> using alevel0 = ares<32*FNUM,ares_down<32*FNUM,SUBNET>>;
 template <typename SUBNET> using alevel1 = ares<16*FNUM,ares_down<16*FNUM,SUBNET>>;
 template <typename SUBNET> using alevel2 = ares<8*FNUM,ares_down<8*FNUM,SUBNET>>;
 template <typename SUBNET> using alevel3 = ares<4*FNUM,ares_down<4*FNUM,SUBNET>>;
 template <typename SUBNET> using alevel4 = ares<2*FNUM,ares_down<2*FNUM,SUBNET>>;
 
+
 template <typename SUBNET> using alevel2_ex = ares<8*FNUM,ares<8*FNUM,ares_down<8*FNUM,SUBNET>>>;
 template <typename SUBNET> using alevel3_ex = ares<4*FNUM,ares<4*FNUM,ares<4*FNUM,ares_down<4*FNUM,SUBNET>>>>;
 template <typename SUBNET> using alevel4_ex = ares<2*FNUM,ares<2*FNUM,ares_down<2*FNUM,SUBNET>>>;
+
+
+template <typename SUBNET> using alevel0_ex2 = ares<32*FNUM,ares<32*FNUM,ares_down<32*FNUM,SUBNET>>>;
+template <typename SUBNET> using alevel1_ex2 = ares<16*FNUM,ares<16*FNUM,ares_down<16*FNUM,SUBNET>>>;
+template <typename SUBNET> using alevel2_ex2 = ares<8*FNUM,ares<8*FNUM,ares_down<8*FNUM,SUBNET>>>;
+template <typename SUBNET> using alevel3_ex2 = ares<4*FNUM,ares<4*FNUM,ares<4*FNUM,ares_down<4*FNUM,SUBNET>>>>;
+template <typename SUBNET> using alevel4_ex2 = ares<2*FNUM,ares<2*FNUM,ares<2*FNUM,ares_down<2*FNUM,SUBNET>>>>;
 
 using resnet16 =  loss_metric<fc_no_bias<128,avg_pool_everything<
                             alevel0<
@@ -41,6 +50,16 @@ using resnet16 =  loss_metric<fc_no_bias<128,avg_pool_everything<
                             alevel3<
                             alevel4<
                             relu<affine<con<FNUM,7,7,2,2,
+                            input<matrix<float>>
+                            >>>>>>>>>>>;
+
+using resnet32 =  loss_metric<fc_no_bias<128,avg_pool_everything<
+                            alevel<
+                            alevel0<
+                            alevel1<
+                            alevel2<
+                            alevel3<
+                            relu<affine<con<2*FNUM,7,7,2,2,
                             input<matrix<float>>
                             >>>>>>>>>>>;
 
@@ -53,6 +72,16 @@ using exresnet16 = loss_metric<fc_no_bias<128,avg_pool_everything<
                                 relu<affine<con<2*FNUM,7,7,2,2,
                                 input<matrix<float>>
                                 >>>>>>>>>>>;
+
+using ex2resnet16 =  loss_metric<fc_no_bias<128,avg_pool_everything<
+                            alevel0_ex2<
+                            alevel1_ex2<
+                            alevel2_ex2<
+                            alevel3_ex2<
+                            alevel4_ex2<
+                            relu<affine<con<FNUM,7,7,2,2,
+                            input<matrix<float>>
+                            >>>>>>>>>>>;
 
 
 using headnet = loss_metric<fc_no_bias<512,
@@ -73,10 +102,15 @@ public:
     void  predict(InputArray src, Ptr<PredictCollector> collector, int *_error=nullptr) const override;
 
 private:
-    mutable dlib::resnet16 resnet1;
-    mutable dlib::resnet16 resnet2;
-    mutable dlib::resnet16 resnet3;
-    mutable dlib::exresnet16 exresnet;
+    mutable dlib::resnet16 rn16_1;
+    mutable dlib::resnet16 rn16_2;
+    mutable dlib::resnet16 rn16_3;
+    mutable dlib::resnet16 rn16_4;
+    mutable dlib::resnet16 rn16_5;
+    mutable dlib::exresnet16 exrn16;
+    mutable dlib::resnet32 rn32;
+    mutable dlib::ex2resnet16 ex2rn16_1;
+    mutable dlib::ex2resnet16 ex2rn16_2;
     mutable dlib::headnet headnet;
     mutable cv::RNG cvrng;
 };
