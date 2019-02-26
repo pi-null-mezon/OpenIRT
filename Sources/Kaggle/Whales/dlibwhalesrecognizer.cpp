@@ -19,83 +19,63 @@ dlib::matrix<float> cvmat2dlibmatrix(const cv::Mat &_cvmat)
 DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_modelsfiles, DistanceType _disttype, double _threshold) :
     CNNImageRecognizer(cv::Size(512,192),CropMethod::NoCrop,ColorOrder::Gray,_disttype,_threshold)
 {
+    std::string _filename;
+
     size_t pos1 = _modelsfiles.find(';');
     try {
-        std::cout << "  " << _modelsfiles.substr(0,pos1) << std::endl;
-        dlib::deserialize(_modelsfiles.substr(0,pos1)) >> rn16_1;
+        _filename = _modelsfiles.substr(0,pos1);
+        std::cout << "  " << _filename << std::endl;
+        dlib::deserialize(_filename) >> rn32;
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
 
     size_t pos2 = _modelsfiles.find(';',pos1+1);
     try {
-        std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
-        dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> rn16_2;
+        _filename = _modelsfiles.substr(pos1+1,pos2-pos1-1);
+        std::cout << "  " << _filename << std::endl;
+        dlib::deserialize(_filename) >> exrn16;
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
 
-    pos1 = pos2;
-    pos2 = _modelsfiles.find(';',pos1+1);
-    try {
-        std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
-        dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> rn16_3;
-    } catch(const std::exception& e) {
-        std::cout << e.what() << std::endl;
+    ex2rn16.resize(2);
+    for(size_t i = 0; i < ex2rn16.size(); ++i) {
+        pos1 = pos2;
+        pos2 = _modelsfiles.find(';',pos1+1);
+        try {
+            _filename = _modelsfiles.substr(pos1+1,pos2-pos1-1);
+            std::cout << "  " << _filename << std::endl;
+            dlib::deserialize(_filename) >> ex2rn16[i];
+        } catch(const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
     }
 
-    pos1 = pos2;
-    pos2 = _modelsfiles.find(';',pos1+1);
-    try {
-        std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
-        dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> rn16_4;
-    } catch(const std::exception& e) {
-        std::cout << e.what() << std::endl;
+    drn16.resize(1);
+    for(size_t i = 0; i < drn16.size(); ++i) {
+        pos1 = pos2;
+        pos2 = _modelsfiles.find(';',pos1+1);
+        try {
+            _filename = _modelsfiles.substr(pos1+1,pos2-pos1-1);
+            std::cout << "  " << _filename << std::endl;
+            dlib::deserialize(_filename) >> drn16[i];
+        } catch(const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
     }
 
-    pos1 = pos2;
-    pos2 = _modelsfiles.find(';',pos1+1);
-    try {
-        std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
-        dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> rn16_5;
-    } catch(const std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
-
-    pos1 = pos2;
-    pos2 = _modelsfiles.find(';',pos1+1);
-    try {
-        std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
-        dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> exrn16;
-    } catch(const std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
-
-    pos1 = pos2;
-    pos2 = _modelsfiles.find(';',pos1+1);
-    try {
-        std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
-        dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> rn32;
-    } catch(const std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
-
-    pos1 = pos2;
-    pos2 = _modelsfiles.find(';',pos1+1);
-    try {
-        std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
-        dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> ex2rn16_1;
-    } catch(const std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
-
-    pos1 = pos2;
-    pos2 = _modelsfiles.find(';',pos1+1);
-    try {
-        std::cout << "  " << _modelsfiles.substr(pos1+1,pos2-pos1-1) << std::endl;
-        dlib::deserialize(_modelsfiles.substr(pos1+1,pos2-pos1-1)) >> ex2rn16_2;
-    } catch(const std::exception& e) {
-        std::cout << e.what() << std::endl;
+    rn16.resize(5);
+    for(size_t i = 0; i < rn16.size(); ++i) {
+        pos1 = pos2;
+        pos2 = _modelsfiles.find(';',pos1+1);
+        try {
+            _filename = _modelsfiles.substr(pos1+1,pos2-pos1-1);
+            std::cout << "  " << _filename << std::endl;
+            dlib::deserialize(_filename) >> rn16[i];
+        } catch(const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
     }
 
     /*try {
@@ -117,33 +97,32 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
     cv::Mat _vchannelmean, _vchannelstdev;
     cv::meanStdDev(_preprocessedmat,_vchannelmean,_vchannelstdev);
     _preprocessedmat = (_preprocessedmat - _vchannelmean.at<const double>(0)) / (3.0*_vchannelstdev.at<const double>(0));
+    dlib::matrix<float> _dlibimgrepresentation = cvmat2dlibmatrix(_preprocessedmat);
 
     // Get description
     std::vector<cv::Mat> _vdscr;
-    dlib::matrix<float,0,1> _dscr1 = rn16_1(cvmat2dlibmatrix(_preprocessedmat));
+    for(size_t i = 0; i < rn16.size(); ++i) {
+        dlib::matrix<float,0,1> _dscr = rn16[i](_dlibimgrepresentation);
+        _vdscr.push_back(dlib::toMat(_dscr).clone());
+    }
+    for(size_t i = 0; i < ex2rn16.size(); ++i) {
+        dlib::matrix<float,0,1> _dscr = ex2rn16[i](_dlibimgrepresentation);
+        _vdscr.push_back(dlib::toMat(_dscr).clone());
+    }
+    for(size_t i = 0; i < drn16.size(); ++i) {
+        dlib::matrix<float,0,1> _dscr = drn16[i](_dlibimgrepresentation);
+        _vdscr.push_back(dlib::toMat(_dscr).clone());
+    }
+    dlib::matrix<float,0,1> _dscr1 = exrn16(_dlibimgrepresentation);
     _vdscr.push_back(dlib::toMat(_dscr1));
-    dlib::matrix<float,0,1> _dscr2 = rn16_2(cvmat2dlibmatrix(_preprocessedmat));
+    dlib::matrix<float,0,1> _dscr2 = rn32(_dlibimgrepresentation);
     _vdscr.push_back(dlib::toMat(_dscr2));
-    dlib::matrix<float,0,1> _dscr3 = rn16_3(cvmat2dlibmatrix(_preprocessedmat));
-    _vdscr.push_back(dlib::toMat(_dscr3));
-    dlib::matrix<float,0,1> _dscr4 = rn16_4(cvmat2dlibmatrix(_preprocessedmat));
-    _vdscr.push_back(dlib::toMat(_dscr4));
-    dlib::matrix<float,0,1> _dscr5 = rn16_5(cvmat2dlibmatrix(_preprocessedmat));
-    _vdscr.push_back(dlib::toMat(_dscr5));
-    dlib::matrix<float,0,1> _dscr6 = exrn16(cvmat2dlibmatrix(_preprocessedmat));
-    _vdscr.push_back(dlib::toMat(_dscr6));
-    dlib::matrix<float,0,1> _dscr7 = rn32(cvmat2dlibmatrix(_preprocessedmat));
-    _vdscr.push_back(dlib::toMat(_dscr7));
-    dlib::matrix<float,0,1> _dscr8 = ex2rn16_1(cvmat2dlibmatrix(_preprocessedmat));
-    _vdscr.push_back(dlib::toMat(_dscr8));
-    dlib::matrix<float,0,1> _dscr9 = ex2rn16_2(cvmat2dlibmatrix(_preprocessedmat));
-    _vdscr.push_back(dlib::toMat(_dscr9));
 
-    cv::Mat _dscr;
-    cv::merge(_vdscr,_dscr);
-    return _dscr.reshape(1,1);
+    cv::Mat _tdscr;
+    cv::merge(_vdscr,_tdscr);
+    return _tdscr.reshape(1,1);
 
-    dlib::matrix<float,0,1> _headdscr = headnet(cvmat2dlibmatrix(_dscr.reshape(1,1)));
+    dlib::matrix<float,0,1> _headdscr = headnet(cvmat2dlibmatrix(_tdscr.reshape(1,1)));
     return dlib::toMat(_headdscr).clone().reshape(1,1);
 
     /*std::vector<dlib::matrix<float>> _crops;
