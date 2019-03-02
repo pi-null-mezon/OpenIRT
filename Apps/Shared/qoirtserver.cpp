@@ -17,14 +17,14 @@ QOIRTServer::~QOIRTServer()
     stop();
 }
 
-bool QOIRTServer::start(quint16 _port)
+bool QOIRTServer::start(const QString &_addr, quint16 _port)
 {
     if(tcpserver.isListening()) {
         stop();
     }
-    if(tcpserver.listen(QHostAddress::AnyIPv4, _port)) {
-        qInfo("Server start to listening:");
-        QList<QHostAddress> _laddr = QNetworkInterface::allAddresses();
+    if(tcpserver.listen(QHostAddress(_addr), _port)) {
+        qInfo("Server starts listening on %s:%u",_addr.toUtf8().constData(),(uint)_port);
+        /*QList<QHostAddress> _laddr = QNetworkInterface::allAddresses();
         if(_laddr.size() > 0) {
             int k = 1;
             for(int i = 0; i < _laddr.size(); ++i) {
@@ -34,7 +34,7 @@ bool QOIRTServer::start(quint16 _port)
             }
         } else {
             qWarning("QOIRTServer: server can not listen port %d!",_port);
-        }
+        }*/
         return true;
     } else {
         qWarning("QOIRTServer: %s", tcpserver.errorString().toUtf8().constData());
@@ -82,7 +82,8 @@ void QOIRTServer::readClient()
                 if(_task->labelaccepted == false) {
                     if(_task->tcpsocket->bytesAvailable() < _task->labelinfobytes)
                         return;
-                    _ids >> _task->labeinfo;
+                    _task->labeinfo.resize(_task->labelinfobytes);
+                    _ids.readRawData(_task->labeinfo.data(),_task->labeinfo.size());
                     _task->labelaccepted = true;
                 }
                 // WAIT ENCODED PICTURE
@@ -94,7 +95,8 @@ void QOIRTServer::readClient()
                 if(_task->encimgaccepted == false) {
                     if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
                         return;
-                    _ids >> _task->encimg;
+                    _task->encimg.resize(_task->encimgbytes);
+                    _ids.readRawData(_task->encimg.data(),_task->encimg.size());
                     _task->encimgaccepted = true;
                     emit rememberLabel(_taskid,_task->labeinfo,_task->encimg);
                 }
@@ -110,7 +112,8 @@ void QOIRTServer::readClient()
                 if(_task->labelaccepted == false) {
                     if(_task->tcpsocket->bytesAvailable() < _task->labelinfobytes)
                         return;
-                    _ids >> _task->labeinfo;
+                    _task->labeinfo.resize(_task->labelinfobytes);
+                    _ids.readRawData(_task->labeinfo.data(),_task->labeinfo.size());
                     _task->labelaccepted = true;
                     emit deleteLabel(_taskid,_task->labeinfo);
                 }
@@ -126,7 +129,8 @@ void QOIRTServer::readClient()
                 if(_task->encimgaccepted == false) {
                     if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
                         return;
-                    _ids >> _task->encimg;
+                    _task->encimg.resize(_task->encimgbytes);
+                    _ids.readRawData(_task->encimg.data(),_task->encimg.size());
                     _task->encimgaccepted = true;
                     emit identifyImage(_taskid,_task->encimg);
                 }
@@ -142,7 +146,8 @@ void QOIRTServer::readClient()
                 if(_task->encimgaccepted == false) {
                     if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
                         return;
-                    _ids >> _task->encimg;
+                    _task->encimg.resize(_task->encimgbytes);
+                    _ids.readRawData(_task->encimg.data(),_task->encimg.size());
                     _task->encimgaccepted = true;
                     emit recognizeImage(_taskid,_task->encimg);
                 }
@@ -162,7 +167,8 @@ void QOIRTServer::readClient()
                 if(_task->encimgaccepted == false) {
                     if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
                         return;
-                    _ids >> _task->encimg;
+                    _task->encimg.resize(_task->encimgbytes);
+                    _ids.readRawData(_task->encimg.data(),_task->encimg.size());
                     _task->encimgaccepted = true;
                 }
                 // WAIT VERIFICATION PICTURE
@@ -174,7 +180,8 @@ void QOIRTServer::readClient()
                 if(_task->vencimgaccepted == false) {
                     if(_task->tcpsocket->bytesAvailable() < _task->vencimgbytes)
                         return;
-                    _ids >> _task->vencimg;
+                    _task->vencimg.resize(_task->vencimgbytes);
+                    _ids.readRawData(_task->vencimg.data(),_task->vencimg.size());
                     _task->vencimgaccepted = true;
                     emit verifyImage(_taskid,_task->encimg,_task->vencimg);
                 }
@@ -189,7 +196,8 @@ void QOIRTServer::readClient()
                 if(_task->whitelistaccepted == false) {
                     if(_task->tcpsocket->bytesAvailable() < _task->whitelistbytes)
                         return;
-                    _ids >> _task->whitelist;
+                    _task->whitelist.resize(_task->whitelistbytes);
+                    _ids.readRawData(_task->whitelist.data(),_task->whitelist.size());
                     _task->whitelistaccepted = true;
                     emit updateWhitelist(_taskid,_task->whitelist);
                 }
@@ -222,7 +230,7 @@ void QOIRTServer::repeatToClient(qintptr _taskid, const QByteArray &_repeat)
         qDebug("%s",_repeat.constData());
 
         _ods << static_cast<qint32>(_repeat.size());
-        _ods << _repeat;
+        _ods.writeRawData(_repeat.constData(),_repeat.size());
 
         qDebug("QOIRTServer: connection %d will be closed", static_cast<int>(_taskid));
         _task->tcpsocket->close();

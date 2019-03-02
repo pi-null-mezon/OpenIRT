@@ -10,7 +10,7 @@ QT -= gui
 CONFIG += c++11
 
 TARGET = dialyzersrv
-VERSION = 1.0.9.0
+VERSION = 1.1.0.0
 
 TEMPLATE = app
 CONFIG += console

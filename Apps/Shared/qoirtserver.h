@@ -25,7 +25,7 @@ signals:
     void dropWhitelist(qintptr _taskid);
 
 public slots:    
-    bool start(quint16 _port);
+    bool start(const QString &_addr, quint16 _port);
     void stop();
     void repeatToClient(qintptr _taskid, const QByteArray &_repeat);   
 

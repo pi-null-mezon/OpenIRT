@@ -55,40 +55,40 @@ void QOIRTCli::sendTask()
         case OIRTTask::RememberLabel: {
             qDebug("RememberLabel");             
             _ods << static_cast<qint32>(labelinfo.size());
-            _ods << labelinfo;
+            _ods.writeRawData(labelinfo.constData(),labelinfo.size());
             QByteArray _encimg = __readImgfileContent(imgfilename);
             _ods << static_cast<qint32>(_encimg.size());
-            _ods << _encimg;
+            _ods.writeRawData(_encimg.constData(),_encimg.size());
         } break;
 
         case OIRTTask::DeleteLabel:
             qDebug("DeleteLabel");
             _ods << static_cast<qint32>(labelinfo.size());
-            _ods << labelinfo;
+            _ods.writeRawData(labelinfo.constData(),labelinfo.size());
             break;
 
         case OIRTTask::IdentifyImage: {
             qDebug("IdentifyImage");
             QByteArray _encimg = __readImgfileContent(imgfilename);
             _ods << static_cast<qint32>(_encimg.size());
-            _ods << _encimg;
+            _ods.writeRawData(_encimg.constData(),_encimg.size());
         } break;
 
         case OIRTTask::RecognizeImage: {
             qDebug("RecognizeImage");
             QByteArray _encimg = __readImgfileContent(imgfilename);
             _ods << static_cast<qint32>(_encimg.size());
-            _ods << _encimg;
+            _ods.writeRawData(_encimg.constData(),_encimg.size());
         } break;
 
         case OIRTTask::VerifyImage: {
             qDebug("VerifyImage");
             QByteArray _data = __readImgfileContent(imgfilename);
             _ods << static_cast<qint32>(_data.size());
-            _ods << _data;
+            _ods.writeRawData(_data.constData(),_data.size());
             _data = __readImgfileContent(vimgfilename);
             _ods << static_cast<qint32>(_data.size());
-            _ods << _data;
+            _ods.writeRawData(_data.constData(),_data.size());
         } break;
 
         case OIRTTask::UpdateWhitelist: {
@@ -97,7 +97,7 @@ void QOIRTCli::sendTask()
             _file.open(QIODevice::ReadOnly);
             QByteArray _json = _file.readAll();
             _ods << static_cast<qint32>(_json.size());
-            _ods << _json;
+            _ods.writeRawData(_json.constData(),_json.size());
         } break;
 
         case OIRTTask::DropWhitelist: {
@@ -126,7 +126,8 @@ void QOIRTCli::readSocket()
         return;
     }
     QByteArray _repeat;
-    _ids >> _repeat;
+    _repeat.resize(repeatlength);
+    _ids.readRawData(_repeat.data(),_repeat.size());
     qInfo("%s", QString(_repeat.constData()).toUtf8().constData());
     emit taskAccomplished();
 }

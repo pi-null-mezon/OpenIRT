@@ -18,7 +18,7 @@ DialyzerRecognizer::DialyzerRecognizer(const String &_modelfile, DistanceType _d
 Mat DialyzerRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     cv::String _str = _blobname; // to suppress 'unused variable' compiler warning
-    cv::Mat _rgbmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
+    cv::Mat _rgbmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput(),cvrng);
 
 	dlib::cv_image<dlib::rgb_pixel> _iimg(_rgbmat);
 	dlib::matrix<dlib::rgb_pixel> _preprocessed;

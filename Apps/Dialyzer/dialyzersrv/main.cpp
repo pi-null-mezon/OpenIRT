@@ -16,12 +16,14 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     //-----------------------------
     quint16 port = 8081;
+    QString address = "127.0.0.1";
     QString labelsfilename = a.applicationDirPath().append("/labels.yml");
     double  recthresh = 0.40;
     while((--argc > 0) && ((*++argv)[0] == '-')) {
         switch(*++argv[0]) {
             case 'h':
                 qInfo("%s v.%s\n", APP_NAME, APP_VERSION);
+                qInfo(" -a[str]  - address to listen (default: %s)", address.toUtf8().constData());
                 qInfo(" -p[int]  - port number to listen (default: %u)", (uint)port);
                 qInfo(" -l[str]  - filename of the file to store labels (default: %s)", labelsfilename.toUtf8().constData());
                 qInfo(" -t[real] - recognition threshold (default: %f)", recthresh);
@@ -29,6 +31,10 @@ int main(int argc, char *argv[])
 
             case 'l':
                 labelsfilename = QString(++argv[0]);
+                break;
+
+            case 'a':
+                address = QString(++argv[0]);
                 break;
 
             case 'p':
@@ -43,7 +49,7 @@ int main(int argc, char *argv[])
 
     // Let's run server
     QOIRTServer server;
-    if(server.start(port) == false) {
+    if(server.start(address,port) == false) {
         qWarning("Abort...");
         return 1;
     }
