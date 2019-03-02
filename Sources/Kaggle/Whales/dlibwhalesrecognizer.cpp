@@ -52,7 +52,7 @@ DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_modelsfiles, DistanceT
         }
     }
 
-    drn16.resize(1);
+    /*drn16.resize(2);
     for(size_t i = 0; i < drn16.size(); ++i) {
         pos1 = pos2;
         pos2 = _modelsfiles.find(';',pos1+1);
@@ -64,6 +64,19 @@ DlibWhalesRecognizer::DlibWhalesRecognizer(const String &_modelsfiles, DistanceT
             std::cout << e.what() << std::endl;
         }
     }
+
+    vrn16.resize(2);
+    for(size_t i = 0; i < vrn16.size(); ++i) {
+        pos1 = pos2;
+        pos2 = _modelsfiles.find(';',pos1+1);
+        try {
+            _filename = _modelsfiles.substr(pos1+1,pos2-pos1-1);
+            std::cout << "  " << _filename << std::endl;
+            dlib::deserialize(_filename) >> vrn16[i];
+        } catch(const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
+    }*/
 
     rn16.resize(5);
     for(size_t i = 0; i < rn16.size(); ++i) {
@@ -97,7 +110,7 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
     cv::Mat _vchannelmean, _vchannelstdev;
     cv::meanStdDev(_preprocessedmat,_vchannelmean,_vchannelstdev);
     _preprocessedmat = (_preprocessedmat - _vchannelmean.at<const double>(0)) / (3.0*_vchannelstdev.at<const double>(0));
-    dlib::matrix<float> _dlibimgrepresentation = cvmat2dlibmatrix(_preprocessedmat);
+    const dlib::matrix<float> _dlibimgrepresentation = cvmat2dlibmatrix(_preprocessedmat);
 
     // Get description
     std::vector<cv::Mat> _vdscr;
@@ -109,10 +122,14 @@ Mat DlibWhalesRecognizer::getImageDescriptionByLayerName(const Mat &_img, const 
         dlib::matrix<float,0,1> _dscr = ex2rn16[i](_dlibimgrepresentation);
         _vdscr.push_back(dlib::toMat(_dscr).clone());
     }
-    for(size_t i = 0; i < drn16.size(); ++i) {
+    /*for(size_t i = 0; i < drn16.size(); ++i) {
         dlib::matrix<float,0,1> _dscr = drn16[i](_dlibimgrepresentation);
         _vdscr.push_back(dlib::toMat(_dscr).clone());
     }
+    for(size_t i = 0; i < vrn16.size(); ++i) {
+        dlib::matrix<float,0,1> _dscr = vrn16[i](_dlibimgrepresentation);
+        _vdscr.push_back(dlib::toMat(_dscr).clone());
+    }*/
     dlib::matrix<float,0,1> _dscr1 = exrn16(_dlibimgrepresentation);
     _vdscr.push_back(dlib::toMat(_dscr1));
     dlib::matrix<float,0,1> _dscr2 = rn32(_dlibimgrepresentation);

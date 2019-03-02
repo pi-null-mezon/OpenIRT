@@ -136,6 +136,7 @@ private:
     mutable std::vector<dlib::resnet16> rn16;
     mutable std::vector<dlib::ex2resnet16> ex2rn16;
     mutable std::vector<dlib::dresnet16> drn16;
+    mutable std::vector<dlib::vresnet16> vrn16;
     mutable dlib::exresnet16 exrn16;
     mutable dlib::resnet32 rn32;
     mutable dlib::headnet headnet;
