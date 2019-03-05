@@ -16,7 +16,7 @@ enum DistanceType {Euclidean, Cosine};
  * @brief The CropMethod enum defines how image will be preprocessed
  * @note  makes sense only if target size.width !=0 and target size.width != 0
  */
-enum CropMethod {NoCrop, Inside, Outside, Jitter};
+enum CropMethod {NoCrop, Inside, Outside};
 /**
  * @brief The ColorOrder enum defines how image will be preprocessed
  */
@@ -167,7 +167,7 @@ inline cv::Mat jitterimage(const cv::Mat &_inmat, cv::RNG &_cvrng, const cv::Siz
     return _outmat;
 }
 
-inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorOrder _targetcolororder, CropMethod _crop, cv::RNG &_cvrng)
+inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorOrder _targetcolororder, CropMethod _crop)
 {
     cv::Mat _outmat;
     // First we need to make resize if needed
@@ -188,10 +188,6 @@ inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorO
 
                 case CropMethod::Outside:
                     _outmat = cropOutsideFromCenterAndResize(_inmat, _targetsize);
-                    break;
-
-                case CropMethod::Jitter:
-                    _outmat = jitterimage(_inmat,_cvrng,_targetsize);
                     break;
             }
         } else {

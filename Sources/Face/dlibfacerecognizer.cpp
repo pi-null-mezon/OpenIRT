@@ -28,7 +28,7 @@ DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const 
 Mat DlibFaceRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
     cv::String _str = _blobname; // to suppress 'unused variable' compiler warning
-    dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput(),cvrng));
+    dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput()));
 
     /*cv::Mat _viewmat(num_rows(_facechip), num_columns(_facechip), CV_8UC3, image_data(_facechip));
     cv::imshow("Input of DLIB",_viewmat);

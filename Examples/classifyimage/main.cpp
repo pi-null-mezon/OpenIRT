@@ -6,6 +6,7 @@
 #include <opencv2/imgproc.hpp>
 
 #include "faceageclassifier.h"
+#include "replayattackdetector.h"
 
 using namespace std;
 
@@ -13,18 +14,18 @@ template <typename T>
 std::string real2str(T x, uint precision=1);
 
 const cv::String keys =
-                        "{help h   |     | print help}"
-                        "{url u    |     | use URL as video source}"
-                        "{vfile vf |     | use videofile as video source}"
-                        "{vdev vd  |0    | use videodevice as video source}"
-                        "{rows     |480  | vertical resolution for video device}"
-                        "{cols     |640  | horizontal resolution for video device}";
+                        "{help h   |      | print help}"
+                        "{url u    |      | use URL as video source}"
+                        "{vfile f  |      | use videofile as video source}"
+                        "{vdev v   | 0    | use videodevice as video source}"
+                        "{rows     | 480  | vertical resolution for video device}"
+                        "{cols     | 640  | horizontal resolution for video device}";
 
 int main(int _argc, char **_argv)
 {
     cv::CommandLineParser cmdargsparser(_argc, _argv, keys);
     cmdargsparser.about(cv::String(APP_NAME) + " v." + cv::String(APP_VERSION));
-    if(cmdargsparser.has("help"))   {
+    if(cmdargsparser.has("help"))  {
        cmdargsparser.printMessage();
        return 0;
     }
@@ -60,16 +61,20 @@ int main(int _argc, char **_argv)
         int64 _to = cv::getTickCount(), _tn;
         double _fps;
         cv::namedWindow(APP_NAME, CV_WINDOW_NORMAL);
-        _ptr = cv::oirt::FaceAgeClassifier::createCNNImageClassifier( cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/deploy_age.prototxt"),
+        /*_ptr = cv::oirt::FaceAgeClassifier::createCNNImageClassifier( cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/deploy_age.prototxt"),
                                                                       cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/age_net.caffemodel"),
-                                                                      cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));
+                                                                      cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));*/
+        _ptr = cv::oirt::ReplayAttackDetector::createReplayAttackDetector("C:/Programming/ReplayAttack/build/replayattack_v1.dat",cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));
 
 
         int label = -1;
         double conf = 0;
         while(videocapture.read(_frame)) {
 
-            _ptr->predict(_frame,label,conf);
+            if(_ptr->getColorOrder() == cv::oirt::RGB)
+                _ptr->predict(_frame.clone(),label,conf);
+            else
+                _ptr->predict(_frame,label,conf);
             cv::String _predictionstr = std::string("label: ") + std::to_string(label) + std::string("; conf.: ") + real2str(conf,3) + std::string(" >> ") + _ptr->getLabelInfo(label);
             std::cout << _predictionstr.c_str() << std::endl;
             cv::putText(_frame, _predictionstr, cv::Point(15,20), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0),1,CV_AA);
