@@ -65,7 +65,7 @@ dlib::matrix<dlib::rgb_pixel> ReplayAttackDetector::__extractface(const Mat &_in
     }
     auto _shape = dlibshapepredictor(_rgbcv_image, _facerect);
     dlib::matrix<dlib::rgb_pixel> _facechip;
-    dlib::extract_image_chip(_rgbcv_image, dlib::get_face_chip_details(_shape,150,0.25), _facechip);
+    dlib::extract_image_chip(_rgbcv_image, dlib::get_face_chip_details(_shape,100,0.2), _facechip);
 
     return _facechip;
 }

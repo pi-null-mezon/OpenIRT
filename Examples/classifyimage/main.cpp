@@ -64,7 +64,7 @@ int main(int _argc, char **_argv)
         /*_ptr = cv::oirt::FaceAgeClassifier::createCNNImageClassifier( cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/deploy_age.prototxt"),
                                                                       cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/age_net.caffemodel"),
                                                                       cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));*/
-        _ptr = cv::oirt::ReplayAttackDetector::createReplayAttackDetector("C:/Programming/ReplayAttack/build/replayattack_v1.dat",cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));
+        _ptr = cv::oirt::ReplayAttackDetector::createReplayAttackDetector("/home/alex/Models/replay_attack_net_v2.dat",cv::String("/home/alex/Models/shape_predictor_5_face_landmarks.dat"));
 
 
         int label = -1;
@@ -76,7 +76,7 @@ int main(int _argc, char **_argv)
             else
                 _ptr->predict(_frame,label,conf);
             cv::String _predictionstr = std::string("label: ") + std::to_string(label) + std::string("; conf.: ") + real2str(conf,3) + std::string(" >> ") + _ptr->getLabelInfo(label);
-            std::cout << _predictionstr.c_str() << std::endl;
+            //std::cout << _predictionstr.c_str() << std::endl;
             cv::putText(_frame, _predictionstr, cv::Point(15,20), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0),1,CV_AA);
             cv::putText(_frame, _predictionstr, cv::Point(14,19), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,0),1,CV_AA);
 
