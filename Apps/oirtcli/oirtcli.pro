@@ -2,7 +2,7 @@ QT += core network
 QT -= gui
 
 TARGET = oirtcli
-VERSION = 1.1.0.0
+VERSION = 1.1.0.1
 
 CONFIG += c++11 console
 CONFIG -= app_bundle

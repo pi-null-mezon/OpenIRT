@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
         }
         QFileInfo _finfo(imgfilename);
         if(_finfo.exists() == false) {
-            qWarning("Input file can not be found! Abort...");
+            qWarning("Input file '%s' can not be found! Abort...",_finfo.absoluteFilePath().toUtf8().constData());
             return 4;
         }
     }
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
         }
         QFileInfo _finfo(vimgfilename);
         if(_finfo.exists() == false) {
-            qWarning("Input file can not be found! Abort...");
+            qWarning("Input file '%s' can not be found! Abort...",_finfo.absoluteFilePath().toUtf8().constData());
             return 6;
         }
     }
