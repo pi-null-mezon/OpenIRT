@@ -2,7 +2,7 @@
 
 namespace cv { namespace oirt {
 
-DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, DistanceType _disttype, double _threshold) :
+DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, DistanceType _disttype, double _threshold) :
     CNNImageRecognizer(cv::Size(0,0),NoCrop,ColorOrder::RGB,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
 {
     try {
@@ -16,36 +16,54 @@ DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const 
         std::cout << e.what() << std::endl;
     }
     try {
-        dlib::deserialize(_facedescriptormodelfile.c_str()) >> net;
+        dlib::deserialize(_facedescriptormodelfile.c_str()) >> inet;
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
-
+    try {
+        dlib::replayattackmodel _tmpmodel;
+        dlib::deserialize(_replayattackmodelfile.c_str()) >> _tmpmodel;
+        ranet.subnet() = _tmpmodel.subnet();
+    } catch(const std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
     // Declare errors
     errorsInfo[1] = "Can not find face!";
+    errorsInfo[2] = "Replay attack detected!";
 }
 
 Mat DlibFaceRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
 {
-    cv::String _str = _blobname; // to suppress 'unused variable' compiler warning
-    dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput()));
-
-    /*cv::Mat _viewmat(num_rows(_facechip), num_columns(_facechip), CV_8UC3, image_data(_facechip));
-    cv::imshow("Input of DLIB",_viewmat);
-    cv::waitKey(1);*/
-
-    if(_facechip.size() != 0) {
-        dlib::matrix<float,0,1> _facedescription = net(_facechip);
-        return dlib::toMat(_facedescription).reshape(1,1).clone();
-    } else if(_error != 0) {
-        *_error = 1; // you can find error description declaration in the constructor
-    }
-    return cv::Mat::zeros(1,128,CV_32FC1);
+    return getImageDescription(_img,_error);
 }
 
 Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
 {
-    return getImageDescriptionByLayerName(_img,cv::String(),_error);
+    cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
+
+    auto _facerect = __detectbiggestface(_preprocessedmat);
+
+    if(_facerect.area() != 0) {
+        // Let's check if it is replay attack
+        dlib::matrix<dlib::rgb_pixel> replay_attack_facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
+        dlib::matrix<float,1,2> replay_attack_prob = dlib::mat(ranet(replay_attack_facechip));
+        int replay_attack_label = dlib::index_of_max(replay_attack_prob);
+        //float replay_attack_conf = replay_attack_(label);
+        if(replay_attack_label == 1) { // 1 is 'attack', 0 is 'live'
+            if(_error) {
+                *_error = 2;
+            }
+        } else {
+            dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
+            /*cv::imshow("Input of DLIB",dlib::toMat(_facechip);
+            cv::waitKey(1);*/
+            dlib::matrix<float,0,1> _facedescription = inet(_facechip);
+            return dlib::toMat(_facedescription).reshape(1,1).clone();
+        }
+    } else if(_error) {
+        *_error = 1;
+    }
+    return cv::Mat::zeros(1,128,CV_32FC1);
 }
 
 void DlibFaceRecognizer::predict(InputArray src, Ptr<PredictCollector> collector, int *_error) const
@@ -70,20 +88,21 @@ void DlibFaceRecognizer::predict(InputArray src, Ptr<PredictCollector> collector
     }
 }
 
-dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inmat) const
+dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inmat, const dlib::rectangle &_facerect,  unsigned long _targetsize, double _padding) const
 {
-    cv::Mat _rgbmat = _inmat;
-    cv::Mat _graymat;
-    cv::cvtColor(_rgbmat, _graymat, CV_RGB2GRAY);
-
-    dlib::cv_image<unsigned char> _graycv_image(_graymat);
-    dlib::cv_image<dlib::rgb_pixel> _rgbcv_image(_rgbmat);
-
-    dlib::rectangle _facerect(_inmat.cols,_inmat.rows);
-    std::vector<dlib::rectangle> _facerects = dlibfacedet(_graycv_image);
-
+    dlib::cv_image<dlib::rgb_pixel> _rgbcv_image(_inmat);
+    auto _shape = dlibshapepredictor(_rgbcv_image, _facerect);
     dlib::matrix<dlib::rgb_pixel> _facechip;
+    dlib::extract_image_chip(_rgbcv_image, dlib::get_face_chip_details(_shape,_targetsize,_padding), _facechip);
+    return _facechip;
+}
 
+dlib::rectangle DlibFaceRecognizer::__detectbiggestface(const Mat &_inmat) const
+{
+    dlib::rectangle _facerect;
+    cv::Mat _graymat;
+    cv::cvtColor(_inmat, _graymat, CV_RGB2GRAY);
+    std::vector<dlib::rectangle> _facerects = dlibfacedet(dlib::cv_image<unsigned char>(_graymat));
     if(_facerects.size() > 0) {
         if(_facerects.size() > 1) {
             std::sort(_facerects.begin(),_facerects.end(),[](const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
@@ -91,16 +110,13 @@ dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inma
             });
         }
         _facerect = _facerects[0];
-        auto _shape = dlibshapepredictor(_rgbcv_image, _facerect);
-        dlib::extract_image_chip(_rgbcv_image, dlib::get_face_chip_details(_shape,150,0.25), _facechip);
-    }    
-
-    return _facechip;
+    }
+    return _facerect;
 }
 
-Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, DistanceType _disttype, double _threshold)
+Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, DistanceType _disttype, double _threshold)
 {
-    return makePtr<DlibFaceRecognizer>(_faceshapemodelfile,_facedescriptormodelfile,_disttype,_threshold);
+    return makePtr<DlibFaceRecognizer>(_faceshapemodelfile,_facedescriptormodelfile,_replayattackmodelfile,_disttype,_threshold);
 }
 
 }

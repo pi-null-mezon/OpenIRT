@@ -133,7 +133,15 @@ std::vector<std::pair<int, double>> ImageRecognizer::recognize(InputArray src, b
 double ImageRecognizer::compare(InputArray esrc, InputArray vsrc, int *_error) const
 {
     cv::Mat _edscr = getImageDescription(esrc.getMat(),_error);
+    if(_error)
+        if(*_error != 0)
+            return DBL_MAX;
+
     cv::Mat _vdscr = getImageDescription(vsrc.getMat(),_error);
+    if(_error)
+        if(*_error != 0)
+            return DBL_MAX;
+
     double distance = DBL_MAX;
     switch(getDistanceType()) {
         case DistanceType::Euclidean:

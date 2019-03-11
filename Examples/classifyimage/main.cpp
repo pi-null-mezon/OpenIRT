@@ -16,10 +16,10 @@ std::string real2str(T x, uint precision=1);
 const cv::String keys =
                         "{help h   |      | print help}"
                         "{url u    |      | use URL as video source}"
-                        "{vfile f  |      | use videofile as video source}"
-                        "{vdev v   | 0    | use videodevice as video source}"
-                        "{rows     | 480  | vertical resolution for video device}"
-                        "{cols     | 640  | horizontal resolution for video device}";
+                        "{file f   |      | use videofile as video source}"
+                        "{dev v    | 0    | use videodevice as video source}"
+                        "{cols     | 640  | horizontal resolution for video device}"
+                        "{rows     | 480  | vertical resolution for video device}";
 
 int main(int _argc, char **_argv)
 {
@@ -38,14 +38,14 @@ int main(int _argc, char **_argv)
             cerr << "Could not open url " << _urlstr;
             return -1;
         }
-    } else if(cmdargsparser.has("vfile")) {
+    } else if(cmdargsparser.has("file")) {
         cv::String _filename = cmdargsparser.get<cv::String>("vfile");
         if(videocapture.open(_filename) == false) {
             cerr << "Could not open videofile " << _filename;
             return -1;
         }
     } else {
-        if(videocapture.open(cmdargsparser.get<int>("vdev")) == false) {
+        if(videocapture.open(cmdargsparser.get<int>("dev")) == false) {
             cerr << "Could not open videodevice " << cmdargsparser.get<int>("vdev");
             return -1;
         } else {
@@ -64,7 +64,7 @@ int main(int _argc, char **_argv)
         /*_ptr = cv::oirt::FaceAgeClassifier::createCNNImageClassifier( cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/deploy_age.prototxt"),
                                                                       cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/age_net.caffemodel"),
                                                                       cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));*/
-        _ptr = cv::oirt::ReplayAttackDetector::createReplayAttackDetector("/home/alex/Models/replay_attack_net_v2.dat",cv::String("/home/alex/Models/shape_predictor_5_face_landmarks.dat"));
+        _ptr = cv::oirt::ReplayAttackDetector::createReplayAttackDetector("C:/Models/ReplayAttack/replay_attack_net_v3.dat",cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));
 
 
         int label = -1;

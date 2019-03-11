@@ -75,14 +75,15 @@ RUN cd Apps/Face/oirtsrv && \
 	mkdir -p /var/facerec
 	
 # Download resources 
-RUN wget https://github.com/davisking/dlib-models/blob/master/dlib_face_recognition_resnet_model_v1.dat.bz2?raw=true && \
-    mv dlib_face_recognition_resnet_model_v1.dat.bz2?raw=true dlib_face_recognition_resnet_model_v1.dat.bz2 && \
+RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recognition_resnet_model_v1.dat.bz2 && \
     bzip2 -d dlib_face_recognition_resnet_model_v1.dat.bz2 && \
     mv dlib_face_recognition_resnet_model_v1.dat /usr/local/bin && \
-    wget https://github.com/davisking/dlib-models/blob/master/shape_predictor_5_face_landmarks.dat.bz2?raw=true && \
-    mv shape_predictor_5_face_landmarks.dat.bz2?raw=true shape_predictor_5_face_landmarks.dat.bz2 && \
+    wget https://github.com/davisking/dlib-models/raw/master/shape_predictor_5_face_landmarks.dat.bz2 && \   
     bzip2 -d shape_predictor_5_face_landmarks.dat.bz2 && \
-    mv shape_predictor_5_face_landmarks.dat /usr/local/bin
+    mv shape_predictor_5_face_landmarks.dat /usr/local/bin &&\
+	wget https://github.com/pi-null-mezon/FaceAntiSpoofing/raw/master/ReplayAttack/Models/replay_attack_net_v3.dat.bz2 && \
+	bzip2 -d replay_attack_net_v3.dat.bz2 && \
+    mv replay_attack_net_v3.dat /usr/local/bin  	
 	
 # Prepare web server
 RUN mkdir -p /home/Testdata && \

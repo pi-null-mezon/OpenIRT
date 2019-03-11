@@ -33,8 +33,9 @@ void ReplayAttackDetector::predict(InputArray src, int &label, double &conf) con
 {
     auto _facechip = __extractface(preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput()));
     cv::imshow("facechip",dlib::toMat(_facechip));
-
+    double _tm1 = cv::getTickCount();
     dlib::matrix<float,1,2> prob = dlib::mat(net(_facechip));
+    std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
     label = dlib::index_of_max(prob);
     conf = prob(label);
 }
