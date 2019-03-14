@@ -29,7 +29,8 @@ linux {
 
     openblasbackend {
         message(OpenBLAS backend enabled)
-        LIBS += -lopenblas
+        LIBS += -lopenblas \
+                -lpthread
     }
 
     # if Dlib had been built with CUDA
