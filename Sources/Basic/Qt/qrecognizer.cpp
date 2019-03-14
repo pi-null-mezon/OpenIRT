@@ -72,6 +72,7 @@ void QRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinfo, c
             _json["whitelist"] = ptrrec->isLabelWhitelisted(_label);
         } else {
             _json["status"]    = "Error";
+            _json["code"]      = _error;
             _json["message"]   = ptrrec->getErrorInfo(_error).c_str();
         }
     } else {
@@ -125,6 +126,7 @@ void QRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
                 _json["distancethresh"]    = ptrrec->getThreshold();
             } else {
                 _json["status"]    = "Error";
+                _json["code"]      = _error;
                 _json["message"]   = ptrrec->getErrorInfo(_error).c_str();
             }
         } else {
@@ -171,6 +173,7 @@ void QRecognizer::recognizeImage(qintptr _taskid, const QByteArray &_encimg)
                 }
             } else {
                 _json["status"]    = "Error";
+                _json["code"]      = _error;
                 _json["message"]   = ptrrec->getErrorInfo(_error).c_str();
             }
         } else {

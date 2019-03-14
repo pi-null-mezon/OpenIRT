@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
     QString address = "127.0.0.1";
     QString labelsfilename = a.applicationDirPath().append("/labels.yml");
     double recthresh = 0.485;
+    double minspoofingprob = 0.85;
     while((--argc > 0) && ((*++argv)[0] == '-')) {
         switch(*++argv[0]) {
             case 'h':
@@ -26,7 +27,8 @@ int main(int argc, char *argv[])
                 qInfo(" -a[str]  - addres to listen (default: %s)", address.toUtf8().constData());
                 qInfo(" -p[int]  - port number to listen (default: %u)", (uint)port);
                 qInfo(" -l[str]  - filename of the file to store labels (default: %s)", labelsfilename.toUtf8().constData());
-                qInfo(" -t[real] - recognition threshold (default: %f)", recthresh);
+                qInfo(" -t[real] - max distance to recognize as the same (default: %f)", recthresh);
+                qInfo(" -s[real] - min probability of spoofing attack to alarm (default: %f)", minspoofingprob);
                 return 0;
 
             case 'l':
@@ -44,6 +46,10 @@ int main(int argc, char *argv[])
             case 't':
                 recthresh = QString(++argv[0]).toDouble();
                 break;
+
+            case 's':
+                minspoofingprob = QString(++argv[0]).toDouble();
+                break;
         }
     }
 
@@ -60,7 +66,8 @@ int main(int argc, char *argv[])
                                                               a.applicationDirPath().append("/dlib_face_recognition_resnet_model_v1.dat").toUtf8().constData(),
                                                               a.applicationDirPath().append("/replay_attack_net_v3.dat").toUtf8().constData(),
                                                               cv::oirt::DistanceType::Euclidean,
-                                                              recthresh));
+                                                              recthresh,
+                                                              minspoofingprob));
     qfacerec.setLabelsfilename(labelsfilename);
     QFileInfo _fi(labelsfilename);
     if(_fi.exists())

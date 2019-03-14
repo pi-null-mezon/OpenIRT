@@ -52,7 +52,7 @@ namespace dlib {
     template <int N, int K, typename SUBNET> using adense3 = dense_block3<N,K,affine,SUBNET>;
     template <int N, int K, typename SUBNET> using adense2 = dense_block2<N,K,affine,SUBNET>;
 
-    using replayattackmodel =   loss_multiclass_log<fc<2,
+    using attackdetmodel =      loss_multiclass_log<fc<2,
                                 avg_pool_everything<adense2<64,16,
                                 avg_pool<2,2,2,2,adense3<64,16,
                                 relu<affine<con<16,5,5,2,2,
@@ -65,7 +65,7 @@ namespace cv { namespace oirt {
 class DlibFaceRecognizer: public CNNImageRecognizer
 {
 public:
-    DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, DistanceType _disttype, double _threshold);
+    DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob);
 
     Mat     getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error=0) const override;
     Mat     getImageDescription(const Mat &_img, int *_error=0) const override;
@@ -78,13 +78,17 @@ private:
     mutable dlib::shape_predictor dlibshapepredictor;
     mutable dlib::frontal_face_detector dlibfacedet;
     mutable dlib::faceidentitymodel inet;
-    mutable dlib::softmax<dlib::replayattackmodel::subnet_type> ranet;
+
+    mutable dlib::softmax<dlib::attackdetmodel::subnet_type> ranet;
+    double  minattackprob;
 };
 
 Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile="shape_predictor_5_face_landmarks.dat",
                                                  const String &_facedescriptormodelfile="dlib_face_recognition_resnet_model_v1.dat",
                                                  const String &_replayattackmodelfile="replay_attack_net_v3.dat",
-                                                 DistanceType _disttype=DistanceType::Euclidean, double _threshold=0.485);
+                                                 DistanceType _disttype=DistanceType::Euclidean,
+                                                 double _threshold=0.485,
+                                                 double _minattackprob=0.5);
 
 }}
 

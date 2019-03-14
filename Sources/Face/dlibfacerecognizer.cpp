@@ -2,8 +2,9 @@
 
 namespace cv { namespace oirt {
 
-DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, DistanceType _disttype, double _threshold) :
-    CNNImageRecognizer(cv::Size(0,0),NoCrop,ColorOrder::RGB,_disttype,_threshold) // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
+DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob) :
+    CNNImageRecognizer(cv::Size(0,0),NoCrop,ColorOrder::RGB,_disttype,_threshold), // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
+    minattackprob(_minattackprob)
 {
     try {
         dlibfacedet = dlib::get_frontal_face_detector();
@@ -21,15 +22,15 @@ DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const 
         std::cout << e.what() << std::endl;
     }
     try {
-        dlib::replayattackmodel _tmpmodel;
+        dlib::attackdetmodel _tmpmodel;
         dlib::deserialize(_replayattackmodelfile.c_str()) >> _tmpmodel;
         ranet.subnet() = _tmpmodel.subnet();
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
-    // Declare errors
+    // Define errors
     errorsInfo[1] = "Can not find face!";
-    errorsInfo[2] = "Replay attack detected!";
+    errorsInfo[2] = "Spoofing attack detected!";
 }
 
 Mat DlibFaceRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
@@ -47,11 +48,11 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
         // Let's check if it is replay attack
         dlib::matrix<dlib::rgb_pixel> replay_attack_facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
         dlib::matrix<float,1,2> replay_attack_prob = dlib::mat(ranet(replay_attack_facechip));
-        int replay_attack_label = dlib::index_of_max(replay_attack_prob);
-        //float replay_attack_conf = replay_attack_(label);
-        if(replay_attack_label == 1) { // 1 is 'attack', 0 is 'live'
+        //int    replay_attack_label = dlib::index_of_max(replay_attack_prob);
+        double replay_attack_conf = replay_attack_prob(1); // 1 is 'attack', 0 is 'live'
+        if(replay_attack_conf > minattackprob) {
             if(_error) {
-                *_error = 2;
+                *_error = 2;              
             }
         } else {
             dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
@@ -114,9 +115,9 @@ dlib::rectangle DlibFaceRecognizer::__detectbiggestface(const Mat &_inmat) const
     return _facerect;
 }
 
-Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, DistanceType _disttype, double _threshold)
+Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob)
 {
-    return makePtr<DlibFaceRecognizer>(_faceshapemodelfile,_facedescriptormodelfile,_replayattackmodelfile,_disttype,_threshold);
+    return makePtr<DlibFaceRecognizer>(_faceshapemodelfile,_facedescriptormodelfile,_replayattackmodelfile,_disttype,_threshold,_minattackprob);
 }
 
 }
