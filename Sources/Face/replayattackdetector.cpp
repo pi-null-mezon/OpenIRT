@@ -26,7 +26,7 @@ ReplayAttackDetector::ReplayAttackDetector(const cv::String &_modelname, const c
     }
 
     setLabelInfo(0,"live");
-    setLabelInfo(1,"replay attack");
+    setLabelInfo(1,"attack");
 }
 
 void ReplayAttackDetector::predict(InputArray src, int &label, double &conf) const
@@ -38,6 +38,16 @@ void ReplayAttackDetector::predict(InputArray src, int &label, double &conf) con
     std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
     label = dlib::index_of_max(prob);
     conf = prob(label);
+}
+
+void ReplayAttackDetector::predict(InputArray src, std::vector<double> &conf) const
+{
+    auto _facechip = __extractface(preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput()));
+    dlib::matrix<float,1,2> prob = dlib::mat(net(_facechip));
+
+    conf.resize(dlib::num_columns(prob));
+    for(long i = 0; i < dlib::num_columns(prob); ++i)
+        conf[i] = prob(i);
 }
 
 Ptr<CNNImageClassifier> ReplayAttackDetector::createReplayAttackDetector(const String &_modelname, const String &_dlibshapepredictor)

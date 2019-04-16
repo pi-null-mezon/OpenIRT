@@ -17,6 +17,7 @@ class FaceAgeClassifier : public CNNImageClassifier
 public:
     FaceAgeClassifier(const cv::String &_prototextfilename, const cv::String &_caffemodelfilename, const cv::String &_dlibshapepredictor);
     void predict(InputArray src, int &label, double &conf) const override;
+    void predict(InputArray src, std::vector<double> &conf) const override;
 
     static Ptr<CNNImageClassifier> createCNNImageClassifier(const cv::String &_prototextfilename="deploy_age.prototxt", const cv::String &_caffemodelfilename="age_net.caffemodel", const cv::String &_dlibshapepredictor="shape_predictor_5_face_landmarks.dat");
 

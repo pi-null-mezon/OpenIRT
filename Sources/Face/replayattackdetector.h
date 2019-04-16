@@ -22,12 +22,13 @@ using dense_block3 = relu<BN<con<N,1,1,1,1, concat4<tag4,tag3,tag2,tag1, tag4<bl
 template <int N, int K, typename SUBNET> using adense3 = dense_block3<N,K,affine,SUBNET>;
 template <int N, int K, typename SUBNET> using adense2 = dense_block2<N,K,affine,SUBNET>;
 
-using densenet =   loss_multiclass_log<fc<2,
-                            avg_pool_everything<adense2<64,16,
-                            avg_pool<2,2,2,2,adense3<64,16,
-                            relu<affine<con<16,5,5,2,2,
+using densenet = loss_multiclass_log<fc<2,
+                            avg_pool_everything<adense2<64,8,
+                            avg_pool<2,2,2,2,adense3<64,8,
+                            avg_pool<2,2,2,2,adense3<64,8,
+                            relu<affine<con<8,5,5,2,2,
                             input_rgb_image
-                            >>>>>>>>>;
+                            >>>>>>>>>>>;
 }
 
 
@@ -38,6 +39,7 @@ class ReplayAttackDetector : public CNNImageClassifier
 public:
     ReplayAttackDetector(const cv::String &_modelname, const cv::String &_dlibshapepredictor);
     void predict(InputArray src, int &label, double &conf) const override;
+    void predict(InputArray src, std::vector<double> &conf) const override;
 
     static Ptr<CNNImageClassifier> createReplayAttackDetector(const cv::String &_modelname="replayattack_v1.dat", const cv::String &_dlibshapepredictor="shape_predictor_5_face_landmarks.dat");
 

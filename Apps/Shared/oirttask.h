@@ -6,7 +6,7 @@
 struct OIRTTask
 {
     /**
-     * @brief The TaskCode enum describes wht server should do to process task
+     * @brief describes what server should do to process task
      * RememberLabel    - get input image along with input label, make enrollment template, save template for the label, return result code
      * DeleteLabel      - get input label, remove it from the known labels list, return result code
      * IdentifyImage    - get input image, make identification template, find nearest label, return result code
@@ -18,7 +18,7 @@ struct OIRTTask
      */
     enum TaskCode {UnknownTask, RememberLabel, DeleteLabel, IdentifyImage, AskLabelsList, VerifyImage, UpdateWhitelist, RecognizeImage, DropWhitelist};
 
-    OIRTTask(QTcpSocket *_tcpsocket=0);
+    OIRTTask(QTcpSocket *_tcpsocket=nullptr);
     ~OIRTTask();
 
     static TaskCode getTaskCode(quint8 _val);

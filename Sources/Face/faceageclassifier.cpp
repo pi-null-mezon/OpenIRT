@@ -46,6 +46,11 @@ void FaceAgeClassifier::predict(InputArray src, int &label, double &conf) const
     conf = *maxelementiterator;
 }
 
+void FaceAgeClassifier::predict(InputArray src, std::vector<double> &conf) const
+{
+    // TO DO
+}
+
 Ptr<CNNImageClassifier> FaceAgeClassifier::createCNNImageClassifier(const String &_prototextfilename, const String &_caffemodelfilename, const String &_dlibshapepredictor)
 {
     return makePtr<FaceAgeClassifier>(_prototextfilename,_caffemodelfilename,_dlibshapepredictor);
