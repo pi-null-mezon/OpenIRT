@@ -1,4 +1,4 @@
-#include "qClassifier.h"
+#include "qclassifier.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
