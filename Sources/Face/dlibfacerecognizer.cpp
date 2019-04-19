@@ -51,14 +51,15 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
         //int    replay_attack_label = dlib::index_of_max(replay_attack_prob);
         double replay_attack_conf = replay_attack_prob(1); // 1 is 'attack', 0 is 'live'
         if(replay_attack_conf > minattackprob) {
-            if(_error) {
+            if(_error)
                 *_error = 2;              
-            }
         } else {
             dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
             /*cv::imshow("Input of DLIB",dlib::toMat(_facechip);
             cv::waitKey(1);*/
             dlib::matrix<float,0,1> _facedescription = inet(_facechip);
+            if(_error)
+                *_error = 0;
             return dlib::toMat(_facedescription).reshape(1,1).clone();
         }
     } else if(_error) {

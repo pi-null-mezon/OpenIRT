@@ -43,6 +43,8 @@ void ReplayAttackDetector::predict(InputArray src, int &label, double &conf, int
         std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
         label = dlib::index_of_max(prob);
         conf = prob(label);
+        if(_error)
+            *_error = 0;
     } else if(_error) {
         *_error = 1;
     }

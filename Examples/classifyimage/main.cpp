@@ -68,18 +68,24 @@ int main(int _argc, char **_argv)
 
 
         int label = -1;
+        int error = 0;
         double conf = 0;
         while(videocapture.read(_frame)) {
 
             if(_ptr->getColorOrder() == cv::oirt::RGB)
-                _ptr->predict(_frame.clone(),label,conf);
+                _ptr->predict(_frame.clone(),label,conf,&error);
             else
-                _ptr->predict(_frame,label,conf);
-            cv::String _predictionstr = std::string("label: ") + std::to_string(label) + std::string("; conf.: ") + real2str(conf,3) + std::string(" >> ") + _ptr->getLabelInfo(label);
-            //std::cout << _predictionstr.c_str() << std::endl;
-            cv::putText(_frame, _predictionstr, cv::Point(15,20), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0),1,CV_AA);
-            cv::putText(_frame, _predictionstr, cv::Point(14,19), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,0),1,CV_AA);
-
+                _ptr->predict(_frame,label,conf,&error);
+            if(error == 0) {
+                cv::String _predictionstr = std::string("label: ") + std::to_string(label) + std::string("; conf.: ") + real2str(conf,3) + std::string(" >> ") + _ptr->getLabelInfo(label);
+                //std::cout << _predictionstr.c_str() << std::endl;
+                cv::putText(_frame, _predictionstr, cv::Point(15,20), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0),1,CV_AA);
+                cv::putText(_frame, _predictionstr, cv::Point(14,19), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,0),1,CV_AA);
+            } else {
+                cv::String _errorstr = _ptr->getErrorInfo(error);
+                cv::putText(_frame, _errorstr, cv::Point(15,20), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0),1,CV_AA);
+                cv::putText(_frame, _errorstr, cv::Point(14,19), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,255),1,CV_AA);
+            }
 
             _tn = cv::getTickCount();
             _fps = cv::getTickFrequency()/(double)(_tn - _to);
