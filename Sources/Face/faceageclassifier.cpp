@@ -34,7 +34,7 @@ FaceAgeClassifier::FaceAgeClassifier(const cv::String &_prototextfilename, const
     setLabelInfo(7,">60 years");
 }
 
-void FaceAgeClassifier::predict(InputArray src, int &label, double &conf) const
+void FaceAgeClassifier::predict(InputArray src, int &label, double &conf, int *_error) const
 {
     auto _dlibfacechip = __extractface(preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput()));
     cv::Mat _preprocmat = dlib::toMat(_dlibfacechip);
@@ -46,7 +46,7 @@ void FaceAgeClassifier::predict(InputArray src, int &label, double &conf) const
     conf = *maxelementiterator;
 }
 
-void FaceAgeClassifier::predict(InputArray src, std::vector<double> &conf) const
+void FaceAgeClassifier::predict(InputArray src, std::vector<double> &conf, int *_error) const
 {
     // TO DO
 }

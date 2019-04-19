@@ -24,6 +24,12 @@ void ImageClassifier::setLabelInfo(int label, const String &strInfo)
     labelsInfo[label] = strInfo;
 }
 
+String ImageClassifier::getErrorInfo(int _error)
+{
+    std::map<int, String>::const_iterator iter(errorsInfo.find(_error));
+    return iter != labelsInfo.end() ? iter->second : "Not defined";
+}
+
 Size ImageClassifier::getInputSize() const
 {
     return inputSize;

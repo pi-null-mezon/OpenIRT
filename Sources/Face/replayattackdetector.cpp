@@ -24,30 +24,43 @@ ReplayAttackDetector::ReplayAttackDetector(const cv::String &_modelname, const c
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
-
+    // Labels known to network
     setLabelInfo(0,"live");
     setLabelInfo(1,"attack");
+    // Possible errors (0 - no error)
+    errorsInfo[1] = "Can not find face!";
 }
 
-void ReplayAttackDetector::predict(InputArray src, int &label, double &conf) const
+void ReplayAttackDetector::predict(InputArray src, int &label, double &conf, int *_error) const
 {
-    auto _facechip = __extractface(preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput()));
-    cv::imshow("facechip",dlib::toMat(_facechip));
-    double _tm1 = cv::getTickCount();
-    dlib::matrix<float,1,2> prob = dlib::mat(net(_facechip));
-    std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
-    label = dlib::index_of_max(prob);
-    conf = prob(label);
+    cv::Mat _preprocessedmat = preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput());
+    auto _facerect = __detectbiggestface(_preprocessedmat);
+    if(_facerect.area() != 0) {
+        auto _facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
+        cv::imshow("facechip",dlib::toMat(_facechip));
+        double _tm1 = cv::getTickCount();
+        dlib::matrix<float,1,2> prob = dlib::mat(net(_facechip));
+        std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
+        label = dlib::index_of_max(prob);
+        conf = prob(label);
+    } else if(_error) {
+        *_error = 1;
+    }
 }
 
-void ReplayAttackDetector::predict(InputArray src, std::vector<double> &conf) const
+void ReplayAttackDetector::predict(InputArray src, std::vector<double> &conf, int *_error) const
 {
-    auto _facechip = __extractface(preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput()));
-    dlib::matrix<float,1,2> prob = dlib::mat(net(_facechip));
-
-    conf.resize(dlib::num_columns(prob));
-    for(long i = 0; i < dlib::num_columns(prob); ++i)
-        conf[i] = prob(i);
+    cv::Mat _preprocessedmat = preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput());
+    auto _facerect = __detectbiggestface(_preprocessedmat);
+    if(_facerect.area() != 0) {
+        auto _facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
+        dlib::matrix<float,1,2> prob = dlib::mat(net(_facechip));
+        conf.resize(dlib::num_columns(prob));
+        for(long i = 0; i < dlib::num_columns(prob); ++i)
+            conf[i] = prob(i);
+    } else if(_error) {
+        *_error = 1;
+    }
 }
 
 Ptr<CNNImageClassifier> ReplayAttackDetector::createReplayAttackDetector(const String &_modelname, const String &_dlibshapepredictor)
@@ -55,17 +68,21 @@ Ptr<CNNImageClassifier> ReplayAttackDetector::createReplayAttackDetector(const S
     return makePtr<ReplayAttackDetector>(_modelname,_dlibshapepredictor);
 }
 
-dlib::matrix<dlib::rgb_pixel> ReplayAttackDetector::__extractface(const Mat &_inmat) const
+dlib::matrix<dlib::rgb_pixel> ReplayAttackDetector::__extractface(const Mat &_inmat, const dlib::rectangle &_facerect,  unsigned long _targetsize, double _padding) const
 {
-    cv::Mat _rgbmat = _inmat;
+    dlib::cv_image<dlib::rgb_pixel> _rgbcv_image(_inmat);
+    auto _shape = dlibshapepredictor(_rgbcv_image, _facerect);
+    dlib::matrix<dlib::rgb_pixel> _facechip;
+    dlib::extract_image_chip(_rgbcv_image, dlib::get_face_chip_details(_shape,_targetsize,_padding), _facechip);
+    return _facechip;
+}
+
+dlib::rectangle ReplayAttackDetector::__detectbiggestface(const Mat &_inmat) const
+{
+    dlib::rectangle _facerect;
     cv::Mat _graymat;
-    cv::cvtColor(_rgbmat, _graymat, CV_BGR2GRAY);
-
-    dlib::cv_image<unsigned char> _graycv_image(_graymat);
-    dlib::cv_image<dlib::rgb_pixel> _rgbcv_image(_rgbmat);
-
-    dlib::rectangle _facerect(_inmat.cols,_inmat.rows);
-    std::vector<dlib::rectangle> _facerects = dlibfacedet(_graycv_image);
+    cv::cvtColor(_inmat, _graymat, CV_RGB2GRAY);
+    std::vector<dlib::rectangle> _facerects = dlibfacedet(dlib::cv_image<unsigned char>(_graymat));
     if(_facerects.size() > 0) {
         if(_facerects.size() > 1) {
             std::sort(_facerects.begin(),_facerects.end(),[](const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
@@ -74,11 +91,7 @@ dlib::matrix<dlib::rgb_pixel> ReplayAttackDetector::__extractface(const Mat &_in
         }
         _facerect = _facerects[0];
     }
-    auto _shape = dlibshapepredictor(_rgbcv_image, _facerect);
-    dlib::matrix<dlib::rgb_pixel> _facechip;
-    dlib::extract_image_chip(_rgbcv_image, dlib::get_face_chip_details(_shape,100,0.2), _facechip);
-
-    return _facechip;
+    return _facerect;
 }
 
 }}

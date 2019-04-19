@@ -38,14 +38,14 @@ class ReplayAttackDetector : public CNNImageClassifier
 {
 public:
     ReplayAttackDetector(const cv::String &_modelname, const cv::String &_dlibshapepredictor);
-    void predict(InputArray src, int &label, double &conf) const override;
-    void predict(InputArray src, std::vector<double> &conf) const override;
+    void predict(InputArray src, int &label, double &conf, int *_error=nullptr) const override;
+    void predict(InputArray src, std::vector<double> &conf, int *_error=nullptr) const override;
 
     static Ptr<CNNImageClassifier> createReplayAttackDetector(const cv::String &_modelname="replayattack_v1.dat", const cv::String &_dlibshapepredictor="shape_predictor_5_face_landmarks.dat");
 
 private:
-    dlib::matrix<dlib::rgb_pixel> __extractface(const Mat &_inmat) const;
-	
+    dlib::matrix<dlib::rgb_pixel> __extractface(const Mat &_inmat, const dlib::rectangle &_facerect,  unsigned long _targetsize, double _padding) const;
+    dlib::rectangle __detectbiggestface(const Mat &_inmat) const;
     mutable dlib::shape_predictor dlibshapepredictor;
     mutable dlib::frontal_face_detector dlibfacedet;
     mutable dlib::softmax<dlib::densenet::subnet_type> net;
