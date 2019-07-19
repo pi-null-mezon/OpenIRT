@@ -46,22 +46,25 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
 
     if(_facerect.area() != 0) {
         // Let's check if it is replay attack
-        dlib::matrix<dlib::rgb_pixel> replay_attack_facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
-        dlib::matrix<float,1,2> replay_attack_prob = dlib::mat(ranet(replay_attack_facechip));
-        //int    replay_attack_label = dlib::index_of_max(replay_attack_prob);
-        double replay_attack_conf = replay_attack_prob(1); // 1 is 'attack', 0 is 'live'
-        if(replay_attack_conf > minattackprob) {
-            if(_error)
-                *_error = 2;              
-        } else {
-            dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
-            /*cv::imshow("Input of DLIB",dlib::toMat(_facechip);
-            cv::waitKey(1);*/
-            dlib::matrix<float,0,1> _facedescription = inet(_facechip);
-            if(_error)
-                *_error = 0;
-            return dlib::toMat(_facedescription).reshape(1,1).clone();
+        if(minattackprob <= 0.99999) {
+            dlib::matrix<dlib::rgb_pixel> replay_attack_facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
+            dlib::matrix<float,1,2> replay_attack_prob = dlib::mat(ranet(replay_attack_facechip));
+            double replay_attack_conf = replay_attack_prob(1); // 1 is 'attack', 0 is 'live'
+            if(replay_attack_conf >= minattackprob) {
+                if(_error)
+                    *_error = 2;
+                return cv::Mat::zeros(1,128,CV_32FC1);
+            }
         }
+
+        if(_error)
+            *_error = 0;
+        dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
+        /*cv::imshow("Input of DLIB",dlib::toMat(_facechip);
+        cv::waitKey(1);*/
+        dlib::matrix<float,0,1> _facedescription = inet(_facechip);
+        return dlib::toMat(_facedescription).reshape(1,1).clone();
+
     } else if(_error) {
         *_error = 1;
     }

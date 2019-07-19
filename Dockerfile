@@ -26,6 +26,7 @@ RUN apt-get install -y libavcodec-dev libavformat-dev libswscale-dev libtbb2 lib
           -D BUILD_EXAMPLES=OFF \
           -D BUILD_TESTS=OFF \
           -D BUILD_PERF_TESTS=OFF \
+		  -D BUILD_opencv_apps=OFF \
           -D BUILD_opencv_flann=OFF \
           -D BUILD_opencv_photo=OFF \
           -D BUILD_opencv_video=OFF \
@@ -59,7 +60,7 @@ RUN apt-get install -y python3 python3-pip && \
 	
 # Build oirtcli 
 RUN cd Apps/oirtcli && \
-    mkdir build && cd build && \
+    rm -rf build && mkdir build && cd build && \
     qmake ../oirtcli.pro && \
     make && \
     make install && \
@@ -67,7 +68,7 @@ RUN cd Apps/oirtcli && \
 	
 # Build oirtsrv 
 RUN cd Apps/Face/oirtsrv && \
-    mkdir build && cd build && \
+    rm -rf build && mkdir build && cd build && \
     qmake ../oirtsrv.pro && \
     make && \
     make install && \
