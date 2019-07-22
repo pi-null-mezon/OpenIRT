@@ -10,7 +10,7 @@ QT -= gui
 CONFIG += c++11
 
 TARGET = oirtsrv
-VERSION = 1.2.0.2
+VERSION = 1.2.0.3
 
 TEMPLATE = app
 CONFIG += console

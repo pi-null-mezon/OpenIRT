@@ -56,6 +56,7 @@ protected:
     std::vector<int>                    v_labels;
     std::vector<Mat>                    v_descriptions;
     std::vector<uchar>                  v_whitelist;
+    bool                                spoofingcontrolenabled;
 };
 
 }}
