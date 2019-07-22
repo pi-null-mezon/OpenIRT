@@ -82,7 +82,7 @@ RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recogniti
     wget https://github.com/davisking/dlib-models/raw/master/shape_predictor_5_face_landmarks.dat.bz2 && \   
     bzip2 -d shape_predictor_5_face_landmarks.dat.bz2 && \
     mv shape_predictor_5_face_landmarks.dat /usr/local/bin &&\
-	wget https://github.com/pi-null-mezon/FaceAntiSpoofing/raw/master/ReplayAttack/Models/replay_attack_net_v3.dat.bz2 && \
+	wget https://github.com/pi-null-mezon/FaceAntiSpoofing/raw/master/ReplayAttack/Models/replay_attack_net_v5.dat.bz2 && \
 	bzip2 -d replay_attack_net_v5.dat.bz2 && \
     mv replay_attack_net_v5.dat /usr/local/bin  	
 	
