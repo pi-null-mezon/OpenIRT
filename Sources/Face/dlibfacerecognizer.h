@@ -41,23 +41,24 @@ namespace dlib {
                                 >>>>>>>>>>>>;
     // Replay attack detector
     template <int N, template <typename> class BN, typename SUBNET>
-    using dnblck  = relu<BN<con<N,3,3,1,1,relu<BN<con<4*N,1,1,1,1,SUBNET>>>>>>;
+    using block  = relu<BN<con<N,3,3,1,1,relu<BN<con<4*N,1,1,1,1,SUBNET>>>>>>;
 
     template <int N, int K, template <typename> class BN, typename SUBNET>
-    using dense_block2 = relu<BN<con<N,1,1,1,1, concat3<tag3,tag2,tag1,  tag3<dnblck<K,BN,concat2<tag2,tag1, tag2<dnblck<K,BN, tag1<SUBNET>>>>>>>>>>;
+    using dense_block2 = relu<BN<con<N,1,1,1,1, concat3<tag3,tag2,tag1,  tag3<block<K,BN,concat2<tag2,tag1, tag2<block<K,BN, tag1<SUBNET>>>>>>>>>>;
 
     template <int N, int K, template <typename> class BN, typename SUBNET>
-    using dense_block3 = relu<BN<con<N,1,1,1,1, concat4<tag4,tag3,tag2,tag1, tag4<dnblck<K,BN,concat3<tag3,tag2,tag1,  tag3<dnblck<K,BN,concat2<tag2,tag1, tag2<dnblck<K,BN, tag1<SUBNET>>>>>>>>>>>>>;
+    using dense_block3 = relu<BN<con<N,1,1,1,1, concat4<tag4,tag3,tag2,tag1, tag4<block<K,BN,concat3<tag3,tag2,tag1,  tag3<block<K,BN,concat2<tag2,tag1, tag2<block<K,BN, tag1<SUBNET>>>>>>>>>>>>>;
 
     template <int N, int K, typename SUBNET> using adense3 = dense_block3<N,K,affine,SUBNET>;
     template <int N, int K, typename SUBNET> using adense2 = dense_block2<N,K,affine,SUBNET>;
 
-    using attackdetmodel =      loss_multiclass_log<fc<2,
-                                avg_pool_everything<adense2<64,16,
-                                avg_pool<2,2,2,2,adense3<64,16,
-                                relu<affine<con<16,5,5,2,2,
+    using attackdetmodel = loss_multiclass_log<fc<2,
+                                avg_pool_everything<adense2<64,8,
+                                avg_pool<2,2,2,2,adense3<64,8,
+                                avg_pool<2,2,2,2,adense3<64,8,
+                                relu<affine<con<8,5,5,2,2,
                                 input_rgb_image
-                                >>>>>>>>>;
+                                >>>>>>>>>>>;
 }
 
 namespace cv { namespace oirt {
@@ -85,7 +86,7 @@ private:
 
 Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile="shape_predictor_5_face_landmarks.dat",
                                                  const String &_facedescriptormodelfile="dlib_face_recognition_resnet_model_v1.dat",
-                                                 const String &_replayattackmodelfile="replay_attack_net_v3.dat",
+                                                 const String &_replayattackmodelfile="replay_attack_net_v5.dat",
                                                  DistanceType _disttype=DistanceType::Euclidean,
                                                  double _threshold=0.485,
                                                  double _minattackprob=0.5);

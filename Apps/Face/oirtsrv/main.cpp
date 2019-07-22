@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     QRecognizer qfacerec;
     qfacerec.loadResources(cv::oirt::createDlibFaceRecognizer(a.applicationDirPath().append("/shape_predictor_5_face_landmarks.dat").toUtf8().constData(),
                                                               a.applicationDirPath().append("/dlib_face_recognition_resnet_model_v1.dat").toUtf8().constData(),
-                                                              a.applicationDirPath().append("/replay_attack_net_v3.dat").toUtf8().constData(),
+                                                              a.applicationDirPath().append("/replay_attack_net_v5.dat").toUtf8().constData(),
                                                               cv::oirt::DistanceType::Euclidean,
                                                               recthresh,
                                                               minspoofingprob));
