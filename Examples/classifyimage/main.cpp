@@ -39,14 +39,14 @@ int main(int _argc, char **_argv)
             return -1;
         }
     } else if(cmdargsparser.has("file")) {
-        cv::String _filename = cmdargsparser.get<cv::String>("vfile");
+        cv::String _filename = cmdargsparser.get<cv::String>("file");
         if(videocapture.open(_filename) == false) {
             cerr << "Could not open videofile " << _filename;
             return -1;
         }
     } else {
         if(videocapture.open(cmdargsparser.get<int>("dev")) == false) {
-            cerr << "Could not open videodevice " << cmdargsparser.get<int>("vdev");
+            cerr << "Could not open videodevice " << cmdargsparser.get<int>("dev");
             return -1;
         } else {
             videocapture.set(CV_CAP_PROP_FRAME_WIDTH, cmdargsparser.get<int>("cols"));
@@ -64,7 +64,7 @@ int main(int _argc, char **_argv)
         /*_ptr = cv::oirt::FaceAgeClassifier::createCNNImageClassifier( cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/deploy_age.prototxt"),
                                                                       cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/age_net.caffemodel"),
                                                                       cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));*/
-        _ptr = cv::oirt::ReplayAttackDetector::createReplayAttackDetector("C:/Models/ReplayAttack/replay_attack_net_v5.dat",cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));
+        _ptr = cv::oirt::ReplayAttackDetector::createReplayAttackDetector("C:/Models/PrintAttack/printattack_densenet_v5.dat",cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));
 
 
         int label = -1;
