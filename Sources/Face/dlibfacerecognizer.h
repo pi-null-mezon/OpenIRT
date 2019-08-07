@@ -66,7 +66,7 @@ namespace cv { namespace oirt {
 class DlibFaceRecognizer: public CNNImageRecognizer
 {
 public:
-    DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob);
+    DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, const String &_printattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob);
 
     Mat     getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error=0) const override;
     Mat     getImageDescription(const Mat &_img, int *_error=0) const override;
@@ -80,13 +80,14 @@ private:
     mutable dlib::frontal_face_detector dlibfacedet;
     mutable dlib::faceidentitymodel inet;
 
-    mutable dlib::softmax<dlib::attackdetmodel::subnet_type> ranet;
+    mutable dlib::softmax<dlib::attackdetmodel::subnet_type> ranet, panet;
     double  minattackprob;
 };
 
 Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile="shape_predictor_5_face_landmarks.dat",
                                                  const String &_facedescriptormodelfile="dlib_face_recognition_resnet_model_v1.dat",
                                                  const String &_replayattackmodelfile="replay_attack_net_v5.dat",
+                                                 const String &_printattackmodelfile="print_attack_net_v6.dat",
                                                  DistanceType _disttype=DistanceType::Euclidean,
                                                  double _threshold=0.485,
                                                  double _minattackprob=0.5);

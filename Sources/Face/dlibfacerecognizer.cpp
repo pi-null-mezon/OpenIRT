@@ -2,7 +2,7 @@
 
 namespace cv { namespace oirt {
 
-DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob) :
+DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, const String &_printattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob) :
     CNNImageRecognizer(cv::Size(0,0),NoCrop,ColorOrder::RGB,_disttype,_threshold), // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
     minattackprob(_minattackprob)
 {
@@ -28,6 +28,13 @@ DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const 
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
+    try {
+        dlib::attackdetmodel _tmpmodel;
+        dlib::deserialize(_printattackmodelfile.c_str()) >> _tmpmodel;
+        panet.subnet() = _tmpmodel.subnet();
+    } catch(const std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
     // Define errors
     errorsInfo[1] = "Can not find face!";
     errorsInfo[2] = "Spoofing attack detected!";
@@ -46,11 +53,12 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
 
     if(_facerect.area() != 0) {
         // Spoofing control
-        if((minattackprob < 0.99999) && spoofingcontrolenabled) {
-            dlib::matrix<dlib::rgb_pixel> replay_attack_facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
-            dlib::matrix<float,1,2> replay_attack_prob = dlib::mat(ranet(replay_attack_facechip));
-            double replay_attack_conf = replay_attack_prob(1); // 1 is 'attack', 0 is 'live'
-            if(replay_attack_conf >= minattackprob) {
+        if((minattackprob < 0.999) && spoofingcontrolenabled) {
+            dlib::matrix<dlib::rgb_pixel> attack_facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
+            dlib::matrix<float,1,2> replay_attack_prob = dlib::mat(ranet(attack_facechip));
+            dlib::matrix<float,1,2> print_attack_prob = dlib::mat(panet(attack_facechip));
+            double attack_prob = std::max(replay_attack_prob(1),print_attack_prob(1)); // 1 is 'attack', 0 is 'live'
+            if(attack_prob >= minattackprob) {
                 if(_error)
                     *_error = 2;
                 return cv::Mat::zeros(1,128,CV_32FC1);
@@ -117,9 +125,9 @@ dlib::rectangle DlibFaceRecognizer::__detectbiggestface(const Mat &_inmat) const
     return _facerect;
 }
 
-Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob)
+Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, const String &_printattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob)
 {
-    return makePtr<DlibFaceRecognizer>(_faceshapemodelfile,_facedescriptormodelfile,_replayattackmodelfile,_disttype,_threshold,_minattackprob);
+    return makePtr<DlibFaceRecognizer>(_faceshapemodelfile,_facedescriptormodelfile,_replayattackmodelfile,_printattackmodelfile,_disttype,_threshold,_minattackprob);
 }
 
 }

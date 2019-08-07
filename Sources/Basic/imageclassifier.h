@@ -25,13 +25,13 @@ public:
      * @param label - predicted label
      * @param conf - confidence of the prediction
      */
-    virtual void predict(InputArray src, int &label, double &conf, int *_error=nullptr) const = 0;
+    virtual void predict(InputArray src, int &label, float &conf, int *_error=nullptr) const = 0;
     /**
      * @brief predict label for src input
      * @param src - input image
      * @param conf - vector of per-label confidences
      */
-    virtual void predict(InputArray src, std::vector<double> &conf, int *_error=nullptr) const = 0;
+    virtual void predict(InputArray src, std::vector<float> &conf, int *_error=nullptr) const = 0;
 
     virtual String getLabelInfo(int label) const;
     virtual void setLabelInfo(int label, const String& strInfo);

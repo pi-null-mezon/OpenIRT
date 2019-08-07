@@ -84,7 +84,10 @@ RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recogniti
     mv shape_predictor_5_face_landmarks.dat /usr/local/bin &&\
 	wget https://github.com/pi-null-mezon/FaceAntiSpoofing/raw/master/ReplayAttack/Models/replay_attack_net_v5.dat.bz2 && \
 	bzip2 -d replay_attack_net_v5.dat.bz2 && \
-    mv replay_attack_net_v5.dat /usr/local/bin  	
+    mv replay_attack_net_v5.dat /usr/local/bin && \
+	wget https://github.com/pi-null-mezon/FaceAntiSpoofing/raw/master/PrintAttack/Models/print_attack_net_v6.dat.bz2 && \
+	bzip2 -d print_attack_net_v6.dat.bz2 && \
+	mv print_attack_net_v6.dat /usr/local/bin
 	
 # Prepare web server
 RUN mkdir -p /home/Testdata && \

@@ -10,7 +10,6 @@
 
 namespace dlib {
 
-// for replay_attack_net_v5.dat
 template <int N, template <typename> class BN, typename SUBNET>
 using block  = relu<BN<con<N,3,3,1,1,relu<BN<con<4*N,1,1,1,1,SUBNET>>>>>>;
 
@@ -30,26 +29,6 @@ using densenet = loss_multiclass_log<fc<2,
                             relu<affine<con<8,5,5,2,2,
                             input_rgb_image
                             >>>>>>>>>>>;
-
-// for replay_attack_net_v3.dat
-/*template <int N, template <typename> class BN, typename SUBNET>
-using dnblck  = relu<BN<con<N,3,3,1,1,relu<BN<con<4*N,1,1,1,1,SUBNET>>>>>>;
-
-template <int N, int K, template <typename> class BN, typename SUBNET>
-using dense_block2 = relu<BN<con<N,1,1,1,1, concat3<tag3,tag2,tag1,  tag3<dnblck<K,BN,concat2<tag2,tag1, tag2<dnblck<K,BN, tag1<SUBNET>>>>>>>>>>;
-
-template <int N, int K, template <typename> class BN, typename SUBNET>
-using dense_block3 = relu<BN<con<N,1,1,1,1, concat4<tag4,tag3,tag2,tag1, tag4<dnblck<K,BN,concat3<tag3,tag2,tag1,  tag3<dnblck<K,BN,concat2<tag2,tag1, tag2<dnblck<K,BN, tag1<SUBNET>>>>>>>>>>>>>;
-
-template <int N, int K, typename SUBNET> using adense3 = dense_block3<N,K,affine,SUBNET>;
-template <int N, int K, typename SUBNET> using adense2 = dense_block2<N,K,affine,SUBNET>;
-
-using densenet =      loss_multiclass_log<fc<2,
-                            avg_pool_everything<adense2<64,16,
-                            avg_pool<2,2,2,2,adense3<64,16,
-                            relu<affine<con<16,5,5,2,2,
-                            input_rgb_image
-                            >>>>>>>>>;*/
 }
 
 
@@ -58,18 +37,19 @@ namespace cv { namespace oirt {
 class ReplayAttackDetector : public CNNImageClassifier
 {
 public:
-    ReplayAttackDetector(const cv::String &_modelname, const cv::String &_dlibshapepredictor);
-    void predict(InputArray src, int &label, double &conf, int *_error=nullptr) const override;
-    void predict(InputArray src, std::vector<double> &conf, int *_error=nullptr) const override;
+    ReplayAttackDetector(const cv::String &_replayattack_modelname, const cv::String &_printattack_modelname, const cv::String &_dlibshapepredictor);
+    void predict(InputArray src, int &label, float &conf, int *_error=nullptr) const override;
+    void predict(InputArray src, std::vector<float> &conf, int *_error=nullptr) const override;
 
-    static Ptr<CNNImageClassifier> createReplayAttackDetector(const cv::String &_modelname="replayattack_v1.dat", const cv::String &_dlibshapepredictor="shape_predictor_5_face_landmarks.dat");
+    static Ptr<CNNImageClassifier> createReplayAttackDetector(const cv::String &_replayattack_modelname, const cv::String &_printattack_modelname, const cv::String &_dlibshapepredictor="shape_predictor_5_face_landmarks.dat");
 
 private:
+
     dlib::matrix<dlib::rgb_pixel> __extractface(const Mat &_inmat, const dlib::rectangle &_facerect,  unsigned long _targetsize, double _padding) const;
     dlib::rectangle __detectbiggestface(const Mat &_inmat) const;
     mutable dlib::shape_predictor dlibshapepredictor;
     mutable dlib::frontal_face_detector dlibfacedet;
-    mutable dlib::softmax<dlib::densenet::subnet_type> net;
+    mutable dlib::softmax<dlib::densenet::subnet_type> netra, netpa;
 };
 
 }}

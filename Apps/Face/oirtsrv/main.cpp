@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     QString address = "127.0.0.1";
     QString labelsfilename = a.applicationDirPath().append("/labels.yml");
     double recthresh = 0.485;
-    double minspoofingprob = 0.85;
+    double minspoofingprob = 0.5;
     while((--argc > 0) && ((*++argv)[0] == '-')) {
         switch(*++argv[0]) {
             case 'h':
@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
     qfacerec.loadResources(cv::oirt::createDlibFaceRecognizer(a.applicationDirPath().append("/shape_predictor_5_face_landmarks.dat").toUtf8().constData(),
                                                               a.applicationDirPath().append("/dlib_face_recognition_resnet_model_v1.dat").toUtf8().constData(),
                                                               a.applicationDirPath().append("/replay_attack_net_v5.dat").toUtf8().constData(),
+                                                              a.applicationDirPath().append("/print_attack_net_v6.dat").toUtf8().constData(),
                                                               cv::oirt::DistanceType::Euclidean,
                                                               recthresh,
                                                               minspoofingprob));
