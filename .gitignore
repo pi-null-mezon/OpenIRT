@@ -30,7 +30,7 @@
 # Paths
 *.pro.user*
 **/Install
-build
+build*
 __pycache__
 
 
