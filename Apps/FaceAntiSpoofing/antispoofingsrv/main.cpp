@@ -5,14 +5,16 @@
 #include "qoictserver.h"
 #include "qclassifier.h"
 
-#include "replayattackdetector.h"
+#include "spoofingattackdetector.h"
 
 int main(int argc, char *argv[])
 {
 #ifdef Q_OS_WIN
     setlocale(LC_CTYPE,"Rus");
 #endif
-    QCoreApplication a(argc, argv);
+    int _argc = argc;
+    char **_argv = argv;
+    QCoreApplication a(_argc, _argv);
     //-----------------------------
     quint16 port = 8080;
     QString address = "127.0.0.1";
@@ -40,22 +42,28 @@ int main(int argc, char *argv[])
         qWarning("Can not open '%s'! Abort...",_finfo.fileName().toUtf8().constData());
         return 1;
     }
-    _finfo = QFileInfo(a.applicationDirPath().append("/shape_predictor_5_face_landmarks.dat"));
+    _finfo = QFileInfo(a.applicationDirPath().append("/print_attack_net_v6.dat"));
     if(!_finfo.exists()) {
         qWarning("Can not open '%s'! Abort...",_finfo.fileName().toUtf8().constData());
         return 2;
+    }
+    _finfo = QFileInfo(a.applicationDirPath().append("/shape_predictor_5_face_landmarks.dat"));
+    if(!_finfo.exists()) {
+        qWarning("Can not open '%s'! Abort...",_finfo.fileName().toUtf8().constData());
+        return 3;
     }
     // Let's run server
     QOICTServer server;
     if(server.start(address,port) == false) {
         qWarning("Can not listen! Abort...");
-        return 3;
+        return 4;
     }
 
     // Let's run facerecognizer in separate thread
     QClassifier qclassifier;
-    qclassifier.loadResources(cv::oirt::ReplayAttackDetector::createReplayAttackDetector(a.applicationDirPath().append("/replay_attack_net_v5.dat").toUtf8().constData(),
-                                                                                         a.applicationDirPath().append("/shape_predictor_5_face_landmarks.dat").toUtf8().constData()));
+    qclassifier.loadResources(cv::oirt::SpoofingAttackDetector::createSpoofingAttackDetector(a.applicationDirPath().append("/replay_attack_net_v5.dat").toUtf8().constData(),
+                                                                                             a.applicationDirPath().append("/print_attack_net_v6.dat").toUtf8().constData(),
+                                                                                             a.applicationDirPath().append("/shape_predictor_5_face_landmarks.dat").toUtf8().constData()));
 
     QThread qclassifierthread;
     qclassifier.moveToThread(&qclassifierthread);

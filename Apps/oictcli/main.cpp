@@ -36,7 +36,9 @@ int main(int argc, char *argv[])
     setlocale(LC_CTYPE,"Rus");
 #endif
     qInstallMessageHandler(myMessageOutput);
-    QCoreApplication a(argc, argv);
+    int _argc = argc;
+    char **_argv = argv;
+    QCoreApplication a(_argc, _argv);
     //-----------------------------
     quint16 port = 8080;
     QHostAddress srvaddr = QHostAddress::LocalHost;

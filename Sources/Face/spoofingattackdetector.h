@@ -1,5 +1,5 @@
-#ifndef REPLAYATTACKDETECTOR_H
-#define REPLAYATTACKDETECTOR_H
+#ifndef SPOOFINGATTACKDETECTOR_H
+#define SPOOFINGATTACKDETECTOR_H
 
 #include "cnnimageclassifier.h"
 
@@ -34,14 +34,14 @@ using densenet = loss_multiclass_log<fc<2,
 
 namespace cv { namespace oirt {
 
-class ReplayAttackDetector : public CNNImageClassifier
+class SpoofingAttackDetector : public CNNImageClassifier
 {
 public:
-    ReplayAttackDetector(const cv::String &_replayattack_modelname, const cv::String &_printattack_modelname, const cv::String &_dlibshapepredictor);
+    SpoofingAttackDetector(const cv::String &_replayattack_modelname, const cv::String &_printattack_modelname, const cv::String &_dlibshapepredictor);
     void predict(InputArray src, int &label, float &conf, int *_error=nullptr) const override;
     void predict(InputArray src, std::vector<float> &conf, int *_error=nullptr) const override;
 
-    static Ptr<CNNImageClassifier> createReplayAttackDetector(const cv::String &_replayattack_modelname, const cv::String &_printattack_modelname, const cv::String &_dlibshapepredictor="shape_predictor_5_face_landmarks.dat");
+    static Ptr<CNNImageClassifier> createSpoofingAttackDetector(const cv::String &_replayattack_modelname, const cv::String &_printattack_modelname, const cv::String &_dlibshapepredictor="shape_predictor_5_face_landmarks.dat");
 
 private:
 
@@ -54,4 +54,4 @@ private:
 
 }}
 
-#endif // REPLAYATTACKDETECTOR_H
+#endif // SPOOFINGATTACKDETECTOR_H

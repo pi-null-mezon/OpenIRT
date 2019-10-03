@@ -14,8 +14,8 @@ CONFIG -= qt
 SOURCES += main.cpp
 
 include($${PWD}/../../Sources/Basic/imageclassifier.pri)
-include($${PWD}/../../Sources/Face/faceageclassifier.pri)
-include($${PWD}/../../Sources/Face/replayattackdetector.pri)
+#include($${PWD}/../../Sources/Face/faceageclassifier.pri)
+include($${PWD}/../../Sources/Face/spoofingattackdetector.pri)
 
 include($${PWD}/../../Shared/opencv.pri)
 include($${PWD}/../../Shared/dlib.pri)

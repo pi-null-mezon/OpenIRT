@@ -48,7 +48,6 @@ public:
 
 private:
     mutable dlib::anet_type net;
-    mutable cv::RNG cvrng;
 };
 
 Ptr<CNNImageRecognizer> createDialyzerRecognizer(const String &_modelfile="dlib_resnet_metric_dialyzer.dat", DistanceType _disttype=DistanceType::Euclidean, double _threshold=0.4);

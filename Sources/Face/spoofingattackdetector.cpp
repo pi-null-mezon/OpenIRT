@@ -1,10 +1,10 @@
-#include "replayattackdetector.h"
+#include "spoofingattackdetector.h"
 
 #include <opencv2/highgui.hpp>
 
 namespace cv { namespace oirt {
 
-ReplayAttackDetector::ReplayAttackDetector(const cv::String &_replayattack_modelname, const cv::String &_printattack_modelname, const cv::String &_dlibshapepredictor) :
+SpoofingAttackDetector::SpoofingAttackDetector(const cv::String &_replayattack_modelname, const cv::String &_printattack_modelname, const cv::String &_dlibshapepredictor) :
     CNNImageClassifier(Size(0,0),ColorOrder::RGB,CropMethod::NoCrop)
 {
     try {
@@ -38,7 +38,7 @@ ReplayAttackDetector::ReplayAttackDetector(const cv::String &_replayattack_model
     errorsInfo[1] = "Can not find face!";
 }
 
-void ReplayAttackDetector::predict(InputArray src, int &label, float &conf, int *_error) const
+void SpoofingAttackDetector::predict(InputArray src, int &label, float &conf, int *_error) const
 {
     cv::Mat _preprocessedmat = preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput());
     auto _facerect = __detectbiggestface(_preprocessedmat);
@@ -61,7 +61,7 @@ void ReplayAttackDetector::predict(InputArray src, int &label, float &conf, int 
     }
 }
 
-void ReplayAttackDetector::predict(InputArray src, std::vector<float> &conf, int *_error) const
+void SpoofingAttackDetector::predict(InputArray src, std::vector<float> &conf, int *_error) const
 {
     cv::Mat _preprocessedmat = preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput());
     auto _facerect = __detectbiggestface(_preprocessedmat);
@@ -85,12 +85,12 @@ void ReplayAttackDetector::predict(InputArray src, std::vector<float> &conf, int
     }
 }
 
-Ptr<CNNImageClassifier> ReplayAttackDetector::createReplayAttackDetector(const cv::String &_replayattack_modelname, const cv::String &_printattack_modelname, const String &_dlibshapepredictor)
+Ptr<CNNImageClassifier> SpoofingAttackDetector::createSpoofingAttackDetector(const cv::String &_replayattack_modelname, const cv::String &_printattack_modelname, const String &_dlibshapepredictor)
 {
-    return makePtr<ReplayAttackDetector>(_replayattack_modelname,_printattack_modelname,_dlibshapepredictor);
+    return makePtr<SpoofingAttackDetector>(_replayattack_modelname,_printattack_modelname,_dlibshapepredictor);
 }
 
-dlib::matrix<dlib::rgb_pixel> ReplayAttackDetector::__extractface(const Mat &_inmat, const dlib::rectangle &_facerect,  unsigned long _targetsize, double _padding) const
+dlib::matrix<dlib::rgb_pixel> SpoofingAttackDetector::__extractface(const Mat &_inmat, const dlib::rectangle &_facerect,  unsigned long _targetsize, double _padding) const
 {
     dlib::cv_image<dlib::rgb_pixel> _rgbcv_image(_inmat);
     auto _shape = dlibshapepredictor(_rgbcv_image, _facerect);
@@ -99,11 +99,11 @@ dlib::matrix<dlib::rgb_pixel> ReplayAttackDetector::__extractface(const Mat &_in
     return _facechip;
 }
 
-dlib::rectangle ReplayAttackDetector::__detectbiggestface(const Mat &_inmat) const
+dlib::rectangle SpoofingAttackDetector::__detectbiggestface(const Mat &_inmat) const
 {
     dlib::rectangle _facerect;
     cv::Mat _graymat;
-    cv::cvtColor(_inmat, _graymat, CV_RGB2GRAY);
+    cv::cvtColor(_inmat, _graymat, cv::COLOR_RGB2GRAY);
     std::vector<dlib::rectangle> _facerects = dlibfacedet(dlib::cv_image<unsigned char>(_graymat));
     if(_facerects.size() > 0) {
         if(_facerects.size() > 1) {

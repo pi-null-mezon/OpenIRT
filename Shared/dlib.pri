@@ -41,7 +41,7 @@ linux {
         LIBS += -L/usr/local/cuda/lib64
         LIBS += -lcudnn \
                 -lpthread \
-				#-llapack \
+                #-llapack \
                 -lcuda \
                 -lcudart \
                 -lcublas \

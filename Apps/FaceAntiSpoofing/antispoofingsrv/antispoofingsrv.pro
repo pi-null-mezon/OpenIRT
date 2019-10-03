@@ -26,11 +26,11 @@ include($${PWD}/../../../Shared/opencv.pri)
 include($${PWD}/../../../Shared/dlib.pri)
 include($${PWD}/../../../Sources/Basic/imageclassifier.pri)
 
-SOURCES += $${PWD}/../../../Sources/Face/replayattackdetector.cpp \
+SOURCES += $${PWD}/../../../Sources/Face/spoofingattackdetector.cpp \
            $${PWD}/../../../Sources/Basic/Qt/qclassifier.cpp \
            $${PWD}/../../Shared/qoictserver.cpp
 
-HEADERS += $${PWD}/../../../Sources/Face/replayattackdetector.h \
+HEADERS += $${PWD}/../../../Sources/Face/spoofingattackdetector.h \
            $${PWD}/../../../Sources/Basic/Qt/qclassifier.h \
            $${PWD}/../../Shared/qoictserver.h
 

@@ -13,7 +13,9 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_WIN
     setlocale(LC_CTYPE,"Rus");
 #endif
-    QCoreApplication a(argc, argv);
+    int _argc = argc;
+    char **_argv = argv;
+    QCoreApplication a(_argc, _argv);
     //-----------------------------
     quint16 port = 8081;
     QString address = "127.0.0.1";

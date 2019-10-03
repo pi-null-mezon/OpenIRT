@@ -102,9 +102,9 @@ inline cv::Mat cropInsideFromCenterAndResize(const cv::Mat &input, cv::Size size
     cv::Mat output;
     if(roiRect.area() > 0)  {
         cv::Mat croppedImg(input, roiRect);
-        int interpolationMethod = CV_INTER_AREA;
+        int interpolationMethod = cv::INTER_AREA;
         if(size.area() > roiRect.area())
-            interpolationMethod = CV_INTER_CUBIC;
+            interpolationMethod = cv::INTER_CUBIC;
         cv::resize(croppedImg, output, size, 0, 0, interpolationMethod);
     }
     return output;
@@ -125,9 +125,9 @@ inline cv::Mat cropOutsideFromCenterAndResize(const cv::Mat &input, cv::Size siz
                                            ((float)_bsize.height - (float)input.rows)/2.0f,
                                            (float)input.cols,(float)input.rows)));
 
-    int interpolationMethod = CV_INTER_AREA;
+    int interpolationMethod = cv::INTER_AREA;
     if(size.area() > _bsize.area())
-        interpolationMethod = CV_INTER_CUBIC;
+        interpolationMethod = cv::INTER_CUBIC;
     cv::resize(output, output, size, 0, 0, interpolationMethod);
     return output;
 }
@@ -162,7 +162,7 @@ inline cv::Mat jitterimage(const cv::Mat &_inmat, cv::RNG &_cvrng, const cv::Siz
     _matrix.at<double>(1,2) += (_insize.height * _maxshift * _scale * (_cvrng.uniform(0.,2.) - 1.));
     cv::warpAffine(_inmat,_outmat,_matrix,
                    _targetsize,
-                   _insize.area() > _targetsize.area() ? CV_INTER_AREA : CV_INTER_CUBIC,
+                   _insize.area() > _targetsize.area() ? cv::INTER_AREA : cv::INTER_CUBIC,
                    _bordertype,cv::mean(_inmat));
     return _outmat;
 }
@@ -176,9 +176,9 @@ inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorO
             switch(_crop) {
 
                 case CropMethod::NoCrop: {
-                    int _im = CV_INTER_AREA;
+                    int _im = cv::INTER_AREA;
                     if(_targetsize.area() > (_inmat.rows*_inmat.cols))
-                        _im = CV_INTER_CUBIC;
+                        _im = cv::INTER_CUBIC;
                     cv::resize(_inmat, _outmat, _targetsize, 0, 0, _im);
                 } break;
 
@@ -202,13 +202,13 @@ inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorO
         case ColorOrder::RGB:
             switch(_outmat.channels()) {
                 case 4:
-                    _convcode = CV_BGRA2RGB;
+                    _convcode = cv::COLOR_BGRA2RGB;
                     break;
                 case 3:
-                    _convcode = CV_BGR2RGB;
+                    _convcode = cv::COLOR_BGR2RGB;
                     break;
                 case 1:
-                    _convcode = CV_GRAY2RGB;
+                    _convcode = cv::COLOR_GRAY2RGB;
                     break;
             }
             break;
@@ -216,10 +216,10 @@ inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorO
         case ColorOrder::BGR:
             switch(_outmat.channels()) {
                 case 4:
-                    _convcode = CV_BGRA2BGR;
+                    _convcode = cv::COLOR_BGRA2BGR;
                     break;
                 case 1:
-                    _convcode = CV_GRAY2BGR;
+                    _convcode = cv::COLOR_GRAY2BGR;
                     break;
             }
             break;
@@ -227,10 +227,10 @@ inline cv::Mat preprocessImageForCNN(const Mat &_inmat, Size _targetsize, ColorO
         case ColorOrder::Gray:
             switch(_outmat.channels()) {
                 case 4:
-                    _convcode = CV_BGRA2GRAY;
+                    _convcode = cv::COLOR_BGRA2GRAY;
                     break;
                 case 3:
-                    _convcode = CV_BGR2GRAY;
+                    _convcode = cv::COLOR_BGR2GRAY;
                     break;
             }
             break;

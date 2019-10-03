@@ -2,7 +2,7 @@ QT += core network
 QT -= gui
 
 TARGET = oictcli
-VERSION = 1.0.0.0
+VERSION = 1.0.0.1
 
 CONFIG += c++11 console
 CONFIG -= app_bundle

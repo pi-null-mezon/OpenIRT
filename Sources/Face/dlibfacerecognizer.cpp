@@ -112,7 +112,7 @@ dlib::rectangle DlibFaceRecognizer::__detectbiggestface(const Mat &_inmat) const
 {
     dlib::rectangle _facerect;
     cv::Mat _graymat;
-    cv::cvtColor(_inmat, _graymat, CV_RGB2GRAY);
+    cv::cvtColor(_inmat, _graymat, cv::COLOR_RGB2GRAY);
     std::vector<dlib::rectangle> _facerects = dlibfacedet(dlib::cv_image<unsigned char>(_graymat));
     if(_facerects.size() > 0) {
         if(_facerects.size() > 1) {
