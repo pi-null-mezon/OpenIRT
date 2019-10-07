@@ -56,7 +56,7 @@ RUN apt-get install -y qt5-default
 # Install Python3 with webserver packages
 RUN apt-get install -y python3 python3-pip && \
     pip3 install -U Flask && \
-	pip3 install waitress	
+	pip3 install waitress requests	
 	
 # Build oirtcli 
 RUN cd Apps/oirtcli && \
