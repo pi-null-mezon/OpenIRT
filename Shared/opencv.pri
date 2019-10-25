@@ -45,13 +45,10 @@ win32 {
     message(OpenCV library version $${OPENCV_DIR}/$${OPENCV_ARCHITECTURE_DIR}/$${OPENCV_COMPILER_DIR} will be used)
 
 } else {
-    LIBS += -L/usr/local/lib
-
     LIBS += -lopencv_core \
             -lopencv_objdetect \
             -lopencv_highgui \
             -lopencv_imgproc \
-            -lopencv_videoio \
             -lopencv_imgcodecs \
             -lopencv_dnn
 }

@@ -17,7 +17,7 @@ RUN apt-get update && \
     apt-get install -y build-essential cmake git pkg-config wget 
 
 # Build opencv
-RUN apt-get install -y libavcodec-dev libavformat-dev libswscale-dev libtbb2 libtbb-dev libjpeg-dev libpng-dev libatlas-base-dev && \
+RUN apt-get install -y libtbb2 libtbb-dev libjpeg-dev libpng-dev libatlas-base-dev && \
     git clone https://github.com/opencv/opencv.git opencv && cd opencv && git checkout 3.4 && mkdir build && cd build && \
     cmake -D CMAKE_BUILD_TYPE=RELEASE \
           -D CMAKE_INSTALL_PREFIX=/usr/local \
@@ -30,6 +30,7 @@ RUN apt-get install -y libavcodec-dev libavformat-dev libswscale-dev libtbb2 lib
           -D BUILD_opencv_flann=OFF \
           -D BUILD_opencv_photo=OFF \
           -D BUILD_opencv_video=OFF \
+		  -D BUILD_opencv_videoio=OFF \
           -D BUILD_opencv_ts=OFF \
           -D BUILD_opencv_java_bindings_generator=OFF \
           -D BUILD_opencv_python_bindings_generator=OFF \
