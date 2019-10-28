@@ -25,9 +25,9 @@ void DocRecognizer::predict(InputArray src, int &label, float &conf, int *_error
     dlib::cv_image<dlib::rgb_pixel> _wrapimg(_preprocessedmat);
     dlib::matrix<dlib::rgb_pixel> _preprocesseddlibmatrix;
     dlib::assign_image(_preprocesseddlibmatrix,_wrapimg);
-    double _tm1 = cv::getTickCount();
+    //double _tm1 = cv::getTickCount();
     dlib::matrix<float,1,2> prob = dlib::mat(net(_preprocesseddlibmatrix));
-    std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
+    //std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
     label = dlib::index_of_max(prob);
     conf = prob(label);
     if(_error)
