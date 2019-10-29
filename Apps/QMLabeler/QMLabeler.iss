@@ -30,7 +30,7 @@ Name: "Russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Programming\build\build-{#MyAppName}-Desktop_Qt_5_13_1_MinGW_32_bit-Release\release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Programming\OpenIRT\Apps\build\build-{#MyAppName}-Desktop_Qt_5_13_1_MinGW_32_bit-Release\release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 ;qt
 Source: "{#Qt}\libEGL.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Qt}\libGLESv2.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -52,16 +52,7 @@ Source: "{#Qt}\..\plugins\platforms\qwindows.dll"; DestDir: "{app}\platforms"; F
 Source: "{#Qt}\..\plugins\imageformats\qjpeg.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
 Source: "{#Qt}\..\plugins\imageformats\qtga.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
 Source: "{#Qt}\..\plugins\imageformats\qgif.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "{#Qt}\..\plugins\qmltooling\qmldbg_debugger.dll"; DestDir: "{app}\qmltooling"; Flags: ignoreversion
-Source: "{#Qt}\..\plugins\qmltooling\qmldbg_inspector.dll"; DestDir: "{app}\qmltooling"; Flags: ignoreversion
-Source: "{#Qt}\..\plugins\qmltooling\qmldbg_local.dll"; DestDir: "{app}\qmltooling"; Flags: ignoreversion
-Source: "{#Qt}\..\plugins\qmltooling\qmldbg_messages.dll"; DestDir: "{app}\qmltooling"; Flags: ignoreversion
-Source: "{#Qt}\..\plugins\qmltooling\qmldbg_native.dll"; DestDir: "{app}\qmltooling"; Flags: ignoreversion
-Source: "{#Qt}\..\plugins\qmltooling\qmldbg_nativedebugger.dll"; DestDir: "{app}\qmltooling"; Flags: ignoreversion
-Source: "{#Qt}\..\plugins\qmltooling\qmldbg_profiler.dll"; DestDir: "{app}\qmltooling"; Flags: ignoreversion
-Source: "{#Qt}\..\plugins\qmltooling\qmldbg_quickprofiler.dll"; DestDir: "{app}\qmltooling"; Flags: ignoreversion
-Source: "{#Qt}\..\plugins\qmltooling\qmldbg_server.dll"; DestDir: "{app}\qmltooling"; Flags: ignoreversion
-Source: "{#Qt}\..\plugins\qmltooling\qmldbg_tcp.dll"; DestDir: "{app}\qmltooling"; Flags: ignoreversion
+Source: "{#Qt}\..\plugins\qmltooling\*"; Excludes: "*d.dll"; DestDir: "{app}\qmltooling"; Flags: ignoreversion
 ;qml
 Source: "{#Qt}\..\qml\Qt\labs\*"; Excludes: "*d.dll"; DestDir: "{app}\Qt\labs"; Flags: ignoreversion recursesubdirs
 Source: "{#Qt}\..\qml\QtQuick\Controls\*"; Excludes: "*d.dll"; DestDir: "{app}\QtQuick\Controls"; Flags: ignoreversion recursesubdirs
@@ -69,10 +60,9 @@ Source: "{#Qt}\..\qml\QtQuick\Controls.2\*"; Excludes: "*d.dll"; DestDir: "{app}
 Source: "{#Qt}\..\qml\QtQuick\Dialogs\*"; Excludes: "*d.dll"; DestDir: "{app}\QtQuick\Dialogs"; Flags: ignoreversion recursesubdirs
 Source: "{#Qt}\..\qml\QtQuick\Templates.2\*"; Excludes: "*d.dll"; DestDir: "{app}\QtQuick\Templates.2"; Flags: ignoreversion recursesubdirs
 Source: "{#Qt}\..\qml\QtQuick\Window.2\*"; Excludes: "*d.dll"; DestDir: "{app}\QtQuick\Window.2"; Flags: ignoreversion recursesubdirs
+Source: "{#Qt}\..\qml\QtQuick\Layouts\*"; Excludes: "*d.dll"; DestDir: "{app}\QtQuick\Layouts"; Flags: ignoreversion recursesubdirs
 Source: "{#Qt}\..\qml\QtGraphicalEffects\*"; Excludes: "*d.dll"; DestDir: "{app}\QtGraphicalEffects"; Flags: ignoreversion recursesubdirs
-Source: "{#Qt}\..\qml\QtQuick.2\plugins.qmltypes"; Excludes: "*d.dll"; DestDir: "{app}\QtQuick.2"; Flags: ignoreversion
-Source: "{#Qt}\..\qml\QtQuick.2\qmldir"; Excludes: "*d.dll"; DestDir: "{app}\QtQuick.2"; Flags: ignoreversion
-Source: "{#Qt}\..\qml\QtQuick.2\qtquick2plugin.dll"; Excludes: "*d.dll"; DestDir: "{app}\QtQuick.2"; Flags: ignoreversion
+Source: "{#Qt}\..\qml\QtQuick.2\*"; Excludes: "*d.dll"; DestDir: "{app}\QtQuick.2"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
