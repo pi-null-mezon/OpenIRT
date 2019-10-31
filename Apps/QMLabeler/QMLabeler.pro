@@ -3,7 +3,7 @@ QT += quick
 CONFIG += c++11
 
 TARGET = QMLabeler
-VERSION = 0.0.0.0
+VERSION = 0.0.0.1
 
 DEFINES = APP_NAME=\\\"$${TARGET}\\\" \
           APP_VERSION=\\\"$${VERSION}\\\"
@@ -42,5 +42,6 @@ HEADERS += \
     qlabelholder.h
 
 include($${PWD}/../../../QSimpleMaintenanceTool/qsimplemaintenancetool.pri)
+include($${PWD}/../../Shared/poppler.pri)
 
 RC_ICONS = $${PWD}/Resources/tag@128.ico

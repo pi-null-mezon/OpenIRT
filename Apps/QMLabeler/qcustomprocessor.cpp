@@ -21,6 +21,9 @@ QCustomProcessor::QCustomProcessor(QQmlApplicationEngine *_qmlengine, QObject *p
     qmlengine->rootContext()->setContextProperty("customsettings",this);    
     connect(this,SIGNAL(filenameUpdated(QVariant)),qmlengine->rootObjects().at(0),SLOT(openImage(QVariant)));
     connect(this,SIGNAL(infoUpdated(QVariant)),qmlengine->rootObjects().at(0),SLOT(showInfo(QVariant)));
+    connect(this,SIGNAL(allFilesLabeled()),qmlengine->rootObjects().at(0),SLOT(dropImage()));
+    connect(this,SIGNAL(askUpdateDialog(QVariant,QVariant,QVariant)),qmlengine->rootObjects().at(0),SLOT(showUpdateDialog(QVariant,QVariant,QVariant)));
+    connect(qmlengine->rootObjects().at(0)->findChild<QObject*>("UpdateDialog"),SIGNAL(accepted()),this,SLOT(update()));
     connect(this,SIGNAL(error(QVariant)),qmlengine->rootObjects().at(0),SLOT(showError(QVariant)));
     createLabelsList();
     openNextImage();
@@ -33,8 +36,8 @@ void QCustomProcessor::updateAppInfo()
        QMetaObject::invokeMethod(qmlengine->rootObjects().at(0),"setAppAbout",Q_ARG(QVariant,APP_NAME),
                                                                               Q_ARG(QVariant,APP_VERSION),
                                                                               Q_ARG(QVariant,tr("Приложение предназначено для ручной разметки изображений")),
-                                                                              Q_ARG(QVariant,tr("Все права принадлежат ООО \"Диакея-софт\" (121170, г.Москва, ул.Кульнева, д.3, стр.1)")),
-                                                                              Q_ARG(QVariant,tr("<a href='mailto:a.a.taranov@nefrosovet.ru?subject=Вопрос по программе %1'>Обратная связь</a>").arg(APP_NAME)));
+                                                                              Q_ARG(QVariant,tr("Свободное программное обеспечение с отктрытым исходным кодом. Модифицируйте и используйте по своему усмотрению. Никаких гарантий не предоставляется")),
+                                                                              Q_ARG(QVariant,tr("<a href='mailto:taransanya@mail.ru?subject=Вопрос по программе %1'>Обратная связь</a>").arg(APP_NAME)));
    }
 }
 
@@ -155,6 +158,7 @@ void QCustomProcessor::openNextImage() {
         emit filenameUpdated(inputdir().append("/%1").arg(filename));
     } else {
         emit infoUpdated(tr("Все файлы были размечены, выберите другую директорию (свайп слеава направо)"));
+        emit allFilesLabeled();
     }
 }
 
@@ -163,7 +167,9 @@ void QCustomProcessor::setupMaintenanceTool()
     connect(&qsmt,&QSimpleMaintenanceTool::checked,[this](const QList<smt::Version> &_versions){
         // If this slot is called then _versions list is not empty
         const smt::Version &_lastversion = _versions.at(0); // greatest available
-        if(_lastversion.version > APP_VERSION) {
+        if(_lastversion.version > APP_VERSION) {            
+            updateversion = _lastversion.version;
+            updatechangelog = _lastversion.changelog;
             qsmt.download(_lastversion.url);
             connect(&qsmt,&QSimpleMaintenanceTool::downloadProgress,[this](const QString &_url, qint64 bytesReceived, qint64 bytesTotal){
                 Q_UNUSED(_url)
@@ -173,8 +179,8 @@ void QCustomProcessor::setupMaintenanceTool()
     });
     connect(&qsmt,&QSimpleMaintenanceTool::downloaded,[this](const QString &_filename){
         qDebug("Downloaded to '%s'",_filename.toUtf8().constData());
-        QDesktopServices::openUrl(QUrl::fromLocalFile(_filename));
-        qApp->quit();
+        updatefilename = _filename;
+        emit askUpdateDialog(APP_NAME,updateversion,updatechangelog);
     });
     connect(&qsmt,&QSimpleMaintenanceTool::error,[this](const QString &_error){
         qDebug("%s",_error.toUtf8().constData());
@@ -196,12 +202,12 @@ void QCustomProcessor::setUpdtdownloadprogress(const float _updtdownloadprogress
 
 void QCustomProcessor::checkForUpdates()
 {
-    qsmt.check(QString("http://%1:%2/updates.json").arg(updtsrvaddr(),QString::number(updtsrvport())));
+    qsmt.check(QString("http://%1:%2/Releases/updates.json").arg(updtsrvaddr(),QString::number(updtsrvport())));
 }
 
 int QCustomProcessor::updtsrvport() const
 {
-    return settings->value("UpdateServer/Port",2310).toInt();
+    return settings->value("UpdateServer/Port",80).toInt();
 }
 
 void QCustomProcessor::setUpdtsrvport(const int _port)
@@ -210,6 +216,12 @@ void QCustomProcessor::setUpdtsrvport(const int _port)
         settings->setValue("UpdateServer/Port",_port);
         emit updtsrvportChanged(_port);
     }
+}
+
+void QCustomProcessor::update()
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(updatefilename));
+    qApp->quit();
 }
 
 QString QCustomProcessor::updtsrvaddr() const

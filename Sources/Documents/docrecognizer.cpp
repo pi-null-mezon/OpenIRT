@@ -15,8 +15,8 @@ DocRecognizer::DocRecognizer(const cv::String &_modelname) :
         std::cout << e.what() << std::endl;
     }    
     // Labels known to networks    
-    setLabelInfo(0,"Other");
-    setLabelInfo(1,"Attachment");
+    setLabelInfo(0,"Прочие документы");
+    setLabelInfo(1,"Заявление на прикрепление");
 }
 
 void DocRecognizer::predict(InputArray src, int &label, float &conf, int *_error) const

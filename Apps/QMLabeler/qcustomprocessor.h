@@ -59,6 +59,11 @@ signals:
     void filenameUpdated(const QVariant &_filename);
     void infoUpdated(const QVariant &_info);
     void error(const QVariant &_error);
+    void allFilesLabeled();
+    void askUpdateDialog(const QVariant &_appname, const QVariant &_version, const QVariant &_changelog);
+
+private slots:
+    void update();
 
 private:
     void setupMaintenanceTool();
@@ -74,6 +79,9 @@ private:
     QString filename;
     QSimpleMaintenanceTool qsmt;
     float m_updtdownloadprogress;
+
+    QString updatefilename;
+    QString updateversion, updatechangelog;
 };
 
 #endif // QCUSTOMPROCESSOR_H

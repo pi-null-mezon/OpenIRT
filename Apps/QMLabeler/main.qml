@@ -18,6 +18,27 @@ ApplicationWindow {
     function openImage(_filename) { image.source =_filename }
     function showInfo(_info) { infoLabel.text = _info }
     function showError(_error) { errorLabel.text = _error }
+    function dropImage() {image.source = ""}
+    function showUpdateDialog(_appname,_version,_changelog) { updatedialog.show(_appname,_version,_changelog) }
+
+    UpdateDialog {
+        id: updatedialog
+        x: (window.width - width)   / 2
+        y: (window.height - height) /2
+    }
+
+    ProgressBar {
+        z: 1
+        width: window.width*0.9
+        x: (window.width - width) / 2
+        y: window.height / 5
+        value: customsettings.updtdownloadprogress
+        visible: value > 0.01 && value < 0.99
+        Label {
+            text: qsTr("Загрузка обновлений:")
+            anchors.bottom: parent.top
+        }
+    }
 
     Drawer {
         id: drawer

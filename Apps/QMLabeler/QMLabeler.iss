@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "QMLabeler"
-#define MyAppVersion "0.0.0.0"
+#define MyAppVersion "0.0.0.1"
 #define MyAppPublisher "DiacareSoft"
 #define MyAppExeName "QMLabeler.exe"
 
