@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     }
 
     // Let's check resources
-    QFileInfo _finfo(a.applicationDirPath().append("/dlib_docrecognition_resnet16_v1.dat"));
+    QFileInfo _finfo(a.applicationDirPath().append("/dlib_docrecognition_resnet16_v2.dat"));
     if(!_finfo.exists()) {
         qWarning("Can not open '%s'! Abort...",_finfo.fileName().toUtf8().constData());
         return 1;
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     }
     // Let's run facerecognizer in separate thread
     QClassifier qclassifier;
-    qclassifier.loadResources(cv::oirt::DocRecognizer::createDocRecognizer(a.applicationDirPath().append("/dlib_docrecognition_resnet16_v1.dat").toStdString()));
+    qclassifier.loadResources(cv::oirt::DocRecognizer::createDocRecognizer(a.applicationDirPath().append("/dlib_docrecognition_resnet16_v2.dat").toStdString()));
 
     QThread qclassifierthread;
     qclassifier.moveToThread(&qclassifierthread);

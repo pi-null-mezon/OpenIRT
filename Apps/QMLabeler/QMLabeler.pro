@@ -42,6 +42,5 @@ HEADERS += \
     qlabelholder.h
 
 include($${PWD}/../../../QSimpleMaintenanceTool/qsimplemaintenancetool.pri)
-include($${PWD}/../../Shared/poppler.pri)
 
 RC_ICONS = $${PWD}/Resources/tag@128.ico

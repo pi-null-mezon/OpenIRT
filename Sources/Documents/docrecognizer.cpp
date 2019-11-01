@@ -15,8 +15,9 @@ DocRecognizer::DocRecognizer(const cv::String &_modelname) :
         std::cout << e.what() << std::endl;
     }    
     // Labels known to networks    
-    setLabelInfo(0,"Прочие документы");
-    setLabelInfo(1,"Заявление на прикрепление");
+    setLabelInfo(1,"Прочие документы");
+    setLabelInfo(0,"Заявление на прикрепление");
+    setLabelInfo(2,"Согласие пациента на лечебную манипуляцию");
 }
 
 void DocRecognizer::predict(InputArray src, int &label, float &conf, int *_error) const
@@ -26,7 +27,7 @@ void DocRecognizer::predict(InputArray src, int &label, float &conf, int *_error
     dlib::matrix<dlib::rgb_pixel> _preprocesseddlibmatrix;
     dlib::assign_image(_preprocesseddlibmatrix,_wrapimg);
     //double _tm1 = cv::getTickCount();
-    dlib::matrix<float,1,2> prob = dlib::mat(net(_preprocesseddlibmatrix));
+    dlib::matrix<float,1,3> prob = dlib::mat(net(_preprocesseddlibmatrix));
     //std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
     label = dlib::index_of_max(prob);
     conf = prob(label);
@@ -41,7 +42,7 @@ void DocRecognizer::predict(InputArray src, std::vector<float> &conf, int *_erro
     dlib::cv_image<dlib::rgb_pixel> _wrapimg(_preprocessedmat);
     dlib::matrix<dlib::rgb_pixel> _preprocesseddlibmatrix;
     dlib::assign_image(_preprocesseddlibmatrix,_wrapimg);    
-    dlib::matrix<float,1,2> prob = dlib::mat(net(_preprocesseddlibmatrix));
+    dlib::matrix<float,1,3> prob = dlib::mat(net(_preprocesseddlibmatrix));
     std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
     conf.resize(dlib::num_columns(prob));
     for(long i = 0; i < dlib::num_columns(prob); ++i)
