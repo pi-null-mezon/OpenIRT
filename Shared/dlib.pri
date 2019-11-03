@@ -42,6 +42,7 @@ linux {
         LIBS += -lcudnn \
                 -lpthread \
                 #-llapack \
+                #-lcblas \
                 -lcuda \
                 -lcudart \
                 -lcublas \
