@@ -29,7 +29,7 @@ template <typename SUBNET> using alevel3 = ares<4*16,ares_down<4*16,SUBNET>>;
 template <typename SUBNET> using alevel4 = ares<2*16,ares_down<2*16,SUBNET>>;
 
 // testing network type (replaced batch normalization with fixed affine transforms)
-using anet_type = loss_multiclass_log<fc<3,avg_pool_everything<
+using anet_type = loss_multiclass_log<fc<4,avg_pool_everything<
                             alevel2<
                             alevel3<
                             alevel4<
@@ -47,7 +47,7 @@ public:
     void predict(InputArray src, int &label, float &conf, int *_error=nullptr) const override;
     void predict(InputArray src, std::vector<float> &conf, int *_error=nullptr) const override;
 
-    static Ptr<CNNImageClassifier> createDocRecognizer(const cv::String &_modelname="dlib_docrecognition_resnet16_v2.dat");
+    static Ptr<CNNImageClassifier> createDocRecognizer(const cv::String &_modelname="dlib_docrecognition_resnet16_v4.dat");
 
 private:
     mutable dlib::softmax<dlib::anet_type::subnet_type> net;
