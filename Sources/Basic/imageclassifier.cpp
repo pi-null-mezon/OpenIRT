@@ -50,4 +50,9 @@ ColorOrder ImageClassifier::getColorOrder() const
     return colororder;
 }
 
+std::map<int, String> ImageClassifier::getLabelsInfo() const
+{
+    return labelsInfo;
+}
+
 }}

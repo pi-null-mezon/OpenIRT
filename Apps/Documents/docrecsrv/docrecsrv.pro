@@ -24,14 +24,15 @@ SOURCES += main.cpp
 
 include($${PWD}/../../../Shared/opencv.pri)
 include($${PWD}/../../../Shared/dlib.pri)
-include($${PWD}/../../../Sources/Basic/imageclassifier.pri)
 include($${PWD}/../../../Sources/Documents/docrecognizer.pri)
 
 SOURCES += $${PWD}/../../../Sources/Basic/Qt/qclassifier.cpp \
-           $${PWD}/../../Shared/qoictserver.cpp
+           $${PWD}/../../Shared/qoictserver.cpp \
+           $${PWD}/../../Shared/oicttask.cpp
 
 HEADERS += $${PWD}/../../../Sources/Basic/Qt/qclassifier.h \
-           $${PWD}/../../Shared/qoictserver.h
+           $${PWD}/../../Shared/qoictserver.h \
+           $${PWD}/../../Shared/oicttask.h
 
 INCLUDEPATH += $${PWD}/../../../Sources/Basic/Qt \
                $${PWD}/../../Shared

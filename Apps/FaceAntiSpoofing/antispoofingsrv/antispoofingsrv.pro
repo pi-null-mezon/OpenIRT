@@ -28,11 +28,13 @@ include($${PWD}/../../../Sources/Basic/imageclassifier.pri)
 
 SOURCES += $${PWD}/../../../Sources/Face/spoofingattackdetector.cpp \
            $${PWD}/../../../Sources/Basic/Qt/qclassifier.cpp \
-           $${PWD}/../../Shared/qoictserver.cpp
+           $${PWD}/../../Shared/qoictserver.cpp \
+           $${PWD}/../../Shared/oicttask.cpp
 
 HEADERS += $${PWD}/../../../Sources/Face/spoofingattackdetector.h \
            $${PWD}/../../../Sources/Basic/Qt/qclassifier.h \
-           $${PWD}/../../Shared/qoictserver.h
+           $${PWD}/../../Shared/qoictserver.h \
+           $${PWD}/../../Shared/oicttask.h
 
 INCLUDEPATH += $${PWD}/../../../Sources/Face \
                $${PWD}/../../../Sources/Basic/Qt \

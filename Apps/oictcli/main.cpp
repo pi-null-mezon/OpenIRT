@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
     QHostAddress srvaddr = QHostAddress::LocalHost;
     QString imgfilename;
     bool deletefile = false;
+    OICTTask::TaskCode taskcode = OICTTask::UnknownTask;
     while((--argc > 0) && ((*++argv)[0] == '-')) {
         switch(*++argv[0]) {
             case 'h':
@@ -51,7 +52,12 @@ int main(int argc, char *argv[])
                 qInfo(" -a[str] - address of the server to connect (default: localhost i.e 127.0.0.1)\n");
                 qInfo(" -p[int] - port of the server to connect (default: %u)\n",static_cast<uint>(port));
                 qInfo(" -i[str] - filename of the image that should be processed\n");               
+                qInfo(" -t[int] - task code:\n"
+                      "       1 - Classify (vector of labels along with confidences)\n"
+                      "       2 - Predict (single label with max conf)\n"
+                      "       3 - AskLabelsList\n");
                 qInfo(" -d      - delete image files after server's repeat\n");
+
                 return 0;
 
             case 'a':
@@ -66,19 +72,31 @@ int main(int argc, char *argv[])
                 imgfilename = QString::fromLocal8Bit(++argv[0]);
                 break;
 
+            case 't':
+                taskcode = OICTTask::getTaskCode(static_cast<quint8>(QString(++argv[0]).toUInt()));
+                break;
+
             case 'd':
                 deletefile = true;
                 break;
         }
-    }   
+    }
 
-    QFileInfo _finfo(imgfilename);
-    if(_finfo.exists() == false) {
-        qWarning("Input file '%s' can not be found! Abort...",_finfo.absoluteFilePath().toUtf8().constData());
+    if(taskcode == OICTTask::UnknownTask) {
+        qWarning("Unknown task specified! Abort...");
         return 1;
     }
 
-    QOICTCli _client;
+    if(taskcode == OICTTask::Classify ||
+       taskcode == OICTTask::Predict) {
+        QFileInfo _finfo(imgfilename);
+        if(_finfo.exists() == false) {
+            qWarning("Input file '%s' can not be found! Abort...",_finfo.absoluteFilePath().toUtf8().constData());
+            return 2;
+        }
+    }
+
+    QOICTCli _client(taskcode);
     _client.setImgfilename(imgfilename);
     _client.connectTo(srvaddr,port);
 

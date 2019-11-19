@@ -6,11 +6,13 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 
+#include "oicttask.h"
+
 class QOICTCli : public QObject
 {
     Q_OBJECT
 public:
-    QOICTCli(QObject *parent = 0);
+    QOICTCli(OICTTask::TaskCode _taskcode, QObject *parent = 0);
 
     void connectTo(const QHostAddress &_addr, quint16 _port);
     void setImgfilename(const QString &value);
@@ -29,6 +31,7 @@ private slots:
 private:
     QByteArray __readImgfileContent(const QString &_filename);
     QTcpSocket tcpsocket;
+    OICTTask::TaskCode taskcode;
     QString imgfilename;
     int     repeatlength;
 };

@@ -2,7 +2,7 @@ QT += core network
 QT -= gui
 
 TARGET = oictcli
-VERSION = 1.0.0.1
+VERSION = 1.0.0.2
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -24,10 +24,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        qoictcli.cpp
+        qoictcli.cpp \
+        $${PWD}/../Shared/oicttask.cpp
 
 HEADERS += \
-        qoictcli.h
+        qoictcli.h \
+        $${PWD}/../Shared/oicttask.h
 
 INCLUDEPATH += $${PWD}/../Shared
 

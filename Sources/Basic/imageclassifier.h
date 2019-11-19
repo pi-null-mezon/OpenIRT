@@ -45,6 +45,8 @@ public:
 
     ColorOrder getColorOrder() const;
 
+    std::map<int, String> getLabelsInfo() const;
+
 protected:
     std::map<int, String> labelsInfo;
     // errorsInfo should be defined in the descendants, zero error will be used as "no error" code

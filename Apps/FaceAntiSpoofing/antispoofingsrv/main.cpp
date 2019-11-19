@@ -68,7 +68,9 @@ int main(int argc, char *argv[])
     QThread qclassifierthread;
     qclassifier.moveToThread(&qclassifierthread);
 
-    QObject::connect(&server,SIGNAL(classifyImage(qintptr,QByteArray)),&qclassifier,SLOT(classifyImage(qintptr,QByteArray)));
+    QObject::connect(&server,SIGNAL(classify(qintptr,QByteArray)),&qclassifier,SLOT(classify(qintptr,QByteArray)));
+    QObject::connect(&server,SIGNAL(predict(qintptr,QByteArray)),&qclassifier,SLOT(predict(qintptr,QByteArray)));
+    QObject::connect(&server,SIGNAL(listLabels(qintptr)),&qclassifier,SLOT(listLabels(qintptr)));
     QObject::connect(&qclassifier,SIGNAL(taskAccomplished(qintptr,QByteArray)),&server,SLOT(repeatToClient(qintptr,QByteArray)));
 
     qclassifierthread.start();

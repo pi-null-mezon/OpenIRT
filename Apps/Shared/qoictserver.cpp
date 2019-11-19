@@ -51,18 +51,55 @@ void QOICTServer::readClient()
         QDataStream _ids(_task->tcpsocket);
         _ids.setVersion(QDataStream::Qt_5_0);
 
-        if(_task->encimgbytes == -1) {
-            if(_task->tcpsocket->bytesAvailable() < (qint64)sizeof(qint32))
+        if(_task->taskcode == OICTTask::UnknownTask) {
+            if(_task->tcpsocket->bytesAvailable() < (qint64)sizeof(quint8))
                 return;
-            _ids >> _task->encimgbytes;
+            quint8 _code;
+            _ids >> _code;
+            _task->taskcode = OICTTask::getTaskCode(_code);
+            qDebug("Task code recieved: %d", _task->taskcode);
         }
-        if(_task->encimgaccepted == false) {
-            if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
-                return;
-            _task->encimg.resize(_task->encimgbytes);
-            _ids.readRawData(_task->encimg.data(),_task->encimg.size());
-            _task->encimgaccepted = true;
-            emit classifyImage(_taskid,_task->encimg);
+
+        switch(_task->taskcode) {
+            case OICTTask::AskLabelsList:
+                emit listLabels(_taskid);
+                break;
+
+            case OICTTask::Classify:
+                if(_task->encimgbytes == -1) {
+                    if(_task->tcpsocket->bytesAvailable() < (qint64)sizeof(qint32))
+                        return;
+                    _ids >> _task->encimgbytes;
+                }
+                if(_task->encimgaccepted == false) {
+                    if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
+                        return;
+                    _task->encimg.resize(_task->encimgbytes);
+                    _ids.readRawData(_task->encimg.data(),_task->encimg.size());
+                    _task->encimgaccepted = true;
+                    emit classify(_taskid,_task->encimg);
+                }
+                break;
+
+            case OICTTask::Predict:
+                if(_task->encimgbytes == -1) {
+                    if(_task->tcpsocket->bytesAvailable() < (qint64)sizeof(qint32))
+                        return;
+                    _ids >> _task->encimgbytes;
+                }
+                if(_task->encimgaccepted == false) {
+                    if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
+                        return;
+                    _task->encimg.resize(_task->encimgbytes);
+                    _ids.readRawData(_task->encimg.data(),_task->encimg.size());
+                    _task->encimgaccepted = true;
+                    emit predict(_taskid,_task->encimg);
+                }
+                break;
+
+            default:
+                // TO SUPRESS WARNINGS
+                break;
         }
     }
 }

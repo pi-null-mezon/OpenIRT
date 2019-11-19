@@ -17,7 +17,9 @@ signals:
     void        taskAccomplished(qintptr _taskid, const QByteArray &_info);
 
 public slots:
-    void        classifyImage(qintptr _taskid, const QByteArray &_encimg);
+    void        classify(qintptr _taskid, const QByteArray &_encimg);
+    void        predict(qintptr _taskid, const QByteArray &_encimg);
+    void        listLabels(qintptr _taskid);
 
 private:
     cv::Ptr<cv::oirt::CNNImageClassifier> ptrrec;

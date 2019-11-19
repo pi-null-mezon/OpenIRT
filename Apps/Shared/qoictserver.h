@@ -6,19 +6,7 @@
 #include <QTcpSocket>
 #include <QMap>
 
-struct OICTTask {
-
-    OICTTask(QTcpSocket *_tcpsocket=nullptr) :
-        tcpsocket(_tcpsocket),
-        encimgbytes(-1),
-        encimgaccepted(false) {}
-
-    QTcpSocket *tcpsocket;
-    QByteArray encimg;
-    qint32     encimgbytes;
-    bool       encimgaccepted;
-};
-
+#include "oicttask.h"
 
 class QOICTServer : public QObject
 {
@@ -28,7 +16,9 @@ public:
     ~QOICTServer();
 
 signals:
-    void classifyImage(qintptr _taskid, const QByteArray &_encimg);
+    void listLabels(qintptr _taskid);
+    void classify(qintptr _taskid, const QByteArray &_encimg);
+    void predict(qintptr _taskid, const QByteArray &_encimg);
 
 public slots:    
     bool start(const QString &_addr, quint16 _port);

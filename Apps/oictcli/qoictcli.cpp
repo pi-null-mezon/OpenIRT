@@ -6,7 +6,8 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-QOICTCli::QOICTCli(QObject *parent): QObject(parent)
+QOICTCli::QOICTCli(OICTTask::TaskCode _taskcode, QObject *parent): QObject(parent),
+    taskcode(_taskcode)
 {
     connect(&tcpsocket,SIGNAL(connected()),this,SLOT(sendTask()));
     connect(&tcpsocket,SIGNAL(readyRead()),this,SLOT(readSocket()));
@@ -37,10 +38,30 @@ void QOICTCli::deleteFiles()
 void QOICTCli::sendTask()
 {
     QDataStream _ods(&tcpsocket);
-    _ods.setVersion(QDataStream::Qt_5_0);   
-    QByteArray _encimg = __readImgfileContent(imgfilename);
-    _ods << static_cast<qint32>(_encimg.size());
-    _ods.writeRawData(_encimg.constData(),_encimg.size());
+    _ods.setVersion(QDataStream::Qt_5_0);
+
+    _ods << OICTTask::getTaskCodeValue(taskcode);
+    qDebug("taskcode: %u", (uint)OICTTask::getTaskCodeValue(taskcode));
+
+    switch(taskcode) {
+        case OICTTask::Classify: {
+            qDebug("Classify");
+            QByteArray _encimg = __readImgfileContent(imgfilename);
+            _ods << static_cast<qint32>(_encimg.size());
+            _ods.writeRawData(_encimg.constData(),_encimg.size());
+        } break;
+
+        case OICTTask::Predict: {
+            qDebug("Classify");
+            QByteArray _encimg = __readImgfileContent(imgfilename);
+            _ods << static_cast<qint32>(_encimg.size());
+            _ods.writeRawData(_encimg.constData(),_encimg.size());
+        } break;
+
+        default:
+            // To supress warnings
+            break;
+    }
 }
 
 void QOICTCli::readSocket()
