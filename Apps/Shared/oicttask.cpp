@@ -1,4 +1,4 @@
-#include "oICTTask.h"
+#include "oicttask.h"
 
 OICTTask::OICTTask(QTcpSocket *_tcpsocket) :
     tcpsocket(_tcpsocket),

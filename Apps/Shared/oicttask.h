@@ -1,5 +1,5 @@
-#ifndef OICTTask_H
-#define OICTTask_H
+#ifndef OICTTASK_H
+#define OICTTASK_H
 
 #include <QTcpSocket>
 
@@ -28,4 +28,4 @@ struct OICTTask
     bool        encimgaccepted;
 };
 
-#endif // OICTTask_H
+#endif // OICTTASK_H
