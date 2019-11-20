@@ -9,7 +9,8 @@
 #include <QDesktopServices>
 
 QCustomProcessor::QCustomProcessor(QQmlApplicationEngine *_qmlengine, QObject *parent) : QObject(parent),
-    qmlengine(_qmlengine)
+    qmlengine(_qmlengine),
+    m_updtdownloadprogress(0)
 {
     QDir _dir(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation).append("/%1").arg(APP_NAME));
     if(!_dir.exists())
@@ -125,6 +126,8 @@ void QCustomProcessor::createLabelsList() {
         qmlengine->rootContext()->setContextProperty("labels",QVariant::fromValue(listofclasslabels));
         if(listofclasslabels.size() == 0)
             emit error(tr("В директории для размеченных изображений не найдено ни одной субдиректории!"));
+        else
+            emit error(QString()); // to drop error message
     }
 }
 

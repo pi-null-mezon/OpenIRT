@@ -3,7 +3,7 @@ QT += quick
 CONFIG += c++11
 
 TARGET = QMLabeler
-VERSION = 0.0.0.1
+VERSION = 0.0.0.2
 
 DEFINES = APP_NAME=\\\"$${TARGET}\\\" \
           APP_VERSION=\\\"$${VERSION}\\\"
