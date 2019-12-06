@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
                       "       1 - Classify (vector of labels along with confidences)\n"
                       "       2 - Predict (single label with max conf)\n"
                       "       3 - AskLabelsList\n");
-                qInfo(" -d      - delete image files after server's repeat\n");
+                qInfo(" -d      - delete images files after server's repeat\n");
 
                 return 0;
 
