@@ -64,9 +64,9 @@ int main(int _argc, char **_argv)
         /*_ptr = cv::oirt::FaceAgeClassifier::createCNNImageClassifier( cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/deploy_age.prototxt"),
                                                                       cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/age_net.caffemodel"),
                                                                       cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));*/
-        _ptr = cv::oirt::SpoofingAttackDetector::createSpoofingAttackDetector("C:/Models/ReplayAttack/replay_attack_net_v5.dat",
-                                                                            "C:/Models/PrintAttack/print_attack_net_v6.dat",
-                                                                            "C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat");
+        _ptr = cv::oirt::SpoofingAttackDetector::createSpoofingAttackDetector("C:/Models/ReplayAttack/replay_attack_net_v6.dat",
+                                                                              "C:/Models/PrintAttack/print_attack_net_v7.dat",
+                                                                              "C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat");
 
         int delayms = cmdargsparser.get<int>("delay");
         int error = 0;

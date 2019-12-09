@@ -86,8 +86,8 @@ private:
 
 Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile="shape_predictor_5_face_landmarks.dat",
                                                  const String &_facedescriptormodelfile="dlib_face_recognition_resnet_model_v1.dat",
-                                                 const String &_replayattackmodelfile="replay_attack_net_v5.dat",
-                                                 const String &_printattackmodelfile="print_attack_net_v6.dat",
+                                                 const String &_replayattackmodelfile="replay_attack_net_v6.dat",
+                                                 const String &_printattackmodelfile="print_attack_net_v7.dat",
                                                  DistanceType _disttype=DistanceType::Euclidean,
                                                  double _threshold=0.485,
                                                  double _minattackprob=0.5);

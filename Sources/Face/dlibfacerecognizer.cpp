@@ -57,7 +57,7 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
             dlib::matrix<dlib::rgb_pixel> attack_facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
             dlib::matrix<float,1,2> replay_attack_prob = dlib::mat(ranet(attack_facechip));
             dlib::matrix<float,1,2> print_attack_prob = dlib::mat(panet(attack_facechip));
-            double attack_prob = std::max(replay_attack_prob(1),print_attack_prob(1)); // 1 is 'attack', 0 is 'live'
+            double attack_prob = std::max(replay_attack_prob(1),print_attack_prob(1)); // 0 is 'live' and 1 is 'attack',
             if(attack_prob >= minattackprob) {
                 if(_error)
                     *_error = 2;
