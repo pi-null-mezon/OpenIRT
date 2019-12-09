@@ -5,8 +5,6 @@
 #ifndef __OPENCV_CNNIMGREC_HPP__
 #define __OPENCV_CNNIMGREC_HPP__
 
-#include <opencv2/dnn.hpp>
-
 #include "imagerec_basic.hpp"
 #include "imagerecognizer.hpp"
 

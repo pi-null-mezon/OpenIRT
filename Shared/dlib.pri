@@ -51,7 +51,8 @@ linux {
                 -ljpeg \
                 -lpng
     }
-
+    # Opencv4 option to make IplImage from cv::Mat that is needed by dlib::cv_image
+    DEFINES += CV__ENABLE_C_API_CTORS
 }
 
 
