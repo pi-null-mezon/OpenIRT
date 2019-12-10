@@ -12,7 +12,7 @@ srvaddr = "127.0.0.1"
 # Specify port where srv is listining
 srvport = 8080
 # Specify API routing prefix
-apiprefix = "/docrecservice/v1.0"
+apiprefix = "/fas/v1.0"
 #Specify where files should be uploaded
 UPLOAD_FOLDER = '.'
 if OS_WIN:

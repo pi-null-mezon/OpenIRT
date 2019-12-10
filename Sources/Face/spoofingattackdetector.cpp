@@ -32,8 +32,8 @@ SpoofingAttackDetector::SpoofingAttackDetector(const cv::String &_replayattack_m
         std::cout << e.what() << std::endl;
     }
     // Labels known to networks
-    setLabelInfo(0,"live");
-    setLabelInfo(1,"attack");
+    setLabelInfo(0,"Live");
+    setLabelInfo(1,"Attack");
     // Possible errors (0 - no error)
     errorsInfo[1] = "Can not find face!";
 }
