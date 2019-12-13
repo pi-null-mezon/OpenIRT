@@ -98,7 +98,8 @@ RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recogniti
 	
 # Prepare web server
 RUN mkdir -p /home/Testdata && \
-	echo "python3 /Apps/Face/oirtweb/oirtwebsrv.py & oirtsrv" > serve && \
+	mv /Apps/Face/oirtweb/oirtwebsrv.py . && \
+	echo "python3 oirtwebsrv.py & oirtsrv" > serve && \
 	chmod +x serve
 
 # This port is listening by oirtweb server by default
