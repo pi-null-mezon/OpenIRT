@@ -9,7 +9,7 @@ ENV LANG en_US.UTF-8
 # Copy repository directories into container
 COPY /Sources /Sources 
 COPY /Shared /Shared 
-COPY /Apps /Apps
+COPY /Apps/Face /Apps/Face
 
 # Update OS and install build tools
 RUN apt-get update && \
@@ -71,7 +71,7 @@ RUN cd Apps/oirtcli && \
     qmake ../oirtcli.pro && \
     make && \
     make install && \
-    cd ../ && rm -rf build && cd ~/..
+    cd ../ && rm -rf build
 	
 # Build oirtsrv 
 RUN cd Apps/Face/oirtsrv && \
@@ -79,8 +79,7 @@ RUN cd Apps/Face/oirtsrv && \
     qmake ../oirtsrv.pro && \
     make && \
     make install && \
-    cd ../ && rm -rf build && cd ~/.. && \
-	mkdir -p /var/facerec
+    cd ../ && rm -rf build && mkdir -p /var/iface
 	
 # Download resources 
 RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recognition_resnet_model_v1.dat.bz2 && \
@@ -97,9 +96,7 @@ RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recogniti
 	mv print_attack_net_v7.dat /usr/local/bin
 	
 # Prepare web server
-RUN mkdir -p /home/Testdata && \
-	mv /Apps/Face/oirtweb/oirtwebsrv.py . && \
-	echo "python3 oirtwebsrv.py & oirtsrv" > serve && \
+RUN echo "python3 Apps/Face/httpsrv/httpsrv.py & oirtsrv -l/var/iface/iface_biometric_templates.yml" > serve && \
 	chmod +x serve
 
 # This port is listening by oirtweb server by default
