@@ -63,32 +63,33 @@ def get_status():
 
 
 @app.route("%s/photo" % apiprefix, methods=['GET'])
-def get_photo_v1():    
-	labelinfo = base64.b64encode(flask.request.form['labelinfo'].encode('utf-8')).decode('utf-8')
-	filenamelist = [f.rsplit('.', 1)[0] for f in os.listdir(app.config['UPLOAD_FOLDER']) if
-					os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f))]
-	if labelinfo in filenamelist:
-		for extension in ALLOWED_EXTENSIONS:
-			absfilename = os.path.join(app.config['UPLOAD_FOLDER'], f"{labelinfo}.{extension}")
-			if os.path.exists(absfilename):
-				return flask.send_from_directory(app.config['UPLOAD_FOLDER'], f"{labelinfo}.{extension}", as_attachment=True)
-				#with open(absfilename, 'rb') as imgfile:
-				   #return flask.jsonify({"status": "Success", "photo": base64.b64encode(imgfile.read()).decode('utf-8')}), 200
-	return flask.jsonify({"status": "Error", "info": "No such labelinfo found or incorrect targetnum asked"}), 400
+def get_photo_v1():
+    labelinfo = base64.b64encode(flask.request.form['labelinfo'].encode('utf-8')).decode('utf-8')
+    filenamelist = [f.rsplit('.', 1)[0] for f in os.listdir(app.config['UPLOAD_FOLDER']) if
+                    os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f))]
+    if labelinfo in filenamelist:
+        for extension in ALLOWED_EXTENSIONS:
+            absfilename = os.path.join(app.config['UPLOAD_FOLDER'], f"{labelinfo}.{extension}")
+            if os.path.exists(absfilename):
+                return flask.send_from_directory(app.config['UPLOAD_FOLDER'], f"{labelinfo}.{extension}",
+                                                 as_attachment=True)
+            # with open(absfilename, 'rb') as imgfile:
+            # return flask.jsonify({"status": "Success", "photo": base64.b64encode(imgfile.read()).decode('utf-8')}), 200
+    return flask.jsonify({"status": "Error", "info": "No such labelinfo found or incorrect targetnum asked"}), 400
 
 
 @app.route("%s/photo/<labelinfo>" % apiprefix, methods=['GET'])
-def get_photo_v2(labelinfo): 
-	labelinfo = base64.b64encode(labelinfo.encode('utf-8')).decode('utf-8')
-	filenamelist = [f.rsplit('.', 1)[0] for f in os.listdir(app.config['UPLOAD_FOLDER']) if
-					os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f))]
-	if labelinfo in filenamelist:
-		for extension in ALLOWED_EXTENSIONS:
-			absfilename = os.path.join(app.config['UPLOAD_FOLDER'], f"{labelinfo}.{extension}")
-			if os.path.exists(absfilename):
-				return flask.send_from_directory(app.config['UPLOAD_FOLDER'], f"{labelinfo}.{extension}",
-												 as_attachment=True)
-	return flask.jsonify({"status": "Error", "info": "No such labelinfo found"}), 400
+def get_photo_v2(labelinfo):
+    labelinfo = base64.b64encode(labelinfo.encode('utf-8')).decode('utf-8')
+    filenamelist = [f.rsplit('.', 1)[0] for f in os.listdir(app.config['UPLOAD_FOLDER']) if
+                    os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f))]
+    if labelinfo in filenamelist:
+        for extension in ALLOWED_EXTENSIONS:
+            absfilename = os.path.join(app.config['UPLOAD_FOLDER'], f"{labelinfo}.{extension}")
+            if os.path.exists(absfilename):
+                return flask.send_from_directory(app.config['UPLOAD_FOLDER'], f"{labelinfo}.{extension}",
+                                                 as_attachment=True)
+    return flask.jsonify({"status": "Error", "info": "No such labelinfo found"}), 400
 
 
 @app.route("%s/remember" % apiprefix, methods=['POST'])
@@ -121,22 +122,22 @@ def remember_face():
 
 @app.route("%s/delete" % apiprefix, methods=['DELETE'])
 def delete_template():
-	labelinfo = flask.request.form['labelinfo']
-	oirtsrvoutput = subprocess.check_output(
-		["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-l%s" % labelinfo, "-t2"])
-	if OS_WIN:
-		oirtsrvoutput = oirtsrvoutput.decode('cp1251')
-	oirtsrvjson = json.loads(oirtsrvoutput)
-	response = flask.make_response(oirtsrvoutput, 200 if oirtsrvjson['status'].lower() == 'success' else 400)
-	response.headers['Content-Type'] = "application/json"
-	save_event('delete', oirtsrvjson)
-	# Remove photo from disk
-	labelinfo = base64.b64encode(labelinfo.encode('utf-8')).decode('utf-8')
-	for extension in ALLOWED_EXTENSIONS:
-		absfilename = os.path.join(app.config['UPLOAD_FOLDER'], f"{labelinfo}.{extension}")
-		if os.path.isfile(absfilename):
-			os.remove(absfilename)
-	return response
+    labelinfo = flask.request.form['labelinfo']
+    oirtsrvoutput = subprocess.check_output(
+        ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-l%s" % labelinfo, "-t2"])
+    if OS_WIN:
+        oirtsrvoutput = oirtsrvoutput.decode('cp1251')
+    oirtsrvjson = json.loads(oirtsrvoutput)
+    response = flask.make_response(oirtsrvoutput, 200 if oirtsrvjson['status'].lower() == 'success' else 400)
+    response.headers['Content-Type'] = "application/json"
+    save_event('delete', oirtsrvjson)
+    # Remove photo from disk
+    labelinfo = base64.b64encode(labelinfo.encode('utf-8')).decode('utf-8')
+    for extension in ALLOWED_EXTENSIONS:
+        absfilename = os.path.join(app.config['UPLOAD_FOLDER'], f"{labelinfo}.{extension}")
+        if os.path.isfile(absfilename):
+            os.remove(absfilename)
+    return response
 
 
 @app.route("%s/identify" % apiprefix, methods=['POST'])

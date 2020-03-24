@@ -87,7 +87,9 @@ void CNNImageRecognizer::__train(InputArrayOfArrays _src, InputArray _labels, bo
     Mat lbls = _labels.getMat();
     // check if data is well-aligned
     if(lbls.total() != raw.size()) {
-        String error_message = format("The number of samples (src) must equal the number of labels (labels). Was len(samples)=%d, len(labels)=%d.", raw.size(), lbls.total());
+        String error_message = format("The number of samples (src) must equal the number of labels (labels). Was len(samples)=%d, len(labels)=%d.",
+                                      static_cast<int>(raw.size()),
+                                      static_cast<int>(lbls.total()));
         CV_Error(Error::StsBadArg, error_message);
     }
 
