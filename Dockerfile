@@ -10,6 +10,8 @@ ENV LANG en_US.UTF-8
 COPY /Sources /Sources 
 COPY /Shared /Shared 
 COPY /Apps/Face /Apps/Face
+COPY /Apps/oirtcli /Apps/oirtcli
+COPY /Apps/Shared /Apps/Shared
 
 # Update OS and install build tools
 RUN apt-get update && \
@@ -62,8 +64,7 @@ RUN apt-get install -y qt5-default
 
 # Install Python3 with webserver packages
 RUN apt-get install -y python3 python3-pip && \
-    pip3 install -U Flask && \
-	pip3 install waitress requests	
+    pip3 install --no-cache-dir Flask waitress requests	
 	
 # Build oirtcli 
 RUN cd Apps/oirtcli && \
