@@ -29,10 +29,11 @@
 
 # Paths
 *.pro.user*
-**/Install
-build*
+Install
+build
+venv
 __pycache__
-
+.idea
 
 
 
