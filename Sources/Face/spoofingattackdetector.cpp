@@ -1,7 +1,5 @@
 #include "spoofingattackdetector.h"
 
-#include <opencv2/highgui.hpp>
-
 namespace cv { namespace oirt {
 
 SpoofingAttackDetector::SpoofingAttackDetector(const cv::String &_replayattack_modelname, const cv::String &_printattack_modelname, const cv::String &_dlibshapepredictor) :
@@ -43,8 +41,7 @@ void SpoofingAttackDetector::predict(InputArray src, int &label, float &conf, in
     cv::Mat _preprocessedmat = preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput());
     auto _facerect = __detectbiggestface(_preprocessedmat);
     if(_facerect.area() != 0) {
-        auto _facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
-        cv::imshow("facechip",dlib::toMat(_facechip));
+        auto _facechip = __extractface(_preprocessedmat,_facerect,100,0.25);
         double _tm1 = cv::getTickCount();
         dlib::matrix<float,1,2> pra = dlib::mat(netra(_facechip));
         dlib::matrix<float,1,2> ppa = dlib::mat(netpa(_facechip));
@@ -66,8 +63,7 @@ void SpoofingAttackDetector::predict(InputArray src, std::vector<float> &conf, i
     cv::Mat _preprocessedmat = preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput());
     auto _facerect = __detectbiggestface(_preprocessedmat);
     if(_facerect.area() != 0) {
-        auto _facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
-        cv::imshow("facechip",dlib::toMat(_facechip));
+        auto _facechip = __extractface(_preprocessedmat,_facerect,100,0.25);
         double _tm1 = cv::getTickCount();
         dlib::matrix<float,1,2> pra = dlib::mat(netra(_facechip));
         dlib::matrix<float,1,2> ppa = dlib::mat(netpa(_facechip));

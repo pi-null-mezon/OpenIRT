@@ -15,7 +15,6 @@ int main(int argc, char *argv[])
     char **_argv = argv;
     char *dirname=nullptr, *apiurl=nullptr;
     unsigned int maxthreads = QThread::idealThreadCount();
-    bool asklabelinfo =  false;
 
     while(--argc > 0 && (*++argv)[0] == '-') {
         switch(*++argv[0]) {
@@ -30,9 +29,9 @@ int main(int argc, char *argv[])
                 break;            
             case 'h':
                 qInfo("%s v.%s\n this application has been designed for automation of the classification api testing", APP_NAME, APP_VERSION);
-                qInfo(" -a[apiurl]  - recognition web-server api url");                
+                qInfo(" -a[apiurl]  - recognition web-server api root url");
                 qInfo(" -i[dirname] - directory with labels and pictures in the subdirs");
-                qInfo(" -t[uint]    - maximum number of worker threads");
+                qInfo(" -t[uint]    - maximum number of worker threads (default: %d)", QThread::idealThreadCount());
                 qInfo(" -h          - this help");
                 qInfo("designed by %s in 2019", APP_DESIGNER);
                 return 0;
@@ -60,7 +59,7 @@ int main(int argc, char *argv[])
     QStringList apilabels = askLabelsInfoFrom(apiurl);
     QConfusionAggregator confusiontable(apilabels);
     QList<QPair<QString,QString>> files;
-    files.reserve(1024);
+    files.reserve(1024*apilabels.size());
     qInfo("Analyzing local directory:");
     qInfo("%s", dir.absolutePath().toUtf8().constData());
     QStringList filefilters;
@@ -69,6 +68,10 @@ int main(int argc, char *argv[])
         QDir subdir(dir.absolutePath().append("/%1").arg(apilabels.at(i)));
         qInfo(" / %s", apilabels.at(i).toUtf8().constData());
         QStringList lfiles = subdir.entryList(filefilters, QDir::Files | QDir::NoDotAndDotDot);
+        if(lfiles.size() == 0) {
+            qInfo("     !!! No instances found directory. It seems you have selected wrong directory. Abort...");
+            return 5;
+        }
         for(int j = 0; j < lfiles.size(); ++j) {
             qInfo("     / %s", lfiles.at(j).toUtf8().constData());
             files.push_back(qMakePair(apilabels.at(i),subdir.absoluteFilePath(lfiles.at(j))));

@@ -35,9 +35,9 @@ protected:
 private:
     unsigned int *threadcounter;
     QString  apiurl;
-    QString  filename;
+    TaskType task;
     QString  labelinfo;
-    TaskType task;    
+    QString  filename;            
 };
 
 #endif // QUPDATETHREAD_H
