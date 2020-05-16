@@ -61,8 +61,7 @@ int main(int argc, char *argv[])
 
     // Let's run facerecognizer in separate thread
     QClassifier qclassifier;
-    qclassifier.loadResources(cv::oirt::SpoofingAttackDetector::createSpoofingAttackDetector(a.applicationDirPath().append("/replay_attack_net_v6.dat").toUtf8().constData(),
-                                                                                             a.applicationDirPath().append("/print_attack_net_v7.dat").toUtf8().constData(),
+    qclassifier.loadResources(cv::oirt::SpoofingAttackDetector::createSpoofingAttackDetector(a.applicationDirPath().append("/").toUtf8().constData(),
                                                                                              a.applicationDirPath().append("/shape_predictor_5_face_landmarks.dat").toUtf8().constData()));
 
     QThread qclassifierthread;

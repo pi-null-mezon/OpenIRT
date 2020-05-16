@@ -14,7 +14,7 @@ QConfusionAggregator::QConfusionAggregator(const QStringList &_labels, QObject *
 void QConfusionAggregator::printResults()
 {
     qInfo("Confusion table:");
-    std::cout  << "P\\T";
+    std::cout  << "T\\P";
     for(const auto &_key: confusiontable.keys())
         std::cout  << "\t" << _key.toUtf8().constData() ;
     std::cout << std::endl;

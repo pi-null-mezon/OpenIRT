@@ -98,6 +98,6 @@ void QAskLabelsThread::run()
     QNetworkReply *_reply = _manager.get(_request);
     connect(_reply,SIGNAL(finished()),this,SLOT(quit()));
     exec();
-    *replydata = qMove(_reply->readAll());
+    *replydata = _reply->readAll();
     _reply->deleteLater();
 }
