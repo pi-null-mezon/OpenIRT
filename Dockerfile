@@ -31,7 +31,7 @@ RUN apt-get install -y libtbb2 libtbb-dev libjpeg-dev libpng-dev libopenblas-dev
           -D BUILD_opencv_apps=OFF \
           -D BUILD_opencv_photo=OFF \
           -D BUILD_opencv_video=OFF \
-		  -D BUILD_opencv_videoio=OFF \
+          -D BUILD_opencv_videoio=OFF \
           -D BUILD_opencv_objdetect=OFF \
           -D BUILD_opencv_flann=OFF \
           -D BUILD_opencv_highgui=OFF \
@@ -85,16 +85,11 @@ RUN cd Apps/Face/oirtsrv && \
 # Download resources 
 RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recognition_resnet_model_v1.dat.bz2 && \
     bzip2 -d dlib_face_recognition_resnet_model_v1.dat.bz2 && \
-    mv dlib_face_recognition_resnet_model_v1.dat /usr/local/bin && \
     wget https://github.com/davisking/dlib-models/raw/master/shape_predictor_5_face_landmarks.dat.bz2 && \   
     bzip2 -d shape_predictor_5_face_landmarks.dat.bz2 && \
-    mv shape_predictor_5_face_landmarks.dat /usr/local/bin &&\
-	wget https://github.com/pi-null-mezon/FaceAntiSpoofing/raw/master/ReplayAttack/Models/replay_attack_net_v6.dat.bz2 && \
-	bzip2 -d replay_attack_net_v6.dat.bz2 && \
-    mv replay_attack_net_v6.dat /usr/local/bin && \
-	wget https://github.com/pi-null-mezon/FaceAntiSpoofing/raw/master/PrintAttack/Models/print_attack_net_v7.dat.bz2 && \
-	bzip2 -d print_attack_net_v7.dat.bz2 && \
-	mv print_attack_net_v7.dat /usr/local/bin
+    wget https://github.com/pi-null-mezon/FaceAntiSpoofing/raw/master/AnyAttacks/Models/nets_v0.tar.gz && \
+    tar -xzvf nets_v0.tar.gz && rm nets_v0.tar.gz && \
+    mv *.dat /usr/local/bin
 	
 # Prepare web server
 RUN echo "python3 Apps/Face/httpsrv/httpsrv.py & oirtsrv -l/var/iface/iface_biometric_templates.yml" > serve && \

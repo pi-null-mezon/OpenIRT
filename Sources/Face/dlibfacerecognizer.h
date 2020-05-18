@@ -39,26 +39,17 @@ namespace dlib {
                                 max_pool<3,3,2,2,relu<affine<con<32,7,7,2,2,
                                 input_rgb_image_sized<150>
                                 >>>>>>>>>>>>;
-    // Replay attack detector
+
+    // Attack detector model
     template <int N, template <typename> class BN, typename SUBNET>
     using block  = relu<BN<con<N,3,3,1,1,relu<BN<con<4*N,1,1,1,1,SUBNET>>>>>>;
 
     template <int N, int K, template <typename> class BN, typename SUBNET>
-    using dense_block2 = relu<BN<con<N,1,1,1,1, concat3<tag3,tag2,tag1,  tag3<block<K,BN,concat2<tag2,tag1, tag2<block<K,BN, tag1<SUBNET>>>>>>>>>>;
+    using dense_block4 = relu<BN<con<N,1,1,1,1, concat5<tag5,tag4,tag3,tag2,tag1,  tag5<block<K,BN,concat4<tag4,tag3,tag2,tag1, tag4<block<K,BN,concat3<tag3,tag2,tag1,  tag3<block<K,BN,concat2<tag2,tag1, tag2<block<K,BN, tag1<SUBNET>>>>>>>>>>>>>>>>;
 
-    template <int N, int K, template <typename> class BN, typename SUBNET>
-    using dense_block3 = relu<BN<con<N,1,1,1,1, concat4<tag4,tag3,tag2,tag1, tag4<block<K,BN,concat3<tag3,tag2,tag1,  tag3<block<K,BN,concat2<tag2,tag1, tag2<block<K,BN, tag1<SUBNET>>>>>>>>>>>>>;
+    template <int N, int K, typename SUBNET> using adense4 = dense_block4<N,K,affine,SUBNET>;
 
-    template <int N, int K, typename SUBNET> using adense3 = dense_block3<N,K,affine,SUBNET>;
-    template <int N, int K, typename SUBNET> using adense2 = dense_block2<N,K,affine,SUBNET>;
-
-    using attackdetmodel = loss_multiclass_log<fc<2,
-                                avg_pool_everything<adense2<64,8,
-                                avg_pool<2,2,2,2,adense3<64,8,
-                                avg_pool<2,2,2,2,adense3<64,8,
-                                relu<affine<con<8,5,5,2,2,
-                                input_rgb_image
-                                >>>>>>>>>>>;
+    using attackmodel = loss_multiclass_log<fc<4,avg_pool_everything<adense4<64,16,max_pool<3,3,2,2,relu<affine<con<16,7,7,2,2,input_rgb_image>>>>>>>>;
 }
 
 namespace cv { namespace oirt {
@@ -66,7 +57,7 @@ namespace cv { namespace oirt {
 class DlibFaceRecognizer: public CNNImageRecognizer
 {
 public:
-    DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, const String &_printattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob);
+    DlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh);
 
     Mat     getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error=0) const override;
     Mat     getImageDescription(const Mat &_img, int *_error=0) const override;
@@ -79,18 +70,14 @@ private:
     mutable dlib::shape_predictor dlibshapepredictor;
     mutable dlib::frontal_face_detector dlibfacedet;
     mutable dlib::faceidentitymodel inet;
-
-    mutable dlib::softmax<dlib::attackdetmodel::subnet_type> ranet, panet;
-    double  minattackprob;
+    mutable std::vector<dlib::softmax<dlib::attackmodel::subnet_type>> anets;
+    double  livenessthresh;
 };
 
-Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile="shape_predictor_5_face_landmarks.dat",
-                                                 const String &_facedescriptormodelfile="dlib_face_recognition_resnet_model_v1.dat",
-                                                 const String &_replayattackmodelfile="replay_attack_net_v6.dat",
-                                                 const String &_printattackmodelfile="print_attack_net_v7.dat",
+Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_resourcesdirectory,
                                                  DistanceType _disttype=DistanceType::Euclidean,
                                                  double _threshold=0.485,
-                                                 double _minattackprob=0.5);
+                                                 double _livenessthresh=0.5);
 
 }}
 

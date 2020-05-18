@@ -26,7 +26,7 @@ template <int N, int K, typename SUBNET> using adense2 = dense_block2<N,K,affine
 template <int N, int K, typename SUBNET> using adense3 = dense_block3<N,K,affine,SUBNET>;
 template <int N, int K, typename SUBNET> using adense4 = dense_block4<N,K,affine,SUBNET>;
 
-using densenet = loss_multiclass_log<fc<3,
+using densenet = loss_multiclass_log<fc<4,
                                     avg_pool_everything<adense4<64,16,
                                     max_pool<3,3,2,2,relu<affine<con<16,7,7,2,2,
                                     input_rgb_image

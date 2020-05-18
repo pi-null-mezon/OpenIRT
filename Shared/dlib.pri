@@ -25,7 +25,7 @@ LIBS += -ldlib
 linux {
 
     #if Dlib had been built with OpenBLAS
-    #CONFIG += openblasbackend
+    CONFIG += openblasbackend
 
     openblasbackend {
         message(OpenBLAS backend enabled)
@@ -34,7 +34,7 @@ linux {
     }
 
     # if Dlib had been built with CUDA
-    CONFIG += cudabackend
+    #CONFIG += cudabackend
 
     cudabackend {
         message(CUDA backend enabled)

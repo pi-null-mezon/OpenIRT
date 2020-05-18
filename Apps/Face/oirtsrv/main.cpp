@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     QString address = "127.0.0.1";
     QString labelsfilename = a.applicationDirPath().append("/labels.yml");
     double recthresh = 0.485;
-    double minspoofingprob = 0.5;
+    double livenessthresh = 0.9;
     while((--argc > 0) && ((*++argv)[0] == '-')) {
         switch(*++argv[0]) {
             case 'h':
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
                 qInfo(" -p[int]  - port number to listen (default: %u)", (uint)port);
                 qInfo(" -l[str]  - filename of the file to store labels (default: %s)", labelsfilename.toUtf8().constData());
                 qInfo(" -t[real] - max distance to recognize as the same (default: %f)", recthresh);
-                qInfo(" -s[real] - min probability of spoofing attack to alarm (default: %f)", minspoofingprob);
+                qInfo(" -s[real] - liveness probability threshold (default: %f)", livenessthresh);
                 return 0;
 
             case 'l':
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
                 break;
 
             case 's':
-                minspoofingprob = QString(++argv[0]).toDouble();
+                livenessthresh = QString(++argv[0]).toDouble();
                 break;
         }
     }
@@ -64,13 +64,10 @@ int main(int argc, char *argv[])
 
     // Let's run facerecognizer in separate thread
     QRecognizer qfacerec;
-    qfacerec.loadResources(cv::oirt::createDlibFaceRecognizer(a.applicationDirPath().append("/shape_predictor_5_face_landmarks.dat").toUtf8().constData(),
-                                                              a.applicationDirPath().append("/dlib_face_recognition_resnet_model_v1.dat").toUtf8().constData(),
-                                                              a.applicationDirPath().append("/replay_attack_net_v6.dat").toUtf8().constData(),
-                                                              a.applicationDirPath().append("/print_attack_net_v7.dat").toUtf8().constData(),
+    qfacerec.loadResources(cv::oirt::createDlibFaceRecognizer(a.applicationDirPath().toUtf8().constData(),
                                                               cv::oirt::DistanceType::Euclidean,
                                                               recthresh,
-                                                              minspoofingprob));
+                                                              livenessthresh));
     qfacerec.setLabelsfilename(labelsfilename);
     QFileInfo _fi(labelsfilename);
     if(_fi.exists())

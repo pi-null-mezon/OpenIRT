@@ -67,7 +67,9 @@ SpoofingAttackDetector::SpoofingAttackDetector(const cv::String &_attack_modelna
     }
     // Labels known to networks
     setLabelInfo(0,"Live");
-    setLabelInfo(1,"Attack");
+    setLabelInfo(1,"Mask");
+    setLabelInfo(2,"Print");
+    setLabelInfo(3,"Replay");
     // Possible errors (0 - no error)
     errorsInfo[1] = "Can not find face!";
 }
@@ -84,21 +86,22 @@ void SpoofingAttackDetector::predict(InputArray src, int &label, float &conf, in
         dlib::rand rnd(7);
         const long cropsnum = 16;
         dlib::array<dlib::matrix<dlib::rgb_pixel>> crops;
-        float live = 0;
-        float attack = 0;
+        dlib::matrix<float,1,4> vc;
+        for(long k = 0; k < dlib::num_columns(vc); ++k)
+            vc(k) = 0;
         for(size_t i = 0; i < nets.size(); ++i) {
             /*dlib::randomly_crop_image(_facechip,crops,rnd,cropsnum);
-            dlib::matrix<float,1,3> p = dlib::sum_rows(dlib::mat(nets[i](crops.begin(),crops.end())))/crops.size();*/
-            dlib::matrix<float,1,3> p = dlib::mat(nets[i](_facechip));
-            live += p(0);
-            attack += p(1) + p(2);
+            dlib::matrix<float,1,4> p = dlib::sum_rows(dlib::mat(nets[i](crops.begin(),crops.end())))/crops.size();*/
+            dlib::matrix<float,1,4> p = dlib::mat(nets[i](_facechip));
+            for(long k = 0; k < dlib::num_columns(vc); ++k)
+                vc(k) += p(k);
         }
-        live /= nets.size();
-        attack /= nets.size();
+        for(long k = 0; k < dlib::num_columns(vc); ++k)
+            vc(k) /= nets.size();
 
         std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
-        label = live > 0.95 ? 0 : 1;
-        conf = label == 0 ? live : attack;
+        label = dlib::index_of_max(vc);
+        conf = vc(label);
         if(_error)
             *_error = 0;
     } else if(_error) {
@@ -113,19 +116,15 @@ void SpoofingAttackDetector::predict(InputArray src, std::vector<float> &conf, i
     if(_facerect.area() != 0) {
         auto _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
         double _tm1 = cv::getTickCount();
-        float live = 0;
-        float attack = 0;
+        conf = std::vector<float>(4,0);
         for(size_t i = 0; i < nets.size(); ++i) {
-            dlib::matrix<float,1,3> p = dlib::mat(nets[i](_facechip));
-            live += p(0);
-            attack += p(1) + p(2);
+            dlib::matrix<float,1,4> p = dlib::mat(nets[i](_facechip));
+            for(size_t k = 0; k < conf.size(); ++k)
+                conf[k] += p(k);
         }
-        live /= nets.size();
-        attack /= nets.size();
+        for(size_t k = 0; k < conf.size(); ++k)
+            conf[k] /= nets.size();
         std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
-        conf.resize(2);
-        conf[0] = live;
-        conf[1] = attack;
         if(_error)
             *_error = 0;
     } else if(_error) {

@@ -2,9 +2,9 @@
 
 namespace cv { namespace oirt {
 
-DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, const String &_printattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob) :
+DlibFaceRecognizer::DlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh) :
     CNNImageRecognizer(cv::Size(0,0),NoCrop,ColorOrder::RGB,_disttype,_threshold), // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
-    minattackprob(_minattackprob)
+    livenessthresh(_livenessthresh)
 {
     try {
         dlibfacedet = dlib::get_frontal_face_detector();
@@ -12,28 +12,24 @@ DlibFaceRecognizer::DlibFaceRecognizer(const String &_faceshapemodelfile, const 
         std::cout << e.what() << std::endl;
     }
     try {
-        dlib::deserialize(_faceshapemodelfile.c_str()) >> dlibshapepredictor;
+        dlib::deserialize(_resourcesdirectory + "/shape_predictor_5_face_landmarks.dat") >> dlibshapepredictor;
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
     try {
-        dlib::deserialize(_facedescriptormodelfile.c_str()) >> inet;
+        dlib::deserialize(_resourcesdirectory + "/dlib_face_recognition_resnet_model_v1.dat") >> inet;
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
-    try {
-        dlib::attackdetmodel _tmpmodel;
-        dlib::deserialize(_replayattackmodelfile.c_str()) >> _tmpmodel;
-        ranet.subnet() = _tmpmodel.subnet();
-    } catch(const std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
-    try {
-        dlib::attackdetmodel _tmpmodel;
-        dlib::deserialize(_printattackmodelfile.c_str()) >> _tmpmodel;
-        panet.subnet() = _tmpmodel.subnet();
-    } catch(const std::exception& e) {
-        std::cout << e.what() << std::endl;
+    anets = std::vector<dlib::softmax<dlib::attackmodel::subnet_type>>(5);
+    for(size_t i = 0; i < anets.size(); ++i) {
+        try {
+            dlib::attackmodel _tmpnet;
+            dlib::deserialize(_resourcesdirectory + "/net_0_split_" + std::to_string(i) + ".dat") >> _tmpnet;
+            anets[i].subnet() = _tmpnet.subnet();
+        } catch(const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
     }
     // Define errors
     errorsInfo[1] = "Can not find face!";
@@ -52,25 +48,27 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
     auto _facerect = __detectbiggestface(_preprocessedmat);
 
     if(_facerect.area() != 0) {
+        const dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
         // Spoofing control
-        if((minattackprob < 0.999) && spoofingcontrolenabled) {
-            dlib::matrix<dlib::rgb_pixel> attack_facechip = __extractface(_preprocessedmat,_facerect,100,0.2);
-            dlib::matrix<float,1,2> replay_attack_prob = dlib::mat(ranet(attack_facechip));
-            dlib::matrix<float,1,2> print_attack_prob = dlib::mat(panet(attack_facechip));
-            double attack_prob = std::max(replay_attack_prob(1),print_attack_prob(1)); // 0 is 'live' and 1 is 'attack',
-            if(attack_prob >= minattackprob) {
+        if((livenessthresh < 0.9999) && spoofingcontrolenabled) {
+            float live = 0;
+            for(size_t i = 0; i < anets.size(); ++i) {
+                dlib::matrix<float,1,4> p = dlib::mat(anets[i](_facechip));
+                live += p(0);
+            }
+            live /= anets.size();
+            //std::cout << "Confidence of liveness: " << live << std::endl;
+
+            if(live < livenessthresh) { // spoofing detection criteria
                 if(_error)
                     *_error = 2;
                 return cv::Mat::zeros(1,128,CV_32FC1);
             }
         }
-
         if(_error)
             *_error = 0;
-        dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
         dlib::matrix<float,0,1> _facedescription = inet(_facechip);
         return dlib::toMat(_facedescription).reshape(1,1).clone();
-
     } else if(_error) {
         *_error = 1;
     }
@@ -125,9 +123,9 @@ dlib::rectangle DlibFaceRecognizer::__detectbiggestface(const Mat &_inmat) const
     return _facerect;
 }
 
-Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_faceshapemodelfile, const String &_facedescriptormodelfile, const String &_replayattackmodelfile, const String &_printattackmodelfile, DistanceType _disttype, double _threshold, double _minattackprob)
+Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh)
 {
-    return makePtr<DlibFaceRecognizer>(_faceshapemodelfile,_facedescriptormodelfile,_replayattackmodelfile,_printattackmodelfile,_disttype,_threshold,_minattackprob);
+    return makePtr<DlibFaceRecognizer>(_resourcesdirectory,_disttype,_threshold,_livenessthresh);
 }
 
 }

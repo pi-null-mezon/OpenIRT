@@ -57,6 +57,10 @@ int main(int argc, char *argv[])
 
     QCoreApplication a(_argc,_argv);
     QStringList apilabels = askLabelsInfoFrom(apiurl);
+    if(apilabels.size() == 0) {
+        qWarning("Can not get valid labels list from api server! Abort...");
+        return 5;
+    }
     QConfusionAggregator confusiontable(apilabels);
     QList<QPair<QString,QString>> files;
     files.reserve(1024*apilabels.size());
