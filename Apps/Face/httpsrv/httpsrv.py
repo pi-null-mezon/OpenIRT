@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------
-# Face Recognition http server
+# Face recognition http server
 #
 # (C) 2020 Alex A. Taranov, Moscow, Russia
 # email a.a.taranov@nefrosovet.ru
@@ -12,6 +12,8 @@ import subprocess
 import sys
 import uuid
 import flask
+import socket
+import struct
 from waitress import serve
 from werkzeug.utils import secure_filename
 
@@ -19,10 +21,12 @@ OS_WIN = False
 if sys.platform == 'win32':
     OS_WIN = True
 
+# Specify use oirtcli or not. If not, python tcp socket will be used
+use_oirtcli = False
 # Specify address where oirtsrv is listening
-oirtsrvaddr = '127.0.0.1'
+oirtsrvaddr = os.getenv('ISRV_ADDR', '127.0.0.1')
 # Specify port where oirtsrv is listining
-oirtsrvport = 8080
+oirtsrvport = int(os.getenv('ISRV_PORT', 8080))
 # Specify API routing prefix
 apiprefix = '/iface'
 # Specify where files should be stored on upload
@@ -30,7 +34,7 @@ UPLOAD_FOLDER = '/var/iface/local_storage'
 if OS_WIN:
     UPLOAD_FOLDER = 'C:/Testdata/iFace/local_storage'
 if not os.path.isdir(UPLOAD_FOLDER):
-    os.mkdir(UPLOAD_FOLDER)
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Specify allowed files extensions
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 # Flask's stuff
@@ -59,7 +63,7 @@ def randomize_name(filename):
 
 @app.route("%s/status" % apiprefix, methods=['GET'])
 def get_status():
-    return flask.jsonify({'status': 'Success', 'version': '1.0.0.0', 'datastorage': app.config['UPLOAD_FOLDER']}), 200
+    return flask.jsonify({'status': 'Success', 'version': '1.5.0.0', 'datastorage': app.config['UPLOAD_FOLDER']}), 200
 
 
 @app.route("%s/photo" % apiprefix, methods=['GET'])
@@ -105,8 +109,29 @@ def remember_face():
                                 str(base64.b64encode(labelinfo.encode('utf-8')).decode('utf-8')) + '.' +
                                 file.filename.rsplit('.', 1)[1])
         file.save(filepath)
-        oirtsrvoutput = subprocess.check_output(
-            ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-i%s" % filepath, "-l%s" % labelinfo, "-t1"])
+        if use_oirtcli:
+            oirtsrvoutput = subprocess.check_output(
+                ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-i%s" % filepath, "-l%s" % labelinfo, "-t1"])
+        else:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((oirtsrvaddr, oirtsrvport))
+            try:
+                data = labelinfo.encode('utf-8')
+                sock.send(struct.pack('!Bi', 1, len(data)))
+                sock.send(data)
+                with open(filepath, 'rb') as file:
+                    content = file.read()
+                sock.send(struct.pack('!i', len(content)))
+                sock.send(content)
+                reply = b''
+                while len(reply) < 4:
+                    reply += sock.recv(4)
+                length = struct.unpack('!i', reply[:4])[0]
+                oirtsrvoutput = b''
+                while len(oirtsrvoutput) < length:
+                    oirtsrvoutput += sock.recv(512)
+            finally:
+                sock.close()
         if OS_WIN:
             oirtsrvoutput = oirtsrvoutput.decode('cp1251')
         oirtsrvjson = json.loads(oirtsrvoutput)
@@ -123,8 +148,25 @@ def remember_face():
 @app.route("%s/delete" % apiprefix, methods=['DELETE'])
 def delete_template():
     labelinfo = flask.request.form['labelinfo']
-    oirtsrvoutput = subprocess.check_output(
-        ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-l%s" % labelinfo, "-t2"])
+    if use_oirtcli:
+        oirtsrvoutput = subprocess.check_output(
+            ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-l%s" % labelinfo, "-t2"])
+    else:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((oirtsrvaddr, oirtsrvport))
+        try:
+            data = labelinfo.encode('utf-8')
+            sock.send(struct.pack('!Bi', 2, len(data)))
+            sock.send(data)
+            reply = b''
+            while len(reply) < 4:
+                reply += sock.recv(4)
+            length = struct.unpack('!i', reply[:4])[0]
+            oirtsrvoutput = b''
+            while len(oirtsrvoutput) < length:
+                oirtsrvoutput += sock.recv(512)
+        finally:
+            sock.close()
     if OS_WIN:
         oirtsrvoutput = oirtsrvoutput.decode('cp1251')
     oirtsrvjson = json.loads(oirtsrvoutput)
@@ -148,11 +190,28 @@ def identify_face():
     if file.filename == '':
         return flask.jsonify({"status": "Error", "info": "Empty filename parameter"}), 400
     if file and allowed_file(file.filename):
-        filename = randomize_name(secure_filename(file.filename))
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        oirtsrvoutput = subprocess.check_output(
-            ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-i%s" % filepath, "-d", "-t3"])
+        if use_oirtcli:
+            filename = randomize_name(secure_filename(file.filename))
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            oirtsrvoutput = subprocess.check_output(
+                ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-i%s" % filepath, "-d", "-t3"])
+        else:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((oirtsrvaddr, oirtsrvport))
+            try:
+                content = file.read()
+                sock.send(struct.pack('!Bi', 3, len(content)))
+                sock.send(content)
+                reply = b''
+                while len(reply) < 4:
+                    reply += sock.recv(4)
+                length = struct.unpack('!i', reply[:4])[0]
+                oirtsrvoutput = b''
+                while len(oirtsrvoutput) < length:
+                    oirtsrvoutput += sock.recv(512)
+            finally:
+                sock.close()
         if OS_WIN:
             oirtsrvoutput = oirtsrvoutput.decode('cp1251')
         oirtsrvjson = json.loads(oirtsrvoutput)
@@ -171,11 +230,28 @@ def recognize_face():
     if file.filename == '':
         return flask.jsonify({"status": "Error", "info": "Empty filename parameter"}), 400
     if file and allowed_file(file.filename):
-        filename = randomize_name(secure_filename(file.filename))
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        oirtsrvoutput = subprocess.check_output(
-            ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-i%s" % filepath, "-d", "-t7"])
+        if use_oirtcli:
+            filename = randomize_name(secure_filename(file.filename))
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            oirtsrvoutput = subprocess.check_output(
+                ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-i%s" % filepath, "-d", "-t7"])
+        else:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((oirtsrvaddr, oirtsrvport))
+            try:
+                content = file.read()
+                sock.send(struct.pack('!Bi', 7, len(content)))
+                sock.send(content)
+                reply = b''
+                while len(reply) < 4:
+                    reply += sock.recv(4)
+                length = struct.unpack('!i', reply[:4])[0]
+                oirtsrvoutput = b''
+                while len(oirtsrvoutput) < length:
+                    oirtsrvoutput += sock.recv(512)
+            finally:
+                sock.close()
         if OS_WIN:
             oirtsrvoutput = oirtsrvoutput.decode('cp1251')
         oirtsrvjson = json.loads(oirtsrvoutput)
@@ -188,7 +264,22 @@ def recognize_face():
 
 @app.route("%s/labels" % apiprefix, methods=['GET'])
 def get_labels():
-    oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-t4"])
+    if use_oirtcli:
+        oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-t4"])
+    else:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((oirtsrvaddr, oirtsrvport))
+        try:
+            sock.send(struct.pack('!B', 4))
+            reply = b''
+            while len(reply) < 4:
+                reply += sock.recv(4)
+            length = struct.unpack('!i', reply[:4])[0]
+            oirtsrvoutput = b''
+            while len(oirtsrvoutput) < length:
+                oirtsrvoutput += sock.recv(512)
+        finally:
+            sock.close()
     if OS_WIN:
         oirtsrvoutput = oirtsrvoutput.decode('cp1251')
     response = flask.make_response(oirtsrvoutput, 200)
@@ -210,15 +301,35 @@ def verify_face():
     if vfile.filename == '':
         return flask.jsonify({"status": "Error", "info": "Empty vfile name parameter"}), 400
     if efile and allowed_file(efile.filename) and vfile and allowed_file(vfile.filename):
-        efilename = randomize_name(secure_filename(efile.filename))
-        efilepath = os.path.join(app.config['UPLOAD_FOLDER'], efilename)
-        efile.save(efilepath)
-        vfilename = randomize_name(secure_filename(vfile.filename))
-        vfilepath = os.path.join(app.config['UPLOAD_FOLDER'], vfilename)
-        vfile.save(vfilepath)
-        oirtsrvoutput = subprocess.check_output(
-            ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-i%s" % efilepath, "-v%s" % vfilepath, "-d",
-             "-t5"])
+        if use_oirtcli:
+            efilename = randomize_name(secure_filename(efile.filename))
+            efilepath = os.path.join(app.config['UPLOAD_FOLDER'], efilename)
+            efile.save(efilepath)
+            vfilename = randomize_name(secure_filename(vfile.filename))
+            vfilepath = os.path.join(app.config['UPLOAD_FOLDER'], vfilename)
+            vfile.save(vfilepath)
+            oirtsrvoutput = subprocess.check_output(
+                ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-i%s" % efilepath, "-v%s" % vfilepath, "-d",
+                 "-t5"])
+        else:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((oirtsrvaddr, oirtsrvport))
+            try:
+                content = efile.read()
+                sock.send(struct.pack('!Bi', 5, len(content)))
+                sock.send(content)
+                content = vfile.read()
+                sock.send(struct.pack('!i', len(content)))
+                sock.send(content)
+                reply = b''
+                while len(reply) < 4:
+                    reply += sock.recv(4)
+                length = struct.unpack('!i', reply[:4])[0]
+                oirtsrvoutput = b''
+                while len(oirtsrvoutput) < length:
+                    oirtsrvoutput += sock.recv(512)
+            finally:
+                sock.close()
         if OS_WIN:
             oirtsrvoutput = oirtsrvoutput.decode('cp1251')
         oirtsrvjson = json.loads(oirtsrvoutput)
@@ -234,11 +345,28 @@ def set_whitelist():
     if not flask.request.is_json:
         return flask.jsonify({"status": "Error", "info": "Your input is not JSON"}), 400
     whitelist = flask.request.get_json()
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], str(uuid.uuid4()) + '.json')
-    with open(filepath, 'w') as outfile:
-        json.dump(whitelist, outfile)
-    oirtsrvoutput = subprocess.check_output(
-        ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-w%s" % filepath, "-d", "-t6"])
+    if use_oirtcli:
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], str(uuid.uuid4()) + '.json')
+        with open(filepath, 'w') as outfile:
+            json.dump(whitelist, outfile)
+        oirtsrvoutput = subprocess.check_output(
+            ["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-w%s" % filepath, "-d", "-t6"])
+    else:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((oirtsrvaddr, oirtsrvport))
+        try:
+            data = str(whitelist).replace("'", "\"").encode('utf-8')
+            sock.send(struct.pack('!Bi', 6, len(data)))
+            sock.send(data)
+            reply = b''
+            while len(reply) < 4:
+                reply += sock.recv(4)
+            length = struct.unpack('!i', reply[:4])[0]
+            oirtsrvoutput = b''
+            while len(oirtsrvoutput) < length:
+                oirtsrvoutput += sock.recv(512)
+        finally:
+            sock.close()
     if OS_WIN:
         oirtsrvoutput = oirtsrvoutput.decode('cp1251')
     oirtsrvjson = json.loads(oirtsrvoutput)
@@ -250,7 +378,22 @@ def set_whitelist():
 
 @app.route("%s/whitelist/drop" % apiprefix, methods=['POST'])
 def drop_whitelist():
-    oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-t8"])
+    if use_oirtcli:
+        oirtsrvoutput = subprocess.check_output(["oirtcli", "-a%s" % oirtsrvaddr, "-p%d" % oirtsrvport, "-t8"])
+    else:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((oirtsrvaddr, oirtsrvport))
+        try:
+            sock.send(struct.pack('!B', 8))
+            reply = b''
+            while len(reply) < 4:
+                reply += sock.recv(4)
+            length = struct.unpack('!i', reply[:4])[0]
+            oirtsrvoutput = b''
+            while len(oirtsrvoutput) < length:
+                oirtsrvoutput += sock.recv(512)
+        finally:
+            sock.close()
     if OS_WIN:
         oirtsrvoutput = oirtsrvoutput.decode('cp1251')
     response = flask.make_response(oirtsrvoutput, 200)

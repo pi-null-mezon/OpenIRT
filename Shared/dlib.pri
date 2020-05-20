@@ -33,9 +33,6 @@ linux {
                 -lpthread
     }
 
-    # if Dlib had been built with CUDA
-    #CONFIG += cudabackend
-
     cudabackend {
         message(CUDA backend enabled)
         LIBS += -L/usr/local/cuda/lib64

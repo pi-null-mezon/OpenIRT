@@ -85,12 +85,14 @@ void QOIRTServer::readClient()
                     _task->labeinfo.resize(_task->labelinfobytes);
                     _ids.readRawData(_task->labeinfo.data(),_task->labeinfo.size());
                     _task->labelaccepted = true;
+                    qDebug(" labelinfo: %s", _task->labeinfo.constData());
                 }
                 // WAIT ENCODED PICTURE
                 if(_task->encimgbytes == -1) {
                     if(_task->tcpsocket->bytesAvailable() < (qint64)sizeof(qint32))
                         return;
                     _ids >> _task->encimgbytes;
+                    qDebug(" wait encimg with size: %d", _task->encimgbytes);
                 }
                 if(_task->encimgaccepted == false) {
                     if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
@@ -120,12 +122,13 @@ void QOIRTServer::readClient()
                 break;
 
             case OIRTTask::IdentifyImage:
-                // WAIT ENCODED PICTURE
+                // WAIT ENCODED PICTURE                
                 if(_task->encimgbytes == -1) {
                     if(_task->tcpsocket->bytesAvailable() < (qint64)sizeof(qint32))
                         return;
                     _ids >> _task->encimgbytes;
-                }
+                    qDebug(" wait encimg with size: %d", _task->encimgbytes);
+                }                
                 if(_task->encimgaccepted == false) {
                     if(_task->tcpsocket->bytesAvailable() < _task->encimgbytes)
                         return;
@@ -199,6 +202,7 @@ void QOIRTServer::readClient()
                     _task->whitelist.resize(_task->whitelistbytes);
                     _ids.readRawData(_task->whitelist.data(),_task->whitelist.size());
                     _task->whitelistaccepted = true;
+                    qDebug(" whitelist: %s", _task->whitelist.constData());
                     emit updateWhitelist(_taskid,_task->whitelist);
                 }
                 break;
