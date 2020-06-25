@@ -92,6 +92,8 @@ public:
      */
     virtual double compare(InputArray esrc, InputArray vsrc, int *_error=nullptr) const;
 
+    virtual double compareTemplates(const Mat &_ltemplate,const Mat &_rtemplate, int *_error=nullptr) const;
+
     virtual Mat getImageDescription(const Mat &_img, int *_error=nullptr) const = 0;
 
     virtual void save(const String& filename) const;

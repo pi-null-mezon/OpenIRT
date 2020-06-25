@@ -2,9 +2,10 @@
 
 namespace cv { namespace oirt {
 
-DlibFaceRecognizer::DlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh) :
+DlibFaceRecognizer::DlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh, int _samples) :
     CNNImageRecognizer(cv::Size(0,0),NoCrop,ColorOrder::RGB,_disttype,_threshold), // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
-    livenessthresh(_livenessthresh)
+    livenessthresh(_livenessthresh),
+    samples(_samples)
 {
     try {
         dlibfacedet = dlib::get_frontal_face_detector();
@@ -32,8 +33,8 @@ DlibFaceRecognizer::DlibFaceRecognizer(const String &_resourcesdirectory, Distan
         }
     }
     // Define errors
-    errorsInfo[1] = "Can not find face!";
-    errorsInfo[2] = "Spoofing attack detected!";
+    errorsInfo[2] = "Can not find face!";
+    errorsInfo[3] = "Spoofing attack detected!";
 }
 
 Mat DlibFaceRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
@@ -43,12 +44,39 @@ Mat DlibFaceRecognizer::getImageDescriptionByLayerName(const Mat &_img, const St
 
 Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
 {
+    cv::Mat _dscrmat = cv::Mat::zeros(1,128,CV_32FC1);
+
     cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
 
     auto _facerect = __detectbiggestface(_preprocessedmat);
 
-    if(_facerect.area() != 0) {
+    if(_facerect.area() > 0) {
         const dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
+
+        auto computer = [] (const dlib::matrix<dlib::rgb_pixel> &_facechip,
+                            dlib::faceidentitymodel &net,
+                            time_t _seed,
+                            uint _samples,
+                            cv::Mat &_dscr) {
+            dlib::rand rnd(_seed);
+            std::vector<dlib::matrix<dlib::rgb_pixel>> variants(_samples);
+            if(_samples == 1)
+                variants[0] = _facechip;
+            else
+                for(size_t i = 0; i < variants.size(); ++i)
+                    variants[i] = dlib::jitter_image(_facechip,rnd);
+            dlib::matrix<float,0,1> _facedescription = dlib::mean(dlib::mat(net(variants)));
+            float *ptr = _dscr.ptr<float>(0);
+            std::memcpy(ptr,&_facedescription(0),128*sizeof(float));
+            /*for(int i = 0; i < 128; ++i)
+                ptr[i] = _facedescription(i);*/
+        };
+
+        std::thread *_thread = new std::thread(computer,std::cref(_facechip),std::ref(inet),1,samples,std::ref(_dscrmat));
+
+        if(_error)
+            *_error = 0;
+
         // Spoofing control
         if((livenessthresh < 0.9999) && spoofingcontrolenabled) {
             float live = 0;
@@ -59,42 +87,18 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
             live /= anets.size();
             //std::cout << "Confidence of liveness: " << live << std::endl;
 
-            if(live < livenessthresh) { // spoofing detection criteria
+            if(live < livenessthresh)
                 if(_error)
-                    *_error = 2;
-                return cv::Mat::zeros(1,128,CV_32FC1);
-            }
+                    *_error = 3; // spoofing attack
         }
-        if(_error)
-            *_error = 0;
-        dlib::matrix<float,0,1> _facedescription = inet(_facechip);
-        return dlib::toMat(_facedescription).reshape(1,1).clone();
-    } else if(_error) {
-        *_error = 1;
-    }
-    return cv::Mat::zeros(1,128,CV_32FC1);
-}
 
-void DlibFaceRecognizer::predict(InputArray src, Ptr<PredictCollector> collector, int *_error) const
-{
-    cv::Mat _description = getImageDescription(src.getMat(),_error);
-    collector->init(v_labels.size());
-    for (size_t sampleIdx = 0; sampleIdx < v_labels.size(); sampleIdx++) {
-        if(v_whitelist[sampleIdx] != 0x00) { // only whitelisted values
-            double distance = DBL_MAX;
-            switch(getDistanceType()) {
-            case DistanceType::Euclidean:
-                distance = euclideanDistance(v_descriptions[sampleIdx], _description);
-                break;
-            case DistanceType::Cosine:
-                distance =  cosineDistance(v_descriptions[sampleIdx], _description);
-                break;
-            }
-            if( !collector->collect(v_labels[sampleIdx], distance) ) {
-                return;
-            }
-        }
+        _thread->join();
+        delete _thread;
+
+    } else if(_error) {
+        *_error = 2; // no faces
     }
+    return _dscrmat;
 }
 
 dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inmat, const dlib::rectangle &_facerect,  unsigned long _targetsize, double _padding) const
@@ -123,9 +127,9 @@ dlib::rectangle DlibFaceRecognizer::__detectbiggestface(const Mat &_inmat) const
     return _facerect;
 }
 
-Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh)
+Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh, int _samples)
 {
-    return makePtr<DlibFaceRecognizer>(_resourcesdirectory,_disttype,_threshold,_livenessthresh);
+    return makePtr<DlibFaceRecognizer>(_resourcesdirectory,_disttype,_threshold,_livenessthresh,_samples);
 }
 
 }

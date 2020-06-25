@@ -18,6 +18,7 @@ public:
 
     void    train(InputArrayOfArrays src, InputArray labels, bool _visualize=true) override;
     void    update(InputArrayOfArrays src, InputArray labels, bool _visualize=true, int *_error=nullptr) override;
+    void    predict(InputArray src, Ptr<PredictCollector> collector, int *_error) const override;
     void    addKnownDescription(const cv::Mat &_dscrmat, int _label);
     int     remove(InputArray labels) override;
     void    load(const FileStorage &fs) override;

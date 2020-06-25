@@ -57,11 +57,10 @@ namespace cv { namespace oirt {
 class DlibFaceRecognizer: public CNNImageRecognizer
 {
 public:
-    DlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh);
+    DlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh, int _samples);
 
     Mat     getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error=0) const override;
     Mat     getImageDescription(const Mat &_img, int *_error=0) const override;
-    void    predict(InputArray src, Ptr<PredictCollector> collector, int *_error=0) const override;
 
 private:
     dlib::matrix<dlib::rgb_pixel> __extractface(const Mat &_inmat, const dlib::rectangle &_facerect, unsigned long _targetsize, double _padding) const;
@@ -72,12 +71,14 @@ private:
     mutable dlib::faceidentitymodel inet;
     mutable std::vector<dlib::softmax<dlib::attackmodel::subnet_type>> anets;
     double  livenessthresh;
+    int samples;
 };
 
 Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_resourcesdirectory,
                                                  DistanceType _disttype=DistanceType::Euclidean,
                                                  double _threshold=0.485,
-                                                 double _livenessthresh=0.5);
+                                                 double _livenessthresh=0.5,
+                                                 int _samples=1);
 
 }}
 

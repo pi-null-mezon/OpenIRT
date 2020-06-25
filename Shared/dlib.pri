@@ -22,18 +22,8 @@ win32 {
 
 LIBS += -ldlib
 
-linux {
-
-    #if Dlib had been built with OpenBLAS
-    CONFIG += openblasbackend
-
-    openblasbackend {
-        message(OpenBLAS backend enabled)
-        LIBS += -lopenblas \
-                -lpthread
-    }
-
-    cudabackend {
+linux {      
+    USE_CUDA {
         message(CUDA backend enabled)
         LIBS += -L/usr/local/cuda/lib64
         LIBS += -lcudnn \
@@ -47,6 +37,10 @@ linux {
                 -lcusolver \
                 -ljpeg \
                 -lpng
+    } else {
+        message(OpenBLAS backend enabled)
+        LIBS += -lopenblas \
+                -lpthread
     }
     # Opencv4 option to make IplImage from cv::Mat that is needed by dlib::cv_image
     DEFINES += CV__ENABLE_C_API_CTORS

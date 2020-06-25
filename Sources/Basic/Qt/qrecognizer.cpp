@@ -32,14 +32,6 @@ void QRecognizer::setThreshold(double _val)
     ptrrec->setThreshold(_val);
 }
 
-void QRecognizer::predict(cv::Mat _faceimg)
-{
-    int _label;
-    double _distance;
-    ptrrec->predict(_faceimg,_label,_distance);
-    emit labelPredicted(_label,_distance,ptrrec->getLabelInfo(_label).c_str());
-}
-
 void QRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinfo, const QByteArray &_encimg)
 {
     QJsonObject _json;
@@ -124,7 +116,7 @@ void QRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
                 int _label;
                 double _distance;
                 int _error = 0;
-                ptrrec->predict(_faceimg,_label,_distance,&_error);
+                ptrrec->ImageRecognizer::predict(_faceimg,_label,_distance,&_error);
                 if(_error == 0) {
                     _json["status"]    = "Success";
                     _json["label"]     = _label;

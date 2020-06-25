@@ -25,7 +25,6 @@ signals:
 public slots:
     void        initBackupTimer();
     void        setThreshold(double _val);
-    void        predict(cv::Mat _faceimg);
 
     void        rememberLabel(qintptr _taskid, const QByteArray &_labelinfo, const QByteArray &_encimg);
     void        deleteLabel(qintptr _taskid, const QByteArray &_labelinfo);

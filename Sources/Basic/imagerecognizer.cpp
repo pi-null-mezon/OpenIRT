@@ -27,6 +27,7 @@ ImageRecognizer::ImageRecognizer(Size _inputsize, CropMethod _cropinput, ColorOr
     cropInput(_cropinput),
     colororder(_colororder)
 {
+    errorsInfo[1] = "Wrong template size";
 }
 
 ImageRecognizer::~ImageRecognizer()
@@ -142,13 +143,28 @@ double ImageRecognizer::compare(InputArray esrc, InputArray vsrc, int *_error) c
         if(*_error != 0)
             return DBL_MAX;
 
-    double distance = DBL_MAX;
+
+    return compareTemplates(_edscr,_vdscr,_error);
+}
+
+double ImageRecognizer::compareTemplates(const Mat &_ltemplate, const Mat &_rtemplate, int *_error) const
+{
+    if((_ltemplate.total() == 0) || (_rtemplate.total() == 0) ||
+        (_ltemplate.cols != _rtemplate.cols) || (_ltemplate.rows != _rtemplate.rows)) {
+        if(_error)
+            *_error = 1; // Wrong size template
+        return DBL_MAX;
+    }
+    if(_error)
+        *_error = 0;
+
+    double distance = 0;
     switch(getDistanceType()) {
         case DistanceType::Euclidean:
-            distance = euclideanDistance(_edscr, _vdscr);
+            distance = euclideanDistance(_ltemplate, _rtemplate);
             break;
         case DistanceType::Cosine:
-            distance =  cosineDistance(_edscr, _vdscr);
+            distance = cosineDistance(_ltemplate, _rtemplate);
             break;
     }
     return distance;

@@ -241,4 +241,18 @@ bool CNNImageRecognizer::isLabelWhitelisted(int _label) const
     return _whitelisted;
 }
 
+
+void CNNImageRecognizer::predict(InputArray src, Ptr<PredictCollector> collector, int *_error) const
+{
+    cv::Mat _description = getImageDescription(src.getMat(),_error);
+    collector->init(v_labels.size());
+    for (size_t sampleIdx = 0; sampleIdx < v_labels.size(); sampleIdx++) {
+        if(v_whitelist[sampleIdx] != 0x00) { // only whitelisted values
+            double distance = compareTemplates(v_descriptions[sampleIdx],_description,_error);
+            if( !collector->collect(v_labels[sampleIdx], distance) )
+                return;
+        }
+    }
+}
+
 }}
