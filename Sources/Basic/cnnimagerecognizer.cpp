@@ -245,6 +245,9 @@ bool CNNImageRecognizer::isLabelWhitelisted(int _label) const
 void CNNImageRecognizer::predict(InputArray src, Ptr<PredictCollector> collector, int *_error) const
 {
     cv::Mat _description = getImageDescription(src.getMat(),_error);
+    if(_error)
+        if(*_error != 0)
+            return;
     collector->init(v_labels.size());
     for (size_t sampleIdx = 0; sampleIdx < v_labels.size(); sampleIdx++) {
         if(v_whitelist[sampleIdx] != 0x00) { // only whitelisted values

@@ -33,8 +33,9 @@ DlibFaceRecognizer::DlibFaceRecognizer(const String &_resourcesdirectory, Distan
         }
     }
     // Define errors
-    errorsInfo[2] = "Can not find face!";
-    errorsInfo[3] = "Spoofing attack detected!";
+    errorsInfo[2] = "No faces found";
+    errorsInfo[3] = "Many faces found";
+    errorsInfo[4] = "Spoofing attack";
 }
 
 Mat DlibFaceRecognizer::getImageDescriptionByLayerName(const Mat &_img, const String &_blobname, int *_error) const
@@ -48,10 +49,18 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
 
     cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
 
-    auto _facerect = __detectbiggestface(_preprocessedmat);
+    auto _facesrects = __detectfaces(_preprocessedmat);
+    if(_facesrects.size() == 0) {
+        if(_error)
+            *_error = 2; // no faces
+    } else if(_facesrects.size() > 1) {
+        if(_error)
+            *_error = 3; // many faces
+    } else if(_facesrects[0].area() > 0) {
+        if(_error)
+            *_error = 0;
 
-    if(_facerect.area() > 0) {
-        const dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
+        const dlib::matrix<dlib::rgb_pixel> _facechip = __extractface(_preprocessedmat,_facesrects[0],150,0.25);
 
         auto computer = [] (const dlib::matrix<dlib::rgb_pixel> &_facechip,
                             dlib::faceidentitymodel &net,
@@ -74,8 +83,6 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
 
         std::thread *_thread = new std::thread(computer,std::cref(_facechip),std::ref(inet),1,samples,std::ref(_dscrmat));
 
-        if(_error)
-            *_error = 0;
 
         // Spoofing control
         if((livenessthresh < 0.9999) && spoofingcontrolenabled) {
@@ -89,14 +96,12 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
 
             if(live < livenessthresh)
                 if(_error)
-                    *_error = 3; // spoofing attack
+                    *_error = 4; // spoofing attack
         }
 
         _thread->join();
         delete _thread;
 
-    } else if(_error) {
-        *_error = 2; // no faces
     }
     return _dscrmat;
 }
@@ -110,21 +115,17 @@ dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inma
     return _facechip;
 }
 
-dlib::rectangle DlibFaceRecognizer::__detectbiggestface(const Mat &_inmat) const
+std::vector<dlib::rectangle> DlibFaceRecognizer::__detectfaces(const Mat &_inmat) const
 {
-    dlib::rectangle _facerect;
     cv::Mat _graymat;
     cv::cvtColor(_inmat, _graymat, cv::COLOR_RGB2GRAY);
     std::vector<dlib::rectangle> _facerects = dlibfacedet(dlib::cv_image<unsigned char>(_graymat));
-    if(_facerects.size() > 0) {
-        if(_facerects.size() > 1) {
-            std::sort(_facerects.begin(),_facerects.end(),[](const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
-                return lhs.area() > rhs.area();
-            });
-        }
-        _facerect = _facerects[0];
+    if(_facerects.size() > 1) {
+        std::sort(_facerects.begin(),_facerects.end(),[](const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
+            return lhs.area() > rhs.area();
+        });
     }
-    return _facerect;
+    return _facerects;
 }
 
 Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh, int _samples)

@@ -64,7 +64,7 @@ public:
 
 private:
     dlib::matrix<dlib::rgb_pixel> __extractface(const Mat &_inmat, const dlib::rectangle &_facerect, unsigned long _targetsize, double _padding) const;
-    dlib::rectangle               __detectbiggestface(const Mat &_inmat) const;
+    std::vector<dlib::rectangle>  __detectfaces(const Mat &_inmat) const;
 
     mutable dlib::shape_predictor dlibshapepredictor;
     mutable dlib::frontal_face_detector dlibfacedet;
