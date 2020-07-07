@@ -30,9 +30,9 @@ oirtsrvport = int(os.getenv('ISRV_PORT', 8080))
 # Specify API routing prefix
 apiprefix = '/iface'
 # Specify where files should be stored on upload
-UPLOAD_FOLDER = '/var/iface/local_storage'
+UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', '/var/iface/local_storage')
 if OS_WIN:
-    UPLOAD_FOLDER = 'C:/Testdata/iFace/local_storage'
+    UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'C:/Testdata/iface/local_storage')
 if not os.path.isdir(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Specify allowed files extensions
@@ -68,7 +68,7 @@ def get_status():
 
 @app.route("%s/photo" % apiprefix, methods=['GET'])
 def get_photo_v1():
-    labelinfo = base64.b64encode(flask.request.form['labelinfo'].encode('utf-8')).decode('utf-8')
+    labelinfo = base64.urlsafe_b64encode(flask.request.form['labelinfo'].encode('utf-8')).decode('utf-8')
     filenamelist = [f.rsplit('.', 1)[0] for f in os.listdir(app.config['UPLOAD_FOLDER']) if
                     os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f))]
     if labelinfo in filenamelist:
@@ -84,7 +84,7 @@ def get_photo_v1():
 
 @app.route("%s/photo/<labelinfo>" % apiprefix, methods=['GET'])
 def get_photo_v2(labelinfo):
-    labelinfo = base64.b64encode(labelinfo.encode('utf-8')).decode('utf-8')
+    labelinfo = base64.urlsafe_b64encode(labelinfo.encode('utf-8')).decode('utf-8')
     filenamelist = [f.rsplit('.', 1)[0] for f in os.listdir(app.config['UPLOAD_FOLDER']) if
                     os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f))]
     if labelinfo in filenamelist:
@@ -106,7 +106,7 @@ def remember_face():
     labelinfo = flask.request.form['labelinfo']
     if file and allowed_file(file.filename):
         filepath = os.path.join(app.config['UPLOAD_FOLDER'],
-                                str(base64.b64encode(labelinfo.encode('utf-8')).decode('utf-8')) + '.' +
+                                str(base64.urlsafe_b64encode(labelinfo.encode('utf-8')).decode('utf-8')) + '.' +
                                 file.filename.rsplit('.', 1)[1])
         file.save(filepath)
         if use_oirtcli:
@@ -174,7 +174,7 @@ def delete_template():
     response.headers['Content-Type'] = "application/json"
     save_event('delete', oirtsrvjson)
     # Remove photo from disk
-    labelinfo = base64.b64encode(labelinfo.encode('utf-8')).decode('utf-8')
+    labelinfo = base64.urlsafe_b64encode(labelinfo.encode('utf-8')).decode('utf-8')
     for extension in ALLOWED_EXTENSIONS:
         absfilename = os.path.join(app.config['UPLOAD_FOLDER'], f"{labelinfo}.{extension}")
         if os.path.isfile(absfilename):
