@@ -9,7 +9,7 @@ QT -= gui
 
 CONFIG += c++11
 
-TARGET = antispoofingsrv
+TARGET = oictsrv
 VERSION = 1.0.0.0
 
 TEMPLATE = app

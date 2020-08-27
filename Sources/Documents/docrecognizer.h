@@ -3,9 +3,6 @@
 
 #include "cnnimageclassifier.h"
 
-#include <dlib/image_processing/frontal_face_detector.h>
-#include <dlib/image_processing.h>
-#include <dlib/opencv.h>
 #include <dlib/dnn.h>
 
 namespace dlib {
@@ -19,23 +16,23 @@ using residual_down = add_prev2<avg_pool<2,2,2,2,skip1<tag2<block<N,BN,2,tag1<SU
 template <int N, template <typename> class BN, int stride, typename SUBNET>
 using block  = BN<con<N,3,3,1,1,relu<BN<con<N,3,3,stride,stride,SUBNET>>>>>;
 
+template <int N, typename SUBNET> using res       = relu<residual<block,N,bn_con,SUBNET>>;
 template <int N, typename SUBNET> using ares      = relu<residual<block,N,affine,SUBNET>>;
+template <int N, typename SUBNET> using res_down  = relu<residual_down<block,N,bn_con,SUBNET>>;
 template <int N, typename SUBNET> using ares_down = relu<residual_down<block,N,affine,SUBNET>>;
 
-template <typename SUBNET> using alevel0 = ares<32*16,ares_down<32*16,SUBNET>>;
-template <typename SUBNET> using alevel1 = ares<16*16,ares_down<16*16,SUBNET>>;
-template <typename SUBNET> using alevel2 = ares<8*16,ares_down<8*16,SUBNET>>;
-template <typename SUBNET> using alevel3 = ares<4*16,ares_down<4*16,SUBNET>>;
-template <typename SUBNET> using alevel4 = ares<2*16,ares_down<2*16,SUBNET>>;
+template <typename SUBNET> using alevel2 = ares<8*8,ares_down<8*8,SUBNET>>;
+template <typename SUBNET> using alevel3 = ares<4*8,ares_down<4*8,SUBNET>>;
+template <typename SUBNET> using alevel4 = ares<2*8,ares_down<2*8,SUBNET>>;
 
 // testing network type (replaced batch normalization with fixed affine transforms)
-using anet_type = loss_multiclass_log<fc<4,avg_pool_everything<
-                            alevel2<
-                            alevel3<
-                            alevel4<
-                            relu<affine<con<16,7,7,2,2,
-                            input_rgb_image
-                            >>>>>>>>>;
+using anet_type =   loss_multiclass_log<fc<6,avg_pool_everything<
+                                        alevel2<
+                                        alevel3<
+                                        alevel4<
+                                        max_pool<3,3,2,2,relu<affine<con<8,7,7,2,2,
+                                        input_rgb_image
+                                        >>>>>>>>>>;
 }
 
 namespace cv { namespace oirt {
@@ -47,7 +44,7 @@ public:
     void predict(InputArray src, int &label, float &conf, int *_error=nullptr) const override;
     void predict(InputArray src, std::vector<float> &conf, int *_error=nullptr) const override;
 
-    static Ptr<CNNImageClassifier> createDocRecognizer(const cv::String &_modelname="dlib_docrecognition_resnet16_v4.dat");
+    static Ptr<CNNImageClassifier> createDocRecognizer(const cv::String &_modelname);
 
 private:
     mutable dlib::softmax<dlib::anet_type::subnet_type> net;

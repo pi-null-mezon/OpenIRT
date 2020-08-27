@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     }
 
     // Let's check resources
-    const QString _modelname = "/dlib_docrecognition_resnet16_v5.dat";
+    const QString _modelname = "/net.dat";
     QFileInfo _finfo(a.applicationDirPath().append(_modelname));
     if(!_finfo.exists()) {
         qWarning("Can not open '%s'! Abort...",_finfo.fileName().toUtf8().constData());
