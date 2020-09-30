@@ -1,0 +1,11 @@
+[Unit]
+Description=iFace TCP server
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/oirtsrv
+
+[Install]
+WantedBy=multi-user.target
+

@@ -23,7 +23,7 @@ win32 {
 LIBS += -ldlib
 
 linux {      
-    USE_CUDA {
+    cudabackend {
         message(CUDA backend enabled)
         LIBS += -L/usr/local/cuda/lib64
         LIBS += -lcudnn \
