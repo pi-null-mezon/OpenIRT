@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/oirtsrv
+ExecStart=/usr/local/bin/oirtsrv -s1.0
 
 [Install]
 WantedBy=multi-user.target
