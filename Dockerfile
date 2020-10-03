@@ -74,7 +74,7 @@ RUN cd Programming && git clone https://github.com/pi-null-mezon/OpenFRT.git && 
     make && \
     make install && \
     cp ../../httpsrv/httpsrv.py /usr/local/bin && \
-    cd / && rm -rf Programming && mkdir -p /var/iface && \
+    cd / && rm -rf Programming && mkdir -p /var/iface
 	
 # Download resources 
 RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recognition_resnet_model_v1.dat.bz2 && \
@@ -84,8 +84,8 @@ RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recogniti
     wget https://github.com/pi-null-mezon/FaceAntiSpoofing/raw/master/AnyAttacks/Models/nets_v0.tar.gz && \
     tar -xzvf nets_v0.tar.gz && rm nets_v0.tar.gz && \
     mv *.dat /usr/local/bin && \
-	wget https://raw.githubusercontent.com/opencv/opencv_3rdparty/dnn_samples_face_detector_20180205_fp16/res10_300x300_ssd_iter_140000_fp16.caffemodel && \
-	mv res10_300x300_ssd_iter_140000_fp16.caffemodel /usr/local/bin
+    wget https://raw.githubusercontent.com/opencv/opencv_3rdparty/dnn_samples_face_detector_20180205_fp16/res10_300x300_ssd_iter_140000_fp16.caffemodel && \
+    mv res10_300x300_ssd_iter_140000_fp16.caffemodel /usr/local/bin
 	
 # Prepare web server
 RUN echo "python3 /usr/local/bin/httpsrv.py & oirtsrv -l/var/iface/iface_biometric_templates.yml" > serve && \
