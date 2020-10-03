@@ -7,11 +7,11 @@ RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* 
 ENV LANG en_US.UTF-8
 
 # Copy repository directories into container
-COPY /Sources /Sources 
-COPY /Shared /Shared 
-COPY /Apps/Face /Apps/Face
-COPY /Apps/oirtcli /Apps/oirtcli
-COPY /Apps/Shared /Apps/Shared
+COPY /Sources /Programming/OpenIRT/Sources 
+COPY /Shared /Programming/OpenIRT/Shared 
+COPY /Apps/Face /Programming/OpenIRT/Apps/Face
+COPY /Apps/oirtcli /Programming/OpenIRT/Apps/oirtcli
+COPY /Apps/Shared /Programming/OpenIRT/Apps/Shared
 
 # Update OS and install build tools
 RUN apt-get update && \
@@ -66,21 +66,14 @@ RUN apt-get install -y qt5-default
 RUN apt-get install -y python3 python3-pip && \
     pip3 install --no-cache-dir Flask waitress requests	
 	
-# Build oirtcli 
-RUN cd Apps/oirtcli && \
-    rm -rf build && mkdir build && cd build && \
-    qmake ../oirtcli.pro && \
-    make && \
-    make install && \
-    cd ../ && rm -rf build
-	
 # Build oirtsrv 
-RUN cd Apps/Face/oirtsrv && \
+RUN cd Programming && git clone https://github.com/pi-null-mezon/OpenFRT.git && \
+	cd OpenIRT/Apps/Face/oirtsrv && \
     rm -rf build && mkdir build && cd build && \
     qmake ../oirtsrv.pro && \
     make && \
     make install && \
-    cd ../ && rm -rf build && mkdir -p /var/iface
+    cd / && rm -rf Programming && mkdir -p /var/iface
 	
 # Download resources 
 RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recognition_resnet_model_v1.dat.bz2 && \
@@ -89,7 +82,9 @@ RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recogniti
     bzip2 -d shape_predictor_5_face_landmarks.dat.bz2 && \
     wget https://github.com/pi-null-mezon/FaceAntiSpoofing/raw/master/AnyAttacks/Models/nets_v0.tar.gz && \
     tar -xzvf nets_v0.tar.gz && rm nets_v0.tar.gz && \
-    mv *.dat /usr/local/bin
+    mv *.dat /usr/local/bin && \
+	wget https://raw.githubusercontent.com/opencv/opencv_3rdparty/dnn_samples_face_detector_20180205_fp16/res10_300x300_ssd_iter_140000_fp16.caffemodel && \
+	mv res10_300x300_ssd_iter_140000_fp16.caffemodel /usr/local/bin
 	
 # Prepare web server
 RUN echo "python3 Apps/Face/httpsrv/httpsrv.py & oirtsrv -l/var/iface/iface_biometric_templates.yml" > serve && \

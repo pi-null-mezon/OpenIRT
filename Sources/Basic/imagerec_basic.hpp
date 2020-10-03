@@ -254,6 +254,15 @@ inline double cosineDistance(const Mat &_dmat1, const Mat &_dmat2)
     return (1.0 - _dmat1.dot(_dmat2)/(_n1*_n2));
 }
 
+
+inline cv::Rect makeSquareRect(const cv::Rect &_source) {
+    if(_source.width == _source.height)
+        return _source;
+    else if(_source.width > _source.height)
+        return cv::Rect(_source.x + (_source.width - _source.height) / 2, _source.y,_source.height, _source.height);
+    return cv::Rect(_source.x, _source.y + (_source.height - _source.width) / 2, _source.width, _source.width);
+}
+
 }}
 
 #endif // __OPENCV_IMGREC_BASIC_HPP

@@ -10,7 +10,7 @@ QT -= gui
 CONFIG += c++11
 
 TARGET = oirtsrv
-VERSION = 1.4.0.0
+VERSION = 1.5.0.0
 
 TEMPLATE = app
 CONFIG += console
@@ -25,6 +25,7 @@ SOURCES += main.cpp
 include($${PWD}/../../../Shared/opencv.pri)
 include($${PWD}/../../../Shared/dlib.pri)
 include($${PWD}/../../../Sources/Basic/imagerecognizer.pri)
+include(openfrt.pri)
 
 SOURCES += $${PWD}/../../../Sources/Face/dlibfacerecognizer.cpp \
            $${PWD}/../../../Sources/Basic/Qt/qrecognizer.cpp \
@@ -45,4 +46,9 @@ CONFIG(release, debug|release): DEFINES += QT_NO_DEBUG_OUTPUT
 unix {
     target.path = /usr/local/bin
     INSTALLS += target
+
+    resources.path = /usr/local/bin
+    resources.files = $${PWD}/resources/*
+    INSTALLS += resources
 }
+

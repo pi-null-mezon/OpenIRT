@@ -8,6 +8,8 @@
 #include <dlib/opencv.h>
 #include <dlib/dnn.h>
 
+#include "cnnfacedetector.h"
+
 // http://blog.dlib.net/2017/02/high-quality-face-recognition-with-deep.html
 
 namespace dlib {
@@ -63,6 +65,8 @@ public:
     Mat     getImageDescription(const Mat &_img, int *_error=0) const override;
 
 private:
+    cv::Ptr<cv::ofrt::FaceDetector> ofrtfacedetPtr;
+
     dlib::matrix<dlib::rgb_pixel> __extractface(const Mat &_inmat, const dlib::rectangle &_facerect, unsigned long _targetsize, double _padding) const;
     std::vector<dlib::rectangle>  __detectfaces(const Mat &_inmat) const;
 

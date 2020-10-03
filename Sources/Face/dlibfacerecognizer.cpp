@@ -3,10 +3,15 @@
 namespace cv { namespace oirt {
 
 DlibFaceRecognizer::DlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh, int _samples) :
-    CNNImageRecognizer(cv::Size(0,0),NoCrop,ColorOrder::RGB,_disttype,_threshold), // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
+    CNNImageRecognizer(cv::Size(0,0),NoCrop,ColorOrder::BGR,_disttype,_threshold), // zeros in Size means that input image will not be changed in size on preprocessing step, it is necessary for the internal face detector
     livenessthresh(_livenessthresh),
     samples(_samples)
 {
+    ofrtfacedetPtr = cv::ofrt::CNNFaceDetector::createDetector(_resourcesdirectory + "/deploy_lowres.prototxt",
+                                                               _resourcesdirectory + "/res10_300x300_ssd_iter_140000_fp16.caffemodel",
+                                                               0.5);
+    ofrtfacedetPtr->setPortions(1.2f,1.2f);
+
     try {
         dlibfacedet = dlib::get_frontal_face_detector();
     } catch(const std::exception& e) {
@@ -48,8 +53,9 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
     cv::Mat _dscrmat = cv::Mat::zeros(1,128,CV_32FC1);
 
     cv::Mat _preprocessedmat = preprocessImageForCNN(_img, getInputSize(), getColorOrder(), getCropInput());
-
     auto _facesrects = __detectfaces(_preprocessedmat);
+    cv::cvtColor(_preprocessedmat,_preprocessedmat,cv::COLOR_BGR2RGB);
+
     if(_facesrects.size() == 0) {
         if(_error)
             *_error = 2; // no faces
@@ -77,12 +83,9 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
             dlib::matrix<float,0,1> _facedescription = dlib::mean(dlib::mat(net(variants)));
             float *ptr = _dscr.ptr<float>(0);
             std::memcpy(ptr,&_facedescription(0),128*sizeof(float));
-            /*for(int i = 0; i < 128; ++i)
-                ptr[i] = _facedescription(i);*/
         };
 
         std::thread *_thread = new std::thread(computer,std::cref(_facechip),std::ref(inet),1,samples,std::ref(_dscrmat));
-
 
         // Spoofing control
         if((livenessthresh < 0.9999) && spoofingcontrolenabled) {
@@ -117,15 +120,28 @@ dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inma
 
 std::vector<dlib::rectangle> DlibFaceRecognizer::__detectfaces(const Mat &_inmat) const
 {
-    cv::Mat _graymat;
+    /*cv::Mat _graymat;
     cv::cvtColor(_inmat, _graymat, cv::COLOR_RGB2GRAY);
-    std::vector<dlib::rectangle> _facerects = dlibfacedet(dlib::cv_image<unsigned char>(_graymat));
-    if(_facerects.size() > 1) {
-        std::sort(_facerects.begin(),_facerects.end(),[](const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
+    std::vector<dlib::rectangle> _dlibrects = dlibfacedet(dlib::cv_image<unsigned char>(_graymat));*/
+
+    std::vector<cv::Rect> _cvrects = ofrtfacedetPtr->detectFaces(_inmat);
+    std::vector<dlib::rectangle> _dlibrects;
+    std::cout << "faces rects found: " << _cvrects.size() << std::endl;
+    _dlibrects.reserve(_cvrects.size());
+    const cv::Rect imgrect(0,0,_inmat.cols,_inmat.rows);
+    for(size_t i = 0; i < _cvrects.size(); ++i) {
+        const cv::Rect squarerect = makeSquareRect(_cvrects[i]) & imgrect;
+        _dlibrects.push_back(dlib::rectangle(squarerect.tl().x,
+                                             squarerect.tl().y,
+                                             squarerect.br().x,
+                                             squarerect.br().y));
+    }
+    if(_dlibrects.size() > 1) {
+        std::sort(_dlibrects.begin(),_dlibrects.end(),[](const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
             return lhs.area() > rhs.area();
         });
     }
-    return _facerects;
+    return _dlibrects;
 }
 
 Ptr<CNNImageRecognizer> createDlibFaceRecognizer(const String &_resourcesdirectory, DistanceType _disttype, double _threshold, double _livenessthresh, int _samples)

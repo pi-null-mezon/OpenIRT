@@ -13,6 +13,7 @@ win32 {
     } else {
         DLIB_ARCHITECTURE = x86
     }
+    win32-g++: DLIB_ARCHITECTURE = x86
 
     DLIB_INSTALL_PATH = C:/Programming/3rdParties/Dlib/build_$${DLIB_COMPILER}$${DLIB_ARCHITECTURE}
 
@@ -24,7 +25,7 @@ LIBS += -ldlib
 
 linux {      
     cudabackend {
-        message(CUDA backend enabled)
+        message(CUDA backend selected)
         LIBS += -L/usr/local/cuda/lib64
         LIBS += -lcudnn \
                 -lpthread \
@@ -38,7 +39,7 @@ linux {
                 -ljpeg \
                 -lpng
     } else {
-        message(OpenBLAS backend enabled)
+        message(OpenBLAS backend selected)
         LIBS += -lopenblas \
                 -lpthread
     }
