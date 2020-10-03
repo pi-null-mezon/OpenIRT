@@ -126,7 +126,6 @@ std::vector<dlib::rectangle> DlibFaceRecognizer::__detectfaces(const Mat &_inmat
 
     std::vector<cv::Rect> _cvrects = ofrtfacedetPtr->detectFaces(_inmat);
     std::vector<dlib::rectangle> _dlibrects;
-    std::cout << "faces rects found: " << _cvrects.size() << std::endl;
     _dlibrects.reserve(_cvrects.size());
     const cv::Rect imgrect(0,0,_inmat.cols,_inmat.rows);
     for(size_t i = 0; i < _cvrects.size(); ++i) {

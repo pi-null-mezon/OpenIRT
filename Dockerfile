@@ -35,7 +35,7 @@ RUN apt-get install -y libtbb2 libtbb-dev libjpeg-dev libpng-dev libopenblas-dev
           -D BUILD_opencv_objdetect=OFF \
           -D BUILD_opencv_flann=OFF \
           -D BUILD_opencv_highgui=OFF \
-          -D BUILD_opencv_dnn=OFF \
+          -D BUILD_opencv_dnn=ON \
           -D BUILD_opencv_python3=OFF \
           -D BUILD_opencv_ml=OFF \
           -D BUILD_opencv_gapi=OFF \
@@ -44,7 +44,7 @@ RUN apt-get install -y libtbb2 libtbb-dev libjpeg-dev libpng-dev libopenblas-dev
           -D BUILD_opencv_java_bindings_generator=OFF \
           -D BUILD_opencv_python_bindings_generator=OFF \
           .. && \
-    make && \
+    make -j2 && \
     make install && \
     ldconfig && \
     cd ../../ && rm -rf opencv
@@ -68,12 +68,13 @@ RUN apt-get install -y python3 python3-pip && \
 	
 # Build oirtsrv 
 RUN cd Programming && git clone https://github.com/pi-null-mezon/OpenFRT.git && \
-	cd OpenIRT/Apps/Face/oirtsrv && \
+    cd OpenIRT/Apps/Face/oirtsrv && \
     rm -rf build && mkdir build && cd build && \
     qmake ../oirtsrv.pro && \
     make && \
     make install && \
-    cd / && rm -rf Programming && mkdir -p /var/iface
+    cp ../../httpsrv/httpsrv.py /usr/local/bin && \
+    cd / && rm -rf Programming && mkdir -p /var/iface && \
 	
 # Download resources 
 RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recognition_resnet_model_v1.dat.bz2 && \
@@ -87,7 +88,7 @@ RUN wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recogniti
 	mv res10_300x300_ssd_iter_140000_fp16.caffemodel /usr/local/bin
 	
 # Prepare web server
-RUN echo "python3 Apps/Face/httpsrv/httpsrv.py & oirtsrv -l/var/iface/iface_biometric_templates.yml" > serve && \
+RUN echo "python3 /usr/local/bin/httpsrv.py & oirtsrv -l/var/iface/iface_biometric_templates.yml" > serve && \
 	chmod +x serve
 
 # This port is listening by oirtweb server by default

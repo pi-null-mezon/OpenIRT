@@ -48,7 +48,8 @@ win32 {
 } else {
     INCLUDEPATH += /usr/local/include/opencv4
 
-    LIBS += -lopencv_core \
+    LIBS += -lopencv_dnn \
             -lopencv_imgproc \
-            -lopencv_imgcodecs
+            -lopencv_imgcodecs \
+            -lopencv_core
 }
