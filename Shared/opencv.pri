@@ -52,4 +52,9 @@ win32 {
             -lopencv_imgproc \
             -lopencv_imgcodecs \
             -lopencv_core
+
+    cudabackend {
+        DEFINES+=FORCE_OPENCV_DNN_TO_USE_CUDA
+        message('FORCE_OPENCV_DNN_TO_USE_CUDA' defined)
+    }
 }
