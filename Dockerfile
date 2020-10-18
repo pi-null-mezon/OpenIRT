@@ -1,5 +1,7 @@
 FROM ubuntu:18.04
 
+ARG CORES=2
+
 RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
@@ -44,7 +46,7 @@ RUN apt-get install -y libtbb2 libtbb-dev libjpeg-dev libpng-dev libopenblas-dev
           -D BUILD_opencv_java_bindings_generator=OFF \
           -D BUILD_opencv_python_bindings_generator=OFF \
           .. && \
-    make -j2 && \
+    make -j${CORES} && \
     make install && \
     ldconfig && \
     cd ../../ && rm -rf opencv
@@ -71,7 +73,7 @@ RUN cd Programming && git clone https://github.com/pi-null-mezon/OpenFRT.git && 
     cd OpenIRT/Apps/Face/oirtsrv && \
     rm -rf build && mkdir build && cd build && \
     qmake ../oirtsrv.pro && \
-    make && \
+    make -j${CORES} && \
     make install && \
     cp ../../httpsrv/httpsrv.py /usr/local/bin && \
     cd / && rm -rf Programming && mkdir -p /var/iface
