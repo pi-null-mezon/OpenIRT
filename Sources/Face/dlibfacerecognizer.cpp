@@ -13,11 +13,6 @@ DlibFaceRecognizer::DlibFaceRecognizer(const String &_resourcesdirectory, Distan
     ofrtfacedetPtr->setPortions(1.2f,1.2f);
 
     try {
-        dlibfacedet = dlib::get_frontal_face_detector();
-    } catch(const std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
-    try {
         dlib::deserialize(_resourcesdirectory + "/shape_predictor_5_face_landmarks.dat") >> dlibshapepredictor;
     } catch(const std::exception& e) {
         std::cout << e.what() << std::endl;

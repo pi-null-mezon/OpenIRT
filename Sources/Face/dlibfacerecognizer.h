@@ -3,7 +3,6 @@
 
 #include "cnnimagerecognizer.hpp"
 
-#include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing.h>
 #include <dlib/opencv.h>
 #include <dlib/dnn.h>
@@ -71,7 +70,6 @@ private:
     std::vector<dlib::rectangle>  __detectfaces(const Mat &_inmat) const;
 
     mutable dlib::shape_predictor dlibshapepredictor;
-    mutable dlib::frontal_face_detector dlibfacedet;
     mutable dlib::faceidentitymodel inet;
     mutable std::vector<dlib::softmax<dlib::attackmodel::subnet_type>> anets;
     double  livenessthresh;
