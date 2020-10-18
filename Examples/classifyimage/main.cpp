@@ -49,8 +49,8 @@ int main(int _argc, char **_argv)
             cerr << "Could not open videodevice " << cmdargsparser.get<int>("dev");
             return -1;
         } else {
-            videocapture.set(CV_CAP_PROP_FRAME_WIDTH, cmdargsparser.get<int>("cols"));
-            videocapture.set(CV_CAP_PROP_FRAME_HEIGHT, cmdargsparser.get<int>("rows"));
+            videocapture.set(cv::CAP_PROP_FRAME_WIDTH, cmdargsparser.get<int>("cols"));
+            videocapture.set(cv::CAP_PROP_FRAME_HEIGHT, cmdargsparser.get<int>("rows"));
         }
     }
 
@@ -60,13 +60,11 @@ int main(int _argc, char **_argv)
         cv::Mat _frame;
         int64 _to = cv::getTickCount(), _tn;
         double _fps;
-        cv::namedWindow(APP_NAME, CV_WINDOW_NORMAL);
+        cv::namedWindow(APP_NAME, cv::WINDOW_NORMAL);
         /*_ptr = cv::oirt::FaceAgeClassifier::createCNNImageClassifier( cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/deploy_age.prototxt"),
                                                                       cv::String("C:/Programming/3rdParties/Caffe/models/FaceAge/age_net.caffemodel"),
                                                                       cv::String("C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat"));*/
-        _ptr = cv::oirt::SpoofingAttackDetector::createSpoofingAttackDetector("C:/Models/ReplayAttack/replay_attack_net_v6.dat",
-                                                                              "C:/Models/PrintAttack/print_attack_net_v7.dat",
-                                                                              "C:/Programming/3rdParties/DLib/models/shape_predictor_5_face_landmarks.dat");
+        _ptr = cv::oirt::SpoofingAttackDetector::createSpoofingAttackDetector("./","shape_predictor_5_face_landmarks.dat");
 
         int delayms = cmdargsparser.get<int>("delay");
         int error = 0;
@@ -79,21 +77,21 @@ int main(int _argc, char **_argv)
             if(error == 0) {
                 for(size_t j = 0; j < _vclassprob.size(); ++j) {
                     cv::String _predictionstr = std::string("label '") + _ptr->getLabelInfo(j) + std::string("': ") + real2str(_vclassprob[j],3);
-                    cv::putText(_frame, _predictionstr, cv::Point(15,20+20*j), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0),1,CV_AA);
-                    cv::putText(_frame, _predictionstr, cv::Point(14,19+20*j), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,55+200*_vclassprob[j],0),1,CV_AA);
+                    cv::putText(_frame, _predictionstr, cv::Point(15,20+20*j), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0),1,cv::LINE_AA);
+                    cv::putText(_frame, _predictionstr, cv::Point(14,19+20*j), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,55+200*_vclassprob[j],0),1,cv::LINE_AA);
                 }
             } else {
                 cv::String _errorstr = _ptr->getErrorInfo(error);
-                cv::putText(_frame, _errorstr, cv::Point(15,20), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0),1,CV_AA);
-                cv::putText(_frame, _errorstr, cv::Point(14,19), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,255),1,CV_AA);
+                cv::putText(_frame, _errorstr, cv::Point(15,20), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0),1,cv::LINE_AA);
+                cv::putText(_frame, _errorstr, cv::Point(14,19), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,255),1,cv::LINE_AA);
             }
 
             _tn = cv::getTickCount();
             _fps = cv::getTickFrequency()/(double)(_tn - _to);
             _to = _tn;
             cv::String _frametime_ms = real2str(1000.0/_fps) + " ms (press escape to exit)";
-            cv::putText(_frame,_frametime_ms, cv::Point(14,_frame.rows - 19),CV_FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(0,0,0),1,CV_AA);
-            cv::putText(_frame,_frametime_ms, cv::Point(15,_frame.rows - 20),CV_FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(255,255,255),1,CV_AA);
+            cv::putText(_frame,_frametime_ms, cv::Point(14,_frame.rows - 19),cv::FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(0,0,0),1,cv::LINE_AA);
+            cv::putText(_frame,_frametime_ms, cv::Point(15,_frame.rows - 20),cv::FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(255,255,255),1,cv::LINE_AA);
             cv::imshow(APP_NAME, _frame);
 
             char _key= cv::waitKey(delayms);
@@ -102,7 +100,7 @@ int main(int _argc, char **_argv)
             } else switch(_key) {
 
                 case 's':
-                    videocapture.set(CV_CAP_PROP_SETTINGS,0.0);
+                    videocapture.set(cv::CAP_PROP_SETTINGS,0.0);
                     break;
             }
         }
@@ -114,9 +112,9 @@ int main(int _argc, char **_argv)
 template <typename T>
 std::string real2str(T x, uint precision)
 {
-    if(x == DBL_MAX) {
+    if(x == DBL_MAX)
         return "DBL_MAX";
-    }
+
     std::string _fullrepres = std::to_string(x);
     size_t i;
     for(i = 0; i < _fullrepres.size(); ++i) {

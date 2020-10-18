@@ -71,7 +71,8 @@ SpoofingAttackDetector::SpoofingAttackDetector(const cv::String &_attack_modelna
     setLabelInfo(2,"Print");
     setLabelInfo(3,"Replay");
     // Possible errors (0 - no error)
-    errorsInfo[1] = "Can not find face!";
+    errorsInfo[1] = "No face!";
+    errorsInfo[2] = "Many faces!";
 }
 
 
@@ -79,20 +80,25 @@ SpoofingAttackDetector::SpoofingAttackDetector(const cv::String &_attack_modelna
 void SpoofingAttackDetector::predict(InputArray src, int &label, float &conf, int *_error) const
 {
     cv::Mat _preprocessedmat = preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput());
-    auto _facerect = __detectbiggestface(_preprocessedmat);
-    if(_facerect.area() != 0) {
-        auto _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
+    const std::vector<dlib::rectangle> _facerects = __detecfaces(_preprocessedmat);
+    if(_facerects.size() == 0) {
+        if(_error)
+            *_error = 1;
+    } else if(_facerects.size() == 1) {
+        auto _facechip = __extractface(_preprocessedmat,_facerects[0],150,0.25);
         double _tm1 = cv::getTickCount();
         dlib::rand rnd(7);
-        const long cropsnum = 16;
+        const long cropsnum = 4;
         dlib::array<dlib::matrix<dlib::rgb_pixel>> crops;
+        //dlib::randomly_crop_image(_facechip,crops,rnd,cropsnum);
+        for(long i = 0; i < cropsnum; ++i)
+            crops.push_back(dlib::jitter_image(_facechip,rnd));
         dlib::matrix<float,1,4> vc;
         for(long k = 0; k < dlib::num_columns(vc); ++k)
             vc(k) = 0;
         for(size_t i = 0; i < nets.size(); ++i) {
-            /*dlib::randomly_crop_image(_facechip,crops,rnd,cropsnum);
-            dlib::matrix<float,1,4> p = dlib::sum_rows(dlib::mat(nets[i](crops.begin(),crops.end())))/crops.size();*/
-            dlib::matrix<float,1,4> p = dlib::mat(nets[i](_facechip));
+            dlib::matrix<float,1,4> p = dlib::sum_rows(dlib::mat(nets[i](crops.begin(),crops.end())))/crops.size();
+            /*dlib::matrix<float,1,4> p = dlib::mat(nets[i](_facechip));*/
             for(long k = 0; k < dlib::num_columns(vc); ++k)
                 vc(k) += p(k);
         }
@@ -104,21 +110,32 @@ void SpoofingAttackDetector::predict(InputArray src, int &label, float &conf, in
         conf = vc(label);
         if(_error)
             *_error = 0;
-    } else if(_error) {
-        *_error = 1;
+    } else {
+        if(_error)
+            *_error = 2;
     }
 }
 
 void SpoofingAttackDetector::predict(InputArray src, std::vector<float> &conf, int *_error) const
 {
     cv::Mat _preprocessedmat = preprocessImageForCNN(src.getMat(),getInputSize(),getColorOrder(),getCropInput());
-    auto _facerect = __detectbiggestface(_preprocessedmat);
-    if(_facerect.area() != 0) {
-        auto _facechip = __extractface(_preprocessedmat,_facerect,150,0.25);
+    const std::vector<dlib::rectangle> _facerects = __detecfaces(_preprocessedmat);
+    if(_facerects.size() == 0) {
+        if(_error)
+            *_error = 1;
+    } else if(_facerects.size() == 1) {
+        auto _facechip = __extractface(_preprocessedmat,_facerects[0],150,0.25);
         double _tm1 = cv::getTickCount();
+        dlib::rand rnd(7);
+        const long cropsnum = 4;
+        dlib::array<dlib::matrix<dlib::rgb_pixel>> crops;
+        //dlib::randomly_crop_image(_facechip,crops,rnd,cropsnum);
+        for(long i = 0; i < cropsnum; ++i)
+            crops.push_back(dlib::jitter_image(_facechip,rnd));
         conf = std::vector<float>(4,0);
         for(size_t i = 0; i < nets.size(); ++i) {
-            dlib::matrix<float,1,4> p = dlib::mat(nets[i](_facechip));
+            dlib::matrix<float,1,4> p = dlib::sum_rows(dlib::mat(nets[i](crops.begin(),crops.end())))/crops.size();
+            //dlib::matrix<float,1,4> p = dlib::mat(nets[i](_facechip));
             for(size_t k = 0; k < conf.size(); ++k)
                 conf[k] += p(k);
         }
@@ -127,8 +144,9 @@ void SpoofingAttackDetector::predict(InputArray src, std::vector<float> &conf, i
         std::cout << 1000.0 * (cv::getTickCount() - _tm1) / cv::getTickFrequency() << " ms" << std::endl;
         if(_error)
             *_error = 0;
-    } else if(_error) {
-        *_error = 1;
+    } else {
+        if(_error)
+            *_error = 2;
     }
 }
 
@@ -146,21 +164,16 @@ dlib::matrix<dlib::rgb_pixel> SpoofingAttackDetector::__extractface(const Mat &_
     return _facechip;
 }
 
-dlib::rectangle SpoofingAttackDetector::__detectbiggestface(const Mat &_inmat) const
+std::vector<dlib::rectangle> SpoofingAttackDetector::__detecfaces(const Mat &_inmat) const
 {
-    dlib::rectangle _facerect;
     cv::Mat _graymat;
     cv::cvtColor(_inmat, _graymat, cv::COLOR_RGB2GRAY);
     std::vector<dlib::rectangle> _facerects = dlibfacedet(dlib::cv_image<unsigned char>(_graymat));
-    if(_facerects.size() > 0) {
-        if(_facerects.size() > 1) {
-            std::sort(_facerects.begin(),_facerects.end(),[](const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
-                return lhs.area() > rhs.area();
-            });
-        }
-        _facerect = _facerects[0];
-    }
-    return _facerect;
+    if(_facerects.size() > 1)
+        std::sort(_facerects.begin(),_facerects.end(),[](const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
+            return lhs.area() > rhs.area();
+        });
+    return _facerects;
 }
 
 }}

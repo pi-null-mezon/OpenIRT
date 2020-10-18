@@ -5,9 +5,9 @@
 QConfusionAggregator::QConfusionAggregator(const QStringList &_labels, QObject *parent) : QObject(parent)
 {
     QMap<QString,unsigned long> _frequenciesmap;
-    for(const auto _key: _labels)
+    for(const auto &_key: _labels)
         _frequenciesmap.insert(_key,0);
-    for(const auto _key: _labels)
+    for(const auto &_key: _labels)
         confusiontable.insert(_key,_frequenciesmap);
 }
 

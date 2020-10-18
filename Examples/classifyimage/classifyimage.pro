@@ -18,4 +18,8 @@ include($${PWD}/../../Sources/Basic/imageclassifier.pri)
 include($${PWD}/../../Sources/Face/spoofingattackdetector.pri)
 
 include($${PWD}/../../Shared/opencv.pri)
+
+LIBS += -lopencv_videoio \
+        -lopencv_highgui
+
 include($${PWD}/../../Shared/dlib.pri)
