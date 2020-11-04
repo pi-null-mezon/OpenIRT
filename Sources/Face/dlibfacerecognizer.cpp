@@ -68,13 +68,18 @@ Mat DlibFaceRecognizer::getImageDescription(const Mat &_img, int *_error) const
                             time_t _seed,
                             uint _samples,
                             cv::Mat &_dscr) {
+            const dlib::matrix<dlib::rgb_pixel> _facechip_flipped = dlib::fliplr(_facechip);
             dlib::rand rnd(_seed);
             std::vector<dlib::matrix<dlib::rgb_pixel>> variants(_samples);
             if(_samples == 1)
                 variants[0] = _facechip;
             else
-                for(size_t i = 0; i < variants.size(); ++i)
-                    variants[i] = dlib::jitter_image(_facechip,rnd);
+                for(size_t i = 0; i < variants.size(); ++i) {
+                    if(i < variants.size()/2)
+                        variants[i] = dlib::jitter_image(_facechip,rnd);
+                    else
+                        variants[i] = dlib::jitter_image(_facechip_flipped,rnd);
+                }
             dlib::matrix<float,0,1> _facedescription = dlib::mean(dlib::mat(net(variants)));
             float *ptr = _dscr.ptr<float>(0);
             std::memcpy(ptr,&_facedescription(0),128*sizeof(float));
