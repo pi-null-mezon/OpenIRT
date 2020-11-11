@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     quint16 port = 8080;
     QString address = "127.0.0.1";
     QString labelsfilename = a.applicationDirPath().append("/labels.yml");
-    double recthresh = 0.485;
+    double recthresh = 0.455;
     double livenessthresh = 0.5;
     int samples = 4;
     while((--argc > 0) && ((*++argv)[0] == '-')) {
