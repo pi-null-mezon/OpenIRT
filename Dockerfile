@@ -79,7 +79,7 @@ RUN cd Programming && git clone https://github.com/pi-null-mezon/OpenFRT.git && 
     cd / && rm -rf Programming && mkdir -p /var/iface
 	
 # Download resources 
-RUN wget https://github.com/pi-null-mezon/deepmodels/blob/main/iface_net_1.dat.bz2?raw=true && \
+RUN wget https://github.com/pi-null-mezon/deepmodels/raw/main/iface_net_1.dat.bz2 && \
     bzip2 -d iface_net_1.dat.bz2 && \
     wget https://github.com/davisking/dlib-models/raw/master/shape_predictor_5_face_landmarks.dat.bz2 && \   
     bzip2 -d shape_predictor_5_face_landmarks.dat.bz2 && \
