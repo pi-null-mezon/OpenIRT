@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     QString labelsfilename = a.applicationDirPath().append("/labels.yml");
     double recthresh = 0.455;
     double livenessthresh = 0.5;
-    int samples = 4;
+    int samples = 2;
     while((--argc > 0) && ((*++argv)[0] == '-')) {
         switch(*++argv[0]) {
             case 'h':
