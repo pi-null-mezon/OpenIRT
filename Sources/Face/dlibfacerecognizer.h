@@ -38,7 +38,7 @@ namespace dlib {
                                 alevel3<
                                 alevel4<
                                 max_pool<3,3,2,2,relu<affine<con<32,7,7,2,2,
-                                input_rgb_image_sized<150>
+                                input_rgb_image
                                 >>>>>>>>>>>>;
 
     // Attack detector model
