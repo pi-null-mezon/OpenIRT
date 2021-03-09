@@ -43,6 +43,14 @@ INCLUDEPATH += $${PWD}/../../../Sources/Face \
 
 CONFIG(release, debug|release): DEFINES += QT_NO_DEBUG_OUTPUT
 
+usecnnfacedetector {
+    DEFINES += FORCE_TO_USE_CNN_FACE_DETECTOR
+    message('FORCE_TO_USE_CNN_FACE_DETECTOR' defined)
+    message(Opencv\'s CNN face detector will be used)
+} else {
+    message(Dlib\'s face detector will be used)
+}
+
 unix {
     target.path = /usr/local/bin
     INSTALLS += target

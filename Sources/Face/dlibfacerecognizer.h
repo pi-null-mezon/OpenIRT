@@ -4,6 +4,9 @@
 #include "cnnimagerecognizer.hpp"
 
 #include <dlib/image_processing.h>
+#ifndef FORCE_TO_USE_CNN_FACE_DETECTOR
+#include <dlib/image_processing/frontal_face_detector.h>
+#endif
 #include <dlib/opencv.h>
 #include <dlib/dnn.h>
 
@@ -64,11 +67,13 @@ public:
     Mat     getImageDescription(const Mat &_img, int *_error=0) const override;
 
 private:
-    cv::Ptr<cv::ofrt::FaceDetector> ofrtfacedetPtr;
-
     dlib::matrix<dlib::rgb_pixel> __extractface(const Mat &_inmat, const dlib::rectangle &_facerect, unsigned long _targetsize, double _padding) const;
     std::vector<dlib::rectangle>  __detectfaces(const Mat &_inmat) const;
-
+#ifdef FORCE_TO_USE_CNN_FACE_DETECTOR
+    cv::Ptr<cv::ofrt::FaceDetector> ofrtfacedetPtr;
+#else
+    mutable dlib::frontal_face_detector dlibfacedet;
+#endif
     mutable dlib::shape_predictor dlibshapepredictor;
     mutable dlib::faceidentitymodel inet;
     mutable std::vector<dlib::softmax<dlib::attackmodel::subnet_type>> anets;

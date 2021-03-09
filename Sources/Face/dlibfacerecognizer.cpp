@@ -7,10 +7,14 @@ DlibFaceRecognizer::DlibFaceRecognizer(const String &_resourcesdirectory, Distan
     livenessthresh(_livenessthresh),
     samples(_samples)
 {
+#ifdef FORCE_TO_USE_CNN_FACE_DETECTOR
     ofrtfacedetPtr = cv::ofrt::CNNFaceDetector::createDetector(_resourcesdirectory + "/deploy_lowres.prototxt",
                                                                _resourcesdirectory + "/res10_300x300_ssd_iter_140000_fp16.caffemodel",
                                                                0.5);
     ofrtfacedetPtr->setPortions(1.1f,1.1f);
+#else
+    dlibfacedet = dlib::get_frontal_face_detector();
+#endif
 
     try {
         dlib::deserialize(_resourcesdirectory + "/shape_predictor_5_face_landmarks.dat") >> dlibshapepredictor;
@@ -126,10 +130,7 @@ dlib::matrix<dlib::rgb_pixel> DlibFaceRecognizer::__extractface(const Mat &_inma
 
 std::vector<dlib::rectangle> DlibFaceRecognizer::__detectfaces(const Mat &_inmat) const
 {
-    /*cv::Mat _graymat;
-    cv::cvtColor(_inmat, _graymat, cv::COLOR_RGB2GRAY);
-    std::vector<dlib::rectangle> _dlibrects = dlibfacedet(dlib::cv_image<unsigned char>(_graymat));*/
-
+#ifdef FORCE_TO_USE_CNN_FACE_DETECTOR
     std::vector<cv::Rect> _cvrects = ofrtfacedetPtr->detectFaces(_inmat);
     std::vector<dlib::rectangle> _dlibrects;
     _dlibrects.reserve(_cvrects.size());
@@ -141,6 +142,11 @@ std::vector<dlib::rectangle> DlibFaceRecognizer::__detectfaces(const Mat &_inmat
                                              squarerect.br().x,
                                              squarerect.br().y));
     }
+#else
+    cv::Mat _graymat;
+    cv::cvtColor(_inmat, _graymat, cv::COLOR_RGB2GRAY);
+    std::vector<dlib::rectangle> _dlibrects = dlibfacedet(dlib::cv_image<unsigned char>(_graymat));
+#endif
     if(_dlibrects.size() > 1) {
         std::sort(_dlibrects.begin(),_dlibrects.end(),[](const dlib::rectangle &lhs, const dlib::rectangle &rhs) {
             return lhs.area() > rhs.area();

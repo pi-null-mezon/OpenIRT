@@ -72,7 +72,7 @@ RUN apt-get install -y python3 python3-pip && \
 RUN cd Programming && git clone https://github.com/pi-null-mezon/OpenFRT.git && \
     cd OpenIRT/Apps/Face/oirtsrv && \
     rm -rf build && mkdir build && cd build && \
-    qmake ../oirtsrv.pro && \
+    qmake ../oirtsrv.pro CONFIG+=usecnnfacedetector && \
     make -j${CORES} && \
     make install && \
     cp ../../httpsrv/httpsrv.py /usr/local/bin && \

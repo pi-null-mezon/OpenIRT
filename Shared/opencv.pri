@@ -54,7 +54,7 @@ win32 {
             -lopencv_core
 
     cudabackend {
-        DEFINES+=FORCE_OPENCV_DNN_TO_USE_CUDA
+        DEFINES += FORCE_OPENCV_DNN_TO_USE_CUDA
         message('FORCE_OPENCV_DNN_TO_USE_CUDA' defined)
     }
 }
