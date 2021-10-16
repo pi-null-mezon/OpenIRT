@@ -24,7 +24,7 @@ void QClassifier::predict(qintptr _taskid, const QByteArray &_encimg)
         _json["status"] = "Error";
         _json["info"]   = "Can not decode image";
     } else {
-        cv::Mat _img = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
+        cv::Mat _img = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_COLOR);
         if(_img.empty()) {
             _json["status"] = "Error";
             _json["info"]   = "Can not decode image";
@@ -52,7 +52,7 @@ void QClassifier::classify(qintptr _taskid, const QByteArray &_encimg)
         _json["status"] = "Error";
         _json["info"]   = "Can not decode image";
     } else {
-        cv::Mat _img = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
+        cv::Mat _img = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_COLOR);
         if(_img.empty()) {
             _json["status"] = "Error";
             _json["info"]   = "Can not decode image!";

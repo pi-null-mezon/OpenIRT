@@ -52,7 +52,7 @@ void QRecognizer::rememberLabel(qintptr _taskid, const QByteArray &_labelinfo, c
            _label = ptrrec->nextfreeLabel();
         }
         std::vector<cv::Mat> _vmats(1,cv::Mat());
-        _vmats[0] = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
+        _vmats[0] = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_COLOR);
         std::vector<int>     _vlbls(1,_label);
 
         int _error = 0;
@@ -112,7 +112,7 @@ void QRecognizer::identifyImage(qintptr _taskid, const QByteArray &_encimg)
                 _json["status"]    = "Error";
                 _json["message"]   = "Can not decode input image!";
             } else {
-                cv::Mat _faceimg = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
+                cv::Mat _faceimg = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_COLOR);
                 int _label;
                 double _distance;
                 int _error = 0;
@@ -151,7 +151,7 @@ void QRecognizer::recognizeImage(qintptr _taskid, const QByteArray &_encimg)
                 _json["status"]    = "Error";
                 _json["message"]   = "Can not decode input image!";
             } else {
-                cv::Mat _faceimg = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_UNCHANGED);
+                cv::Mat _faceimg = cv::imdecode(std::vector<unsigned char>(_encimg.begin(),_encimg.end()),cv::IMREAD_COLOR);
                 int _error = 0;
                 std::vector<std::pair<int,double>> vpredictions = ptrrec->recognize(_faceimg,true,&_error);
                 if(_error == 0) {
@@ -201,8 +201,8 @@ void QRecognizer::verifyImage(qintptr _taskid, const QByteArray &_eimg, const QB
         _json["status"]    = "Error";
         _json["message"]   = "Can not decode input image!";
     } else {
-        cv::Mat _efaceimg = cv::imdecode(std::vector<unsigned char>(_eimg.begin(),_eimg.end()),cv::IMREAD_UNCHANGED);
-        cv::Mat _vfaceimg = cv::imdecode(std::vector<unsigned char>(_vimg.begin(),_vimg.end()),cv::IMREAD_UNCHANGED);
+        cv::Mat _efaceimg = cv::imdecode(std::vector<unsigned char>(_eimg.begin(),_eimg.end()),cv::IMREAD_COLOR);
+        cv::Mat _vfaceimg = cv::imdecode(std::vector<unsigned char>(_vimg.begin(),_vimg.end()),cv::IMREAD_COLOR);
         int _error = 0;
         double _distance = ptrrec->compare(_efaceimg,_vfaceimg, &_error);
         if(_error == 0) {
