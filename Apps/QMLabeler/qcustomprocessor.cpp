@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QVariant>
 #include <QDesktopServices>
+#include <QDebug>
 
 QCustomProcessor::QCustomProcessor(QQmlApplicationEngine *_qmlengine, QObject *parent) : QObject(parent),
     qmlengine(_qmlengine),
@@ -18,7 +19,7 @@ QCustomProcessor::QCustomProcessor(QQmlApplicationEngine *_qmlengine, QObject *p
     settings = new QSettings(_dir.absolutePath().append("/%1.ini").arg(APP_NAME),QSettings::IniFormat,this);
     retranslate(language());
     setupMaintenanceTool();
-    checkForUpdates();
+    //checkForUpdates();
     qmlengine->rootContext()->setContextProperty("customsettings",this);    
     connect(this,SIGNAL(filenameUpdated(QVariant)),qmlengine->rootObjects().at(0),SLOT(openImage(QVariant)));
     connect(this,SIGNAL(infoUpdated(QVariant)),qmlengine->rootObjects().at(0),SLOT(showInfo(QVariant)));
@@ -108,14 +109,19 @@ void QCustomProcessor::createLabelsList() {
         for(auto qobj: listofclasslabels)
             qobj->deleteLater();
         listofclasslabels.clear();
-        QDir _dir(outputdir().section("file:///",-1,-1));
+#ifdef QT_WIN_32
+        const QString prefix = "file:///";
+#else
+        const QString prefix = "file://";
+#endif
+        QDir _dir(outputdir().section(prefix,-1,-1));
         QStringList _subdirsnames = _dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         for(const auto &_subdirname: _subdirsnames) {
             QLabelHolder *_lblholder = new QLabelHolder(_subdirname,this);
-            connect(_lblholder,&QLabelHolder::checkedChanged,[_lblholder,this](bool _checked) {
+            connect(_lblholder,&QLabelHolder::checkedChanged,[_lblholder,prefix,this](bool _checked) {
                 if(_checked && (currentfileslistpos() < filesnameslist.size())) {
-                    QFile::copy(inputdir().section("file:///",-1,-1).append("/%1").arg(filename),
-                                outputdir().section("file:///",-1,-1).append("/%1/%2").arg(_lblholder->name(),filename));
+                    QFile::copy(inputdir().section(prefix,-1,-1).append("/%1").arg(filename),
+                                outputdir().section(prefix,-1,-1).append("/%1/%2").arg(_lblholder->name(),filename));
                     setCurrentfileslistpos(currentfileslistpos()+1);
                     openNextImage();
                     QTimer::singleShot(300,_lblholder,SLOT(uncheck()));
@@ -133,7 +139,12 @@ void QCustomProcessor::createLabelsList() {
 
 void QCustomProcessor::readFilesList()
 {
-    QDir _dir(QString(inputdir()).section("file:///",-1,-1));
+#ifdef QT_WIN_32
+        const QString prefix = "file:///";
+#else
+        const QString prefix = "file://";
+#endif
+    QDir _dir(QString(inputdir()).section(prefix,-1,-1));
     QStringList _extensions;
     _extensions << "*.jpg" << "*.jpeg" << "*.png" << "*.gif" << "*.bmp";
     filesnameslist = _dir.entryList(_extensions,QDir::Files|QDir::NoDotAndDotDot);
@@ -185,7 +196,8 @@ void QCustomProcessor::setupMaintenanceTool()
         updatefilename = _filename;
         emit askUpdateDialog(APP_NAME,updateversion,updatechangelog);
     });
-    connect(&qsmt,&QSimpleMaintenanceTool::error,[this](const QString &_error){
+    connect(&qsmt,&QSimpleMaintenanceTool::error,[this](QSimpleMaintenanceTool::ErrorType _type, const QString &_error){
+        Q_UNUSED(_type)
         qDebug("%s",_error.toUtf8().constData());
     });
 }

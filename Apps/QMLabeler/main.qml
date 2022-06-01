@@ -124,7 +124,7 @@ ApplicationWindow {
                 }
             }
 
-            Label {
+            /*Label {
                 width: parent.width
                 text: qsTr("Адрес сервера для проверки обновлений:")
                 elide: Text.ElideRight
@@ -147,7 +147,7 @@ ApplicationWindow {
                 value: customsettings.updtsrvport
                 onValueChanged: customsettings.updtsrvport = value
                 editable: true
-            }
+            }*/
         }
 
         Column {
